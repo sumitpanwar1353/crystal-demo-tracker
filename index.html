@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Crystal POG Tracker</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1B5E3A">
+<style>
+  :root{
+    --green-dark:#1B5E3A;
+    --green:#2E8B57;
+    --green-light:#E8F5EC;
+    --soil:#7A5230;
+    --wheat:#D9A441;
+    --ink:#1A1F1C;
+    --gray:#6B7570;
+    --line:#D8E2DC;
+    --white:#FFFFFF;
+    --danger:#C0392B;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{
+    font-family:'Segoe UI',system-ui,-apple-system,Roboto,sans-serif;
+    background:var(--green-light);
+    color:var(--ink);
+    -webkit-tap-highlight-color:transparent;
+    padding-bottom:80px;
+  }
+  header{
+    background:var(--green-dark);
+    color:white;
+    padding:18px 16px 16px;
+    position:sticky; top:0; z-index:20;
+    box-shadow:0 2px 8px rgba(0,0,0,0.15);
+  }
+  header h1{font-size:18px; font-weight:700; letter-spacing:0.2px;}
+  header p{font-size:12px; opacity:0.85; margin-top:2px;}
+  .tabs{
+    display:flex; background:white; position:sticky; top:64px; z-index:19;
+    border-bottom:1px solid var(--line);
+  }
+  .tab{
+    flex:1; text-align:center; padding:12px 4px; font-size:12.5px; font-weight:600;
+    color:var(--gray); border-bottom:3px solid transparent; cursor:pointer;
+  }
+  .tab.active{color:var(--green-dark); border-bottom-color:var(--green-dark);}
+  main{padding:14px;}
+  .card{
+    background:white; border-radius:12px; padding:16px; margin-bottom:12px;
+    border:1px solid var(--line);
+  }
+  label{
+    display:block; font-size:12.5px; font-weight:600; color:var(--gray);
+    margin:14px 0 6px; text-transform:uppercase; letter-spacing:0.3px;
+  }
+  label:first-child{margin-top:0;}
+  select, input, textarea{
+    width:100%; padding:13px 12px; font-size:15px; border:1.5px solid var(--line);
+    border-radius:9px; background:white; color:var(--ink); font-family:inherit;
+  }
+  select:focus, input:focus, textarea:focus{
+    outline:none; border-color:var(--green); box-shadow:0 0 0 3px rgba(46,139,87,0.15);
+  }
+  .row2{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+  .btn{
+    width:100%; padding:15px; font-size:15.5px; font-weight:700; border:none;
+    border-radius:10px; background:var(--green-dark); color:white; margin-top:18px;
+    cursor:pointer;
+  }
+  .btn:active{background:var(--green);}
+  .btn-outline{
+    background:white; color:var(--green-dark); border:1.5px solid var(--green-dark);
+  }
+  .toast{
+    position:fixed; bottom:90px; left:16px; right:16px; background:var(--ink);
+    color:white; padding:14px; border-radius:10px; text-align:center; font-size:14px;
+    font-weight:600; z-index:50; display:none; box-shadow:0 4px 16px rgba(0,0,0,0.25);
+  }
+  .toast.show{display:block; animation:slideUp 0.25s ease;}
+  .toast.err{background:var(--danger);}
+  @keyframes slideUp{from{transform:translateY(20px); opacity:0;} to{transform:translateY(0); opacity:1;}}
+
+  .stat-grid{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px;}
+  .stat{
+    background:white; border-radius:12px; padding:14px; border:1px solid var(--line);
+    border-left:4px solid var(--green);
+  }
+  .stat .num{font-size:24px; font-weight:800; color:var(--green-dark);}
+  .stat .lbl{font-size:11.5px; color:var(--gray); font-weight:600; text-transform:uppercase; margin-top:2px;}
+
+  .filter-bar{display:flex; gap:8px; overflow-x:auto; padding:2px 0 12px; -ms-overflow-style:none; scrollbar-width:none;}
+  .filter-bar::-webkit-scrollbar{display:none;}
+  .chip{
+    flex-shrink:0; padding:8px 14px; font-size:12.5px; font-weight:600; border-radius:20px;
+    background:white; border:1.5px solid var(--line); color:var(--gray); cursor:pointer;
+  }
+  .chip.active{background:var(--green-dark); color:white; border-color:var(--green-dark);}
+
+  table{width:100%; border-collapse:collapse; font-size:12.5px;}
+  th{
+    text-align:left; padding:10px 8px; background:var(--green-light); color:var(--green-dark);
+    font-weight:700; position:sticky; top:0; white-space:nowrap;
+  }
+  td{padding:10px 8px; border-bottom:1px solid var(--line); white-space:nowrap;}
+  .table-wrap{overflow-x:auto; border-radius:10px; border:1px solid var(--line);}
+  .badge{padding:3px 9px; border-radius:20px; font-size:11px; font-weight:700;}
+  .badge.done{background:#E3F4E9; color:var(--green-dark);}
+  .badge.pending{background:#FBEFD9; color:#9C6B0E;}
+
+  .empty{text-align:center; padding:40px 20px; color:var(--gray);}
+  .empty .icon{font-size:36px; margin-bottom:10px;}
+  .empty .sub{font-size:13px; margin-top:4px;}
+
+  .install-banner{
+    background:var(--wheat); color:var(--ink); padding:10px 14px; font-size:12.5px;
+    font-weight:600; display:none; align-items:center; justify-content:space-between;
+  }
+  .install-banner.show{display:flex;}
+  .install-banner button{
+    background:var(--green-dark); color:white; border:none; padding:6px 12px;
+    border-radius:6px; font-size:12px; font-weight:700;
+  }
+  .spinner{
+    display:inline-block; width:16px; height:16px; border:2px solid rgba(255,255,255,0.4);
+    border-top-color:white; border-radius:50%; animation:spin 0.7s linear infinite; vertical-align:middle; margin-right:6px;
+  }
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .section-title{font-size:13px; font-weight:700; color:var(--green-dark); text-transform:uppercase; letter-spacing:0.3px; margin:18px 0 10px;}
+  .section-title:first-child{margin-top:0;}
+  .name-search{margin-bottom:10px;}
+</style>
+</head>
+<body>
+
+<div class="install-banner" id="installBanner">
+  <span>📲 Install this app on your phone</span>
+  <button id="installBtn">Install</button>
+</div>
+
+<header>
+  <h1>🌾 Crystal Demo Tracker</h1>
+  <p>Maize & Paddy — Demo Data 2026</p>
+</header>
+
+<div class="tabs">
+  <div class="tab active" data-tab="entry">📝 Submit</div>
+  <div class="tab" data-tab="mydata">👤 My Data</div>
+  <div class="tab" data-tab="dashboard">📊 Dashboard</div>
+</div>
+
+<main>
+
+  <!-- ENTRY TAB -->
+  <section id="tab-entry">
+    <div class="card">
+      <label>Crop</label>
+      <select id="f_crop">
+        <option value="">Select Crop</option>
+        <option>Maize</option>
+        <option>Paddy</option>
+      </select>
+
+      <label>FO Name</label>
+      <input id="f_name" placeholder="Type your full name">
+
+      <label>FO Mobile No</label>
+      <input id="f_tmmobile" type="tel" placeholder="10-digit mobile number">
+
+      <label>HQ (Headquarter)</label>
+      <input id="f_hq" placeholder="Your headquarter location">
+
+      <div class="row2">
+        <div>
+          <label>Zone</label>
+          <select id="f_zone">
+            <option value="">Select</option>
+            <option>ZONE-1</option><option>ZONE-2</option>
+            <option>ZONE-3</option><option>ZONE-4</option>
+            <option>ZONE-5</option>
+          </select>
+        </div>
+        <div>
+          <label>Region</label>
+          <select id="f_region">
+            <option value="">Select Region</option>
+          </select>
+        </div>
+      </div>
+
+      <label>Territory</label>
+      <select id="f_territory">
+        <option value="">Select Territory</option>
+      </select>
+
+      <label>Season</label>
+      <select id="f_season">
+        <option value="">Select</option>
+        <option>Kharif</option>
+        <option>Rabi</option>
+      </select>
+
+      <div class="section-title">Crystal Demo Details</div>
+
+      <label>Demo Hybrid Name (Crystal)</label>
+      <select id="f_hybrid">
+        <option value="">Select Hybrid</option>
+        <option value="__OTHER__">Other (type manually)</option>
+      </select>
+      <input id="f_hybrid_other" placeholder="Type new hybrid name" style="display:none; margin-top:8px;">
+
+      <label>Date of Sowing — DOS (DD/MM/YYYY)</label>
+      <input id="f_dos" type="date">
+
+      <label>Name of Farmer</label>
+      <input id="f_farmername" placeholder="Farmer's full name">
+
+      <div class="row2">
+        <div>
+          <label>Farmer Mobile No</label>
+          <input id="f_farmermobile" type="tel" placeholder="10-digit number">
+        </div>
+        <div>
+          <label>Farmer Category</label>
+          <select id="f_farmercat">
+            <option value="">Select</option>
+            <option>Progressive</option>
+            <option>Pradhan</option>
+            <option>Common</option>
+          </select>
+        </div>
+      </div>
+
+      <label>Village</label>
+      <input id="f_village" placeholder="Village name">
+
+      <div class="row2">
+        <div>
+          <label>Block / Tehsil</label>
+          <input id="f_block" placeholder="Block/Tehsil name">
+        </div>
+        <div>
+          <label>District</label>
+          <input id="f_district" placeholder="District name">
+        </div>
+      </div>
+
+      <div class="row2">
+        <div>
+          <label>No. of Demo Given</label>
+          <input id="f_numdemo" type="number" placeholder="e.g. 1">
+        </div>
+        <div>
+          <label>Demo Qty (Kg)</label>
+          <input id="f_demoqty" type="number" placeholder="e.g. 2">
+        </div>
+      </div>
+
+      <label>Plot Type</label>
+      <select id="f_plottype">
+        <option value="">Select</option>
+        <option>Side By Side</option>
+        <option>Without Competition</option>
+      </select>
+
+      <div class="section-title">Competition Details</div>
+
+      <label>Comp Hybrid 1 <span style="color:var(--danger)">*</span></label>
+      <select id="f_comphybrid1">
+        <option value="">Select or choose Other</option>
+        <option value="__OTHER__">Other (type manually)</option>
+      </select>
+      <input id="f_comphybrid1_other" placeholder="Type competition hybrid name" style="display:none; margin-top:8px;">
+
+      <label>Competition DOS (DD/MM/YYYY)</label>
+      <input id="f_compdos1" type="date">
+
+      <label>Comp Hybrid 2 (optional)</label>
+      <select id="f_comphybrid2">
+        <option value="">None / Not applicable</option>
+        <option value="__OTHER__">Other (type manually)</option>
+      </select>
+      <input id="f_comphybrid2_other" placeholder="Type competition hybrid name" style="display:none; margin-top:8px;">
+
+      <label>Competition 2 DOS (optional)</label>
+      <input id="f_compdos2" type="date">
+
+      <div class="section-title">Yield Comparison (fill after harvest, optional now)</div>
+
+      <div class="row2">
+        <div>
+          <label>Crystal Yield/Acre</label>
+          <input id="f_crystalyield" type="number" placeholder="e.g. 28">
+        </div>
+        <div>
+          <label>Competition 1 Yield/Acre</label>
+          <input id="f_compyield1" type="number" placeholder="e.g. 24">
+        </div>
+      </div>
+      <label>Competition 2 Yield/Acre</label>
+      <input id="f_compyield2" type="number" placeholder="e.g. 22">
+
+      <label>Top 2 Key Observations of Crystal Hybrid</label>
+      <textarea id="f_observations" rows="2" placeholder="e.g. Better cob filling, drought tolerance"></textarea>
+
+      <label>Remarks (optional)</label>
+      <textarea id="f_remarks" rows="2" placeholder="Any notes..."></textarea>
+
+      <button class="btn" id="submitBtn">Submit Entry</button>
+    </div>
+  </section>
+
+  <!-- MY DATA TAB -->
+  <section id="tab-mydata" style="display:none;">
+    <div class="card name-search">
+      <label>Type your name to view your submissions</label>
+      <input id="my_name" placeholder="Type your full name (FO Name)">
+    </div>
+    <div id="myDataResults"></div>
+  </section>
+
+  <!-- UPDATE YIELD MODAL (shown inline as a card) -->
+  <section id="tab-updateyield" style="display:none;">
+    <div class="card">
+      <div class="section-title" style="margin-top:0;">Update Yield & Observation</div>
+      <div id="updateYieldInfo" style="background:var(--green-light); padding:10px 12px; border-radius:8px; font-size:12.5px; margin-bottom:14px;"></div>
+
+      <label>Crystal Yield/Acre</label>
+      <input id="u_crystalyield" type="number" placeholder="e.g. 28">
+
+      <label>Competition 1 Yield/Acre</label>
+      <input id="u_compyield1" type="number" placeholder="e.g. 24">
+
+      <label>Competition 2 Yield/Acre</label>
+      <input id="u_compyield2" type="number" placeholder="e.g. 22">
+
+      <label>Top 2 Key Observations of Crystal Hybrid</label>
+      <textarea id="u_observations" rows="3" placeholder="e.g. Better cob filling, drought tolerance"></textarea>
+
+      <button class="btn" id="updateYieldBtn">Save Update</button>
+      <button class="btn btn-outline" id="cancelUpdateBtn" style="margin-top:10px;">Cancel</button>
+    </div>
+  </section>
+
+  <!-- DASHBOARD TAB -->
+  <section id="tab-dashboard" style="display:none;">
+    <div class="card" style="padding:12px 14px;">
+      <label style="margin:0 0 8px;">View As</label>
+      <select id="dash_view">
+        <option value="CEO">CEO — All Zones</option>
+        <option value="ZONE">Zone / Region Head</option>
+      </select>
+      <div id="zoneSelectWrap" style="display:none; margin-top:10px;">
+        <select id="dash_zone">
+          <option value="">Select Zone</option>
+          <option>ZONE-1</option><option>ZONE-2</option>
+          <option>ZONE-3</option><option>ZONE-4</option>
+          <option>ZONE-5</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="stat-grid">
+      <div class="stat"><div class="num" id="stat_total">0</div><div class="lbl">Total Entries</div></div>
+      <div class="stat"><div class="num" id="stat_qty">0</div><div class="lbl">Total Demos Given</div></div>
+      <div class="stat"><div class="num" id="stat_demo">0</div><div class="lbl">Yield Data Captured</div></div>
+      <div class="stat"><div class="num" id="stat_tms">0</div><div class="lbl">Active TMs</div></div>
+    </div>
+
+    <div class="filter-bar" id="cropFilterBar"></div>
+
+    <div class="section-title">All Submissions</div>
+    <div id="dashTable"><div class="empty"><div class="icon">📭</div>Loading data...</div></div>
+  </section>
+
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ====== CONFIG ====== */
+// PASTE YOUR GOOGLE APPS SCRIPT WEB APP URL HERE AFTER DEPLOYMENT
+const API_URL = "https://script.google.com/macros/s/AKfycbz4igMfs67I2Nor8rcF-BlRr_EkxpcAqN_Ejvtuzi2-wEubq-JoVE3zsZfXlo34Hv4H/exec";
+
+// Official Zone -> Region -> Territory mapping (from company master data)
+const ZONE_REGIONS = {
+  "ZONE-1": ["BHATINDA", "HISSAR"],
+  "ZONE-2": ["AHAMDABAD", "ALWAR", "JAIPUR", "UP-AGRA"],
+  "ZONE-3": ["LUCKNOW", "PATNA", "RAIPUR"],
+  "ZONE-4": ["CS NAGAR", "JALGAON", "NAGPUR"],
+  "ZONE-5": ["GUNTUR", "HUBLI", "HYDERABAD", "WARANGAL"],
+  "ZONE HO-RETAIL": ["HO-RETAIL"]
+};
+const REGION_TERRITORIES = {
+  "BHATINDA": ["JALANDHAR", "PB-AMRITSAR", "PB-BHATINDA", "PB-MOGA", "PB-Mansa", "PB-PATIALA", "RJ-HANUMANGARH", "RJ-SRIGANGANAGAR"],
+  "HISSAR": ["HR-SIRSA"],
+  "AHAMDABAD": ["GU-BADOLI", "GU-HIMMATNAGAR", "GU-VADODARA"],
+  "ALWAR": ["RJ-BHARATPUR"],
+  "JAIPUR": ["HINDAUN", "RJ - Dausa(Seed)", "RJ-BHILWARA", "RJ-CHITTORGARH", "RJ-JAIPUR", "RJ-Kota", "RJ-SAWAI MADHOPUR"],
+  "UP-AGRA": ["UP-BAREILLY", "UP-KANPUR", "UP-MUZAFFARNAGAR"],
+  "LUCKNOW": ["UP-AYODHYA", "UP-AZAMGARH", "UP-BAHRAICH", "UP-GORAKKHPUR", "UP-HARDOI", "UP-KANNAUJ", "UP-PRAYAGRAJ"],
+  "PATNA": ["BH-Araria", "BH-BETIAH", "BH-Khagaria", "BH-PATNA", "BH-PURNEA", "BH-SAHARSA", "BH-SAMASTIPUR", "RAIGANJ"],
+  "RAIPUR": ["BH-DALTANGANJ", "BH-RANCHI", "CG-AMBIKAPUR", "CG-RAMANUJGANJ", "MP-REWA"],
+  "CS NAGAR": ["MS-AHMADNAGAR", "MS-JALNA", "MS-MALEGAON", "MS-SOLAPUR"],
+  "JALGAON": ["MP-GUNA", "MP-KHARGAON", "MS-Dhule", "MS-JALGAON"],
+  "NAGPUR": ["MP-CHINDWARA", "MS-AKOLA", "MS-NAGPUR"],
+  "GUNTUR": ["AP-ADONI", "AP-ELURU", "AP-GUNTUR", "AP-KURNOOL"],
+  "HUBLI": ["KA-BELLARY", "KA-DAVANGERE", "KA-HUBLI", "KA-MYSORE", "KA-RAICHUR", "KA-VIJAYAPURA"],
+  "HYDERABAD": ["TG-JADCHARLA", "TG-KHAMMAM", "TG-NAGARKURNOOL", "TG-NARAYANKHED", "TG-Nalgonda", "TG-SADASHIVPET"],
+  "WARANGAL": ["TG-ADILABAD", "TG-GAJWEL", "TG-KARIMNAGAR", "TG-NIZAMABAD"],
+  "HO-RETAIL": ["HO-RETAIL"]
+};
+
+// Official Crystal hybrid names by crop (complete portfolio as provided)
+const CRYSTAL_HYBRIDS = {
+  Maize: ["CMH 157", "CMH 3456", "CMH 6453", "ICRON 4455", "PA 6004", "PA 6096", "PA 6106", "PA 6108", "PA 6110", "PA 6121", "PA 6123", "PA 6322", "PA 6354", "PA 6401", "PA 6666", "PA 6730", "PA 6755", "RMH 1818", "RMH 1899 S", "RMH 666*"],
+  Paddy: ["10X Gold", "CHR 106", "CHR 846", "Deepika", "Divya", "Divyashree", "Heera", "IRICE 413", "IRICE 4655", "Narmada", "PA 4601", "PA 4633", "PA 4647", "PA 4666 G", "PA 4672", "Pro Poha"]
+};
+
+// Common competition hybrids by crop (for quick-select; "Other" always available)
+const COMP_HYBRIDS = {
+  Maize: ["DKC 9133", "DKC 9178", "DKC 9208", "ADV 741", "ADV 751", "ADV 768", "CP 333", "CP 555", "CP 509", "AVATAR", "Bioseed 9546", "666 Star"],
+  Paddy: ["Arize 6444", "Arize 6444 Gold", "27P31", "27P37", "Ankur 6077", "Arize 5333", "GX202", "Gajab", "Champion", "Chamak", "Dhadak Gold", "Dhananjay Gold"]
+};
+
+let allRows = [];
+let activeCropFilter = "ALL";
+let currentEditRowId = null;
+
+/* ====== INIT ====== */
+function populateRegionDropdown(){
+  const zone = document.getElementById("f_zone").value;
+  const regionSel = document.getElementById("f_region");
+  const regions = ZONE_REGIONS[zone] || [];
+  regionSel.innerHTML = '<option value="">Select Region</option>' + regions.map(r => `<option>${r}</option>`).join("");
+  document.getElementById("f_territory").innerHTML = '<option value="">Select Territory</option>';
+}
+function populateTerritoryDropdown(){
+  const region = document.getElementById("f_region").value;
+  const terrSel = document.getElementById("f_territory");
+  const territories = REGION_TERRITORIES[region] || [];
+  terrSel.innerHTML = '<option value="">Select Territory</option>' + territories.map(t => `<option>${t}</option>`).join("");
+}
+document.getElementById("f_zone").addEventListener("change", populateRegionDropdown);
+document.getElementById("f_region").addEventListener("change", populateTerritoryDropdown);
+
+function populateHybridDropdowns(crop){
+  const hybridSel = document.getElementById("f_hybrid");
+  const comp1Sel = document.getElementById("f_comphybrid1");
+  const comp2Sel = document.getElementById("f_comphybrid2");
+
+  hybridSel.innerHTML = '<option value="">Select Hybrid</option>' +
+    (CRYSTAL_HYBRIDS[crop] || []).map(h => `<option>${h}</option>`).join("") +
+    '<option value="__OTHER__">Other (type manually)</option>';
+
+  comp1Sel.innerHTML = '<option value="">Select or choose Other</option>' +
+    (COMP_HYBRIDS[crop] || []).map(h => `<option>${h}</option>`).join("") +
+    '<option value="__OTHER__">Other (type manually)</option>';
+
+  comp2Sel.innerHTML = '<option value="">None / Not applicable</option>' +
+    (COMP_HYBRIDS[crop] || []).map(h => `<option>${h}</option>`).join("") +
+    '<option value="__OTHER__">Other (type manually)</option>';
+}
+
+document.getElementById("f_crop").addEventListener("change", (e) => {
+  populateHybridDropdowns(e.target.value);
+});
+
+document.getElementById("f_hybrid").addEventListener("change", (e) => {
+  document.getElementById("f_hybrid_other").style.display = e.target.value === "__OTHER__" ? "block" : "none";
+});
+document.getElementById("f_comphybrid1").addEventListener("change", (e) => {
+  document.getElementById("f_comphybrid1_other").style.display = e.target.value === "__OTHER__" ? "block" : "none";
+});
+document.getElementById("f_comphybrid2").addEventListener("change", (e) => {
+  document.getElementById("f_comphybrid2_other").style.display = e.target.value === "__OTHER__" ? "block" : "none";
+});
+
+/* ====== TABS ====== */
+document.querySelectorAll(".tab").forEach(tab => {
+  tab.addEventListener("click", () => {
+    document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+    tab.classList.add("active");
+    document.querySelectorAll("main section").forEach(s => s.style.display = "none");
+    document.getElementById("tab-" + tab.dataset.tab).style.display = "block";
+    if (tab.dataset.tab === "dashboard") loadDashboard();
+    if (tab.dataset.tab === "mydata") renderMyData();
+  });
+});
+
+/* ====== TOAST ====== */
+function showToast(msg, isErr){
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.className = "toast show" + (isErr ? " err" : "");
+  setTimeout(() => t.className = "toast", 2500);
+}
+
+/* ====== SUBMIT ====== */
+document.getElementById("submitBtn").addEventListener("click", async () => {
+  const crop = document.getElementById("f_crop").value;
+  const name = document.getElementById("f_name").value;
+  const tmMobile = document.getElementById("f_tmmobile").value;
+  const hq = document.getElementById("f_hq").value;
+  const zone = document.getElementById("f_zone").value;
+  const region = document.getElementById("f_region").value;
+  const territory = document.getElementById("f_territory").value;
+  const season = document.getElementById("f_season").value;
+  let hybrid = document.getElementById("f_hybrid").value;
+  const hybridOther = document.getElementById("f_hybrid_other").value;
+  const dos = document.getElementById("f_dos").value;
+  const farmerName = document.getElementById("f_farmername").value;
+  const farmerMobile = document.getElementById("f_farmermobile").value;
+  const farmerCat = document.getElementById("f_farmercat").value;
+  const village = document.getElementById("f_village").value;
+  const block = document.getElementById("f_block").value;
+  const district = document.getElementById("f_district").value;
+  const numDemo = document.getElementById("f_numdemo").value;
+  const demoQty = document.getElementById("f_demoqty").value;
+  const plotType = document.getElementById("f_plottype").value;
+  let comp1 = document.getElementById("f_comphybrid1").value;
+  const comp1Other = document.getElementById("f_comphybrid1_other").value;
+  let comp2 = document.getElementById("f_comphybrid2").value;
+  const comp2Other = document.getElementById("f_comphybrid2_other").value;
+  const compDos1 = document.getElementById("f_compdos1").value;
+  const crystalYield = document.getElementById("f_crystalyield").value;
+  const compYield1 = document.getElementById("f_compyield1").value;
+  const observations = document.getElementById("f_observations").value;
+
+  const required = {
+    "Crop": crop, "FO Name": name, "FO Mobile": tmMobile, "HQ": hq, "Zone": zone,
+    "Region": region, "Territory": territory, "Season": season,
+    "Demo Hybrid": hybrid, "DOS": dos, "Farmer Name": farmerName,
+    "Farmer Mobile": farmerMobile, "Farmer Category": farmerCat,
+    "Village": village, "Block/Tehsil": block, "District": district,
+    "No. of Demo": numDemo, "Demo Qty": demoQty, "Plot Type": plotType,
+    "Comp Hybrid 1": comp1, "Competition DOS": compDos1,
+    "Crystal Yield": crystalYield, "Competition 1 Yield": compYield1,
+    "Observations": observations
+  };
+  const missing = Object.entries(required).filter(([k,v]) => !v).map(([k]) => k);
+  if (hybrid === "__OTHER__" && !hybridOther){ missing.push("Demo Hybrid (manual name)"); }
+  if (comp1 === "__OTHER__" && !comp1Other){ missing.push("Comp Hybrid 1 (manual name)"); }
+
+  if (missing.length){
+    showToast("Missing: " + missing.slice(0,3).join(", ") + (missing.length>3 ? "..." : ""), true);
+    return;
+  }
+  if (API_URL.includes("PASTE_YOUR")){
+    showToast("Setup incomplete: Apps Script URL not added yet", true);
+    return;
+  }
+
+  if (hybrid === "__OTHER__") hybrid = hybridOther;
+  if (comp1 === "__OTHER__") comp1 = comp1Other;
+  if (comp2 === "__OTHER__") comp2 = comp2Other;
+
+  const btn = document.getElementById("submitBtn");
+  btn.innerHTML = '<span class="spinner"></span>Submitting...';
+  btn.disabled = true;
+
+  const params = new URLSearchParams({
+    action: "submit",
+    crop: crop,
+    tmName: name,
+    tmMobile: tmMobile,
+    hq: hq,
+    zone: zone,
+    region: region,
+    territory: territory,
+    season: season,
+    demoHybrid: hybrid,
+    dos: dos,
+    farmerName: farmerName,
+    farmerMobile: farmerMobile,
+    farmerCategory: farmerCat,
+    village: village,
+    block: block,
+    district: district,
+    numDemo: numDemo,
+    demoQty: demoQty,
+    plotType: plotType,
+    compHybrid1: comp1,
+    compDos1: compDos1,
+    compHybrid2: comp2,
+    compDos2: document.getElementById("f_compdos2").value,
+    crystalYield: crystalYield,
+    compYield1: compYield1,
+    compYield2: document.getElementById("f_compyield2").value,
+    observations: observations,
+    remarks: document.getElementById("f_remarks").value
+  });
+
+  try{
+    const res = await fetch(API_URL, { method: "POST", body: params });
+    const data = await res.json();
+    if (data.ok){
+      showToast("✅ Entry submitted successfully");
+      document.querySelectorAll("#tab-entry input, #tab-entry textarea").forEach(i => i.value = "");
+      document.querySelectorAll("#tab-entry select").forEach(s => s.selectedIndex = 0);
+      document.getElementById("f_hybrid_other").style.display = "none";
+      document.getElementById("f_comphybrid1_other").style.display = "none";
+      document.getElementById("f_comphybrid2_other").style.display = "none";
+    } else {
+      showToast("Error: " + data.error, true);
+    }
+  } catch(err){
+    showToast("Network error — check connection", true);
+  }
+  btn.innerHTML = "Submit Entry";
+  btn.disabled = false;
+});
+
+/* ====== FETCH ALL DATA ====== */
+async function fetchAllData(){
+  if (API_URL.includes("PASTE_YOUR")) return [];
+  try{
+    const res = await fetch(API_URL + "?action=list");
+    const data = await res.json();
+    return data.ok ? data.rows : [];
+  } catch(err){
+    return [];
+  }
+}
+
+/* ====== MY DATA ====== */
+document.getElementById("my_name").addEventListener("change", renderMyData);
+
+document.getElementById("my_name").addEventListener("input", debounce(renderMyData, 400));
+
+function debounce(fn, delay){
+  let timer;
+  return (...args) => { clearTimeout(timer); timer = setTimeout(() => fn(...args), delay); };
+}
+
+async function renderMyData(){
+  const name = document.getElementById("my_name").value.trim();
+  const container = document.getElementById("myDataResults");
+  if (!name){ container.innerHTML = ""; return; }
+  container.innerHTML = '<div class="empty">Loading...</div>';
+  allRows = await fetchAllData();
+  const mine = allRows
+    .map((r, idx) => ({...r, _rowIndex: idx}))
+    .filter(r => (r.TMName||"").trim().toLowerCase() === name.toLowerCase());
+
+  if (!mine.length){
+    container.innerHTML = '<div class="card empty"><div class="icon">📭</div>No entries yet<div class="sub">Submissions you make will appear here</div></div>';
+    return;
+  }
+  const sorted = mine.sort((a,b) => new Date(b.Timestamp) - new Date(a.Timestamp));
+  container.innerHTML = sorted.map(r => `
+    <div class="card" style="padding:14px;">
+      <div style="display:flex; justify-content:space-between; align-items:start; margin-bottom:8px;">
+        <div>
+          <div style="font-weight:700; font-size:14px;">${r.Crop||""} — ${r.DemoHybrid||""}</div>
+          <div style="font-size:12px; color:var(--gray); margin-top:2px;">${r.FarmerName||""} · ${r.Village||""} · ${new Date(r.Timestamp).toLocaleDateString('en-IN')}</div>
+        </div>
+        <span class="badge ${r.CrystalYield && r.CrystalYield !== '0' ? 'done' : 'pending'}">${r.CrystalYield && r.CrystalYield !== '0' ? 'Yield Added' : 'Yield Pending'}</span>
+      </div>
+      <button class="btn btn-outline" style="margin-top:8px; padding:10px;" onclick='openUpdateYield(${r._rowIndex})'>Update Yield / Observation</button>
+    </div>
+  `).join("");
+}
+
+function openUpdateYield(rowIndex){
+  const r = allRows[rowIndex];
+  currentEditRowId = r.Timestamp; // use timestamp as unique identifier
+  document.getElementById("updateYieldInfo").innerHTML =
+    `<b>${r.Crop} — ${r.DemoHybrid}</b><br>Farmer: ${r.FarmerName} · Village: ${r.Village}<br>Comp 1: ${r.CompHybrid1||"—"}`;
+  document.getElementById("u_crystalyield").value = r.CrystalYield || "";
+  document.getElementById("u_compyield1").value = r.CompYield1 || "";
+  document.getElementById("u_compyield2").value = r.CompYield2 || "";
+  document.getElementById("u_observations").value = r.Observations || "";
+
+  document.querySelectorAll("main section").forEach(s => s.style.display = "none");
+  document.getElementById("tab-updateyield").style.display = "block";
+}
+
+document.getElementById("cancelUpdateBtn").addEventListener("click", () => {
+  document.getElementById("tab-updateyield").style.display = "none";
+  document.getElementById("tab-mydata").style.display = "block";
+});
+
+document.getElementById("updateYieldBtn").addEventListener("click", async () => {
+  if (API_URL.includes("PASTE_YOUR")){
+    showToast("Setup incomplete: Apps Script URL not added yet", true);
+    return;
+  }
+  const btn = document.getElementById("updateYieldBtn");
+  btn.innerHTML = '<span class="spinner"></span>Saving...';
+  btn.disabled = true;
+
+  const params = new URLSearchParams({
+    action: "update",
+    timestamp: currentEditRowId,
+    crystalYield: document.getElementById("u_crystalyield").value,
+    compYield1: document.getElementById("u_compyield1").value,
+    compYield2: document.getElementById("u_compyield2").value,
+    observations: document.getElementById("u_observations").value
+  });
+
+  try{
+    const res = await fetch(API_URL, { method: "POST", body: params });
+    const data = await res.json();
+    if (data.ok){
+      showToast("✅ Yield updated successfully");
+      document.getElementById("tab-updateyield").style.display = "none";
+      document.getElementById("tab-mydata").style.display = "block";
+      renderMyData();
+    } else {
+      showToast("Error: " + data.error, true);
+    }
+  } catch(err){
+    showToast("Network error — check connection", true);
+  }
+  btn.innerHTML = "Save Update";
+  btn.disabled = false;
+});
+
+/* ====== DASHBOARD ====== */
+document.getElementById("dash_view").addEventListener("change", (e) => {
+  document.getElementById("zoneSelectWrap").style.display = e.target.value === "ZONE" ? "block" : "none";
+  loadDashboard();
+});
+document.getElementById("dash_zone").addEventListener("change", loadDashboard);
+
+async function loadDashboard(){
+  allRows = await fetchAllData();
+  const view = document.getElementById("dash_view").value;
+  const zoneFilter = document.getElementById("dash_zone").value;
+
+  let rows = allRows;
+  if (view === "ZONE" && zoneFilter) rows = rows.filter(r => r.Zone === zoneFilter);
+
+  renderCropFilterBar(rows);
+  if (activeCropFilter !== "ALL") rows = rows.filter(r => r.Crop === activeCropFilter);
+
+  renderStats(rows);
+  renderDashTable(rows);
+}
+
+function renderCropFilterBar(rows){
+  const crops = ["ALL", ...new Set(allRows.map(r => r.Crop).filter(Boolean))];
+  const bar = document.getElementById("cropFilterBar");
+  bar.innerHTML = crops.map(c =>
+    `<div class="chip ${c===activeCropFilter?'active':''}" data-crop="${c}">${c==='ALL'?'All Crops':c}</div>`
+  ).join("");
+  bar.querySelectorAll(".chip").forEach(chip => {
+    chip.addEventListener("click", () => {
+      activeCropFilter = chip.dataset.crop;
+      loadDashboard();
+    });
+  });
+}
+
+function renderStats(rows){
+  const totalDemos = rows.reduce((s,r) => s + (parseFloat(r.NumDemo)||0), 0);
+  const withYield = rows.filter(r => r.CrystalYield).length;
+  const submitters = new Set(rows.map(r => r.TMName)).size;
+  document.getElementById("stat_total").textContent = rows.length;
+  document.getElementById("stat_qty").textContent = totalDemos.toLocaleString('en-IN');
+  document.getElementById("stat_demo").textContent = withYield;
+  document.getElementById("stat_tms").textContent = submitters;
+}
+
+function renderDashTable(rows){
+  const container = document.getElementById("dashTable");
+  if (!rows.length){
+    container.innerHTML = '<div class="card empty"><div class="icon">📭</div>No submissions yet<div class="sub">Data will appear here once field staff start submitting</div></div>';
+    return;
+  }
+  const sorted = [...rows].sort((a,b) => new Date(b.Timestamp) - new Date(a.Timestamp));
+  container.innerHTML = `<div class="table-wrap"><table>
+    <tr><th>Date</th><th>TM Name</th><th>Zone</th><th>Region</th><th>Territory</th><th>Crop</th><th>Hybrid</th><th>Comp 1</th><th>Village</th><th>District</th><th>Crystal Yield</th></tr>
+    ${sorted.map(r => `<tr>
+      <td>${new Date(r.Timestamp).toLocaleDateString('en-IN')}</td>
+      <td>${r.TMName||""}</td><td>${r.Zone||""}</td><td>${r.Region||""}</td><td>${r.Territory||""}</td>
+      <td>${r.Crop||""}</td><td>${r.DemoHybrid||""}</td><td>${r.CompHybrid1||"—"}</td>
+      <td>${r.Village||"—"}</td><td>${r.District||"—"}</td><td>${r.CrystalYield||"—"}</td>
+    </tr>`).join("")}
+  </table></div>`;
+}
+
+/* ====== PWA INSTALL PROMPT ====== */
+let deferredPrompt;
+window.addEventListener("beforeinstallprompt", (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  document.getElementById("installBanner").classList.add("show");
+});
+document.getElementById("installBtn").addEventListener("click", async () => {
+  if (deferredPrompt){
+    deferredPrompt.prompt();
+    await deferredPrompt.userChoice;
+    document.getElementById("installBanner").classList.remove("show");
+  }
+});
+
+/* ====== SERVICE WORKER ====== */
+if ('serviceWorker' in navigator){
+  navigator.serviceWorker.register('sw.js').catch(()=>{});
+}
+</script>
+</body>
+</html>
