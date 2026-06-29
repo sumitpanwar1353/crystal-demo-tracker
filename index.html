@@ -55,6 +55,15 @@
     margin:14px 0 6px; text-transform:uppercase; letter-spacing:0.3px;
   }
   label:first-child{margin-top:0;}
+  .req-star{color:var(--danger); font-weight:700;}
+  select.field-error, input.field-error, textarea.field-error{
+    border-color:var(--danger) !important; background:#FDF1EF !important;
+    box-shadow:0 0 0 3px rgba(192,57,43,0.12) !important;
+    animation: shake 0.3s;
+  }
+  @keyframes shake{
+    0%,100%{transform:translateX(0);} 25%{transform:translateX(-4px);} 75%{transform:translateX(4px);}
+  }
   select, input, textarea{
     width:100%; padding:13px 12px; font-size:15px; border:1.5px solid var(--line);
     border-radius:9px; background:white; color:var(--ink); font-family:inherit;
@@ -129,6 +138,29 @@
   .section-title{font-size:13px; font-weight:700; color:var(--green-dark); text-transform:uppercase; letter-spacing:0.3px; margin:18px 0 10px;}
   .section-title:first-child{margin-top:0;}
   .name-search{margin-bottom:10px;}
+
+  .dash-slicers{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px;}
+  .dash-grid-2{display:grid; grid-template-columns:1fr; gap:12px;}
+
+  /* ===== DESKTOP / LAPTOP LAYOUT ===== */
+  @media (min-width: 900px){
+    body{ max-width: 1280px; margin: 0 auto; padding-bottom: 20px; }
+    .tabs{ top: 0; }
+    main{ padding: 18px 24px; }
+    .dash-wrap{
+      display:grid;
+      grid-template-columns: 280px 1fr;
+      gap: 14px;
+      align-items: start;
+    }
+    .dash-col-left{ grid-column: 1; display:flex; flex-direction:column; gap:10px; }
+    .dash-col-right{ grid-column: 2; display:flex; flex-direction:column; gap:14px; min-width:0; }
+    .dash-slicers{ grid-template-columns: 1fr; }
+    .dash-stats{ grid-template-columns: repeat(4, 1fr); }
+    .dash-grid-2{ grid-template-columns: 1fr 1fr; }
+    .card canvas{ max-height: 220px; }
+    .table-wrap{ max-height: 420px; }
+  }
 </style>
 </head>
 <body>
@@ -154,25 +186,25 @@
   <!-- ENTRY TAB -->
   <section id="tab-entry">
     <div class="card">
-      <label>Crop</label>
+      <label>Crop <span class="req-star">*</span></label>
       <select id="f_crop">
         <option value="">Select Crop</option>
         <option>Maize</option>
         <option>Paddy</option>
       </select>
 
-      <label>FO Name</label>
-      <input id="f_name" placeholder="Type your full name">
+      <label>FO Name <span class="req-star">*</span></label>
+      <input id="f_name" placeholder="Type your full name" style="text-transform:uppercase;">
 
-      <label>FO Mobile No</label>
+      <label>FO Mobile No <span class="req-star">*</span></label>
       <input id="f_tmmobile" type="tel" placeholder="10-digit mobile number">
 
-      <label>HQ (Headquarter)</label>
+      <label>HQ (Headquarter) <span class="req-star">*</span></label>
       <input id="f_hq" placeholder="Your headquarter location">
 
       <div class="row2">
         <div>
-          <label>Zone</label>
+          <label>Zone <span class="req-star">*</span></label>
           <select id="f_zone">
             <option value="">Select</option>
             <option>ZONE-1</option><option>ZONE-2</option>
@@ -181,19 +213,19 @@
           </select>
         </div>
         <div>
-          <label>Region</label>
+          <label>Region <span class="req-star">*</span></label>
           <select id="f_region">
             <option value="">Select Region</option>
           </select>
         </div>
       </div>
 
-      <label>Territory</label>
+      <label>Territory <span class="req-star">*</span></label>
       <select id="f_territory">
         <option value="">Select Territory</option>
       </select>
 
-      <label>Season</label>
+      <label>Season <span class="req-star">*</span></label>
       <select id="f_season">
         <option value="">Select</option>
         <option>Kharif</option>
@@ -202,26 +234,26 @@
 
       <div class="section-title">Crystal Demo Details</div>
 
-      <label>Demo Hybrid Name (Crystal)</label>
+      <label>Demo Hybrid Name (Crystal) <span class="req-star">*</span></label>
       <select id="f_hybrid">
         <option value="">Select Hybrid</option>
         <option value="__OTHER__">Other (type manually)</option>
       </select>
       <input id="f_hybrid_other" placeholder="Type new hybrid name" style="display:none; margin-top:8px;">
 
-      <label>Date of Sowing — DOS (DD/MM/YYYY)</label>
+      <label>Date of Sowing — DOS (DD/MM/YYYY) <span class="req-star">*</span></label>
       <input id="f_dos" type="date">
 
-      <label>Name of Farmer</label>
+      <label>Name of Farmer <span class="req-star">*</span></label>
       <input id="f_farmername" placeholder="Farmer's full name">
 
       <div class="row2">
         <div>
-          <label>Farmer Mobile No</label>
+          <label>Farmer Mobile No <span class="req-star">*</span></label>
           <input id="f_farmermobile" type="tel" placeholder="10-digit number">
         </div>
         <div>
-          <label>Farmer Category</label>
+          <label>Farmer Category <span class="req-star">*</span></label>
           <select id="f_farmercat">
             <option value="">Select</option>
             <option>Progressive</option>
@@ -231,32 +263,32 @@
         </div>
       </div>
 
-      <label>Village</label>
+      <label>Village <span class="req-star">*</span></label>
       <input id="f_village" placeholder="Village name">
 
       <div class="row2">
         <div>
-          <label>Block / Tehsil</label>
+          <label>Block / Tehsil <span class="req-star">*</span></label>
           <input id="f_block" placeholder="Block/Tehsil name">
         </div>
         <div>
-          <label>District</label>
+          <label>District <span class="req-star">*</span></label>
           <input id="f_district" placeholder="District name">
         </div>
       </div>
 
       <div class="row2">
         <div>
-          <label>No. of Demo Given</label>
+          <label>No. of Demo Given <span class="req-star">*</span></label>
           <input id="f_numdemo" type="number" placeholder="e.g. 1">
         </div>
         <div>
-          <label>Demo Qty (Kg)</label>
+          <label>Demo Qty (Kg) <span class="req-star">*</span></label>
           <input id="f_demoqty" type="number" placeholder="e.g. 2">
         </div>
       </div>
 
-      <label>Plot Type</label>
+      <label>Plot Type <span class="req-star">*</span></label>
       <select id="f_plottype">
         <option value="">Select</option>
         <option>Side By Side</option>
@@ -272,7 +304,7 @@
       </select>
       <input id="f_comphybrid1_other" placeholder="Type competition hybrid name" style="display:none; margin-top:8px;">
 
-      <label>Competition DOS (DD/MM/YYYY)</label>
+      <label>Competition DOS (DD/MM/YYYY) <span class="req-star">*</span></label>
       <input id="f_compdos1" type="date">
 
       <label>Comp Hybrid 2 (optional)</label>
@@ -289,18 +321,18 @@
 
       <div class="row2">
         <div>
-          <label>Crystal Yield/Acre</label>
+          <label>Crystal Yield/Acre <span class="req-star">*</span></label>
           <input id="f_crystalyield" type="number" placeholder="e.g. 28">
         </div>
         <div>
-          <label>Competition 1 Yield/Acre</label>
+          <label>Competition 1 Yield/Acre <span class="req-star">*</span></label>
           <input id="f_compyield1" type="number" placeholder="e.g. 24">
         </div>
       </div>
       <label>Competition 2 Yield/Acre</label>
       <input id="f_compyield2" type="number" placeholder="e.g. 22">
 
-      <label>Top 2 Key Observations of Crystal Hybrid</label>
+      <label>Top 2 Key Observations of Crystal Hybrid <span class="req-star">*</span></label>
       <textarea id="f_observations" rows="2" placeholder="e.g. Better cob filling, drought tolerance"></textarea>
 
       <label>Remarks (optional)</label>
@@ -314,9 +346,87 @@
   <section id="tab-mydata" style="display:none;">
     <div class="card name-search">
       <label>Type your name to view your submissions</label>
-      <input id="my_name" placeholder="Type your full name (FO Name)">
+      <input id="my_name" placeholder="Type your name or mobile number">
     </div>
     <div id="myDataResults"></div>
+  </section>
+
+  <!-- DASHBOARD TAB (PIN protected) -->
+  <section id="tab-dashboard" style="display:none;">
+
+    <!-- PIN LOCK SCREEN -->
+    <div class="card" id="dashLockScreen">
+      <div class="section-title" style="margin-top:0;">🔒 Dashboard Access</div>
+      <p style="font-size:13px; color:var(--gray); margin-bottom:14px;">Enter the access PIN to view the analytics dashboard.</p>
+      <label>Access PIN</label>
+      <input id="dash_pin" type="password" inputmode="numeric" placeholder="Enter PIN" maxlength="6">
+      <button class="btn" id="dashUnlockBtn">Unlock Dashboard</button>
+    </div>
+
+    <!-- ACTUAL DASHBOARD (hidden until unlocked) -->
+    <div id="dashContent" class="dash-wrap" style="display:none;">
+
+      <div class="dash-col-left">
+        <div class="filter-bar" id="seasonFilterBar"></div>
+
+        <div class="dash-slicers">
+          <div>
+            <label style="margin:0 0 6px;">Zone</label>
+            <select id="dash_zone">
+              <option value="">All Zones</option>
+              <option>ZONE-1</option><option>ZONE-2</option>
+              <option>ZONE-3</option><option>ZONE-4</option>
+              <option>ZONE-5</option>
+            </select>
+          </div>
+          <div>
+            <label style="margin:0 0 6px;">Region</label>
+            <select id="dash_region">
+              <option value="">All Regions</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="filter-bar" id="cropFilterBar"></div>
+      </div>
+
+      <div class="dash-col-right">
+
+        <div class="stat-grid dash-stats">
+          <div class="stat"><div class="num" id="stat_total">0</div><div class="lbl">Total Entries</div></div>
+          <div class="stat"><div class="num" id="stat_qty">0</div><div class="lbl">Total Demos Given</div></div>
+          <div class="stat"><div class="num" id="stat_demo">0</div><div class="lbl">Yield Data Captured</div></div>
+          <div class="stat"><div class="num" id="stat_tms">0</div><div class="lbl">Active FOs</div></div>
+        </div>
+
+        <div class="dash-grid-2">
+          <div class="card">
+            <div class="section-title" style="margin-top:0;">Entries by Crop</div>
+            <canvas id="chartCrop" height="170"></canvas>
+          </div>
+          <div class="card">
+            <div class="section-title" style="margin-top:0;">Entries by Zone</div>
+            <canvas id="chartZone" height="170"></canvas>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="section-title" style="margin-top:0;">🔍 Hybrid vs Competition Analysis</div>
+          <label style="margin:0 0 8px;">Select Crystal Hybrid</label>
+          <select id="hybrid_select">
+            <option value="">Select a hybrid to analyze</option>
+          </select>
+          <canvas id="chartHybridComp" height="180" style="margin-top:14px;"></canvas>
+          <div id="hybridAnalysisTable" style="margin-top:14px;"></div>
+        </div>
+
+        <div>
+          <div class="section-title">All Submissions</div>
+          <div id="dashTable"><div class="empty"><div class="icon">📭</div>Loading data...</div></div>
+        </div>
+
+      </div>
+    </div>
   </section>
 
   <!-- UPDATE YIELD MODAL (shown inline as a card) -->
@@ -342,45 +452,18 @@
     </div>
   </section>
 
-  <!-- DASHBOARD TAB -->
-  <section id="tab-dashboard" style="display:none;">
-    <div class="card" style="padding:12px 14px;">
-      <label style="margin:0 0 8px;">View As</label>
-      <select id="dash_view">
-        <option value="CEO">CEO — All Zones</option>
-        <option value="ZONE">Zone / Region Head</option>
-      </select>
-      <div id="zoneSelectWrap" style="display:none; margin-top:10px;">
-        <select id="dash_zone">
-          <option value="">Select Zone</option>
-          <option>ZONE-1</option><option>ZONE-2</option>
-          <option>ZONE-3</option><option>ZONE-4</option>
-          <option>ZONE-5</option>
-        </select>
-      </div>
-    </div>
-
-    <div class="stat-grid">
-      <div class="stat"><div class="num" id="stat_total">0</div><div class="lbl">Total Entries</div></div>
-      <div class="stat"><div class="num" id="stat_qty">0</div><div class="lbl">Total Demos Given</div></div>
-      <div class="stat"><div class="num" id="stat_demo">0</div><div class="lbl">Yield Data Captured</div></div>
-      <div class="stat"><div class="num" id="stat_tms">0</div><div class="lbl">Active TMs</div></div>
-    </div>
-
-    <div class="filter-bar" id="cropFilterBar"></div>
-
-    <div class="section-title">All Submissions</div>
-    <div id="dashTable"><div class="empty"><div class="icon">📭</div>Loading data...</div></div>
-  </section>
-
 </main>
 
 <div class="toast" id="toast"></div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script>
 /* ====== CONFIG ====== */
 // PASTE YOUR GOOGLE APPS SCRIPT WEB APP URL HERE AFTER DEPLOYMENT
 const API_URL = "https://script.google.com/macros/s/AKfycbz4igMfs67I2Nor8rcF-BlRr_EkxpcAqN_Ejvtuzi2-wEubq-JoVE3zsZfXlo34Hv4H/exec";
+
+// Change this PIN to whatever you want — only people you share this with can view the dashboard
+const DASHBOARD_PIN = "2026";
 
 // Official Zone -> Region -> Territory mapping (from company master data)
 const ZONE_REGIONS = {
@@ -466,6 +549,12 @@ document.getElementById("f_crop").addEventListener("change", (e) => {
   populateHybridDropdowns(e.target.value);
 });
 
+// Auto-clear red highlight as soon as a field gets a value
+document.querySelectorAll("#tab-entry input, #tab-entry select, #tab-entry textarea").forEach(el => {
+  el.addEventListener("input", () => { if (el.value) el.classList.remove("field-error"); });
+  el.addEventListener("change", () => { if (el.value) el.classList.remove("field-error"); });
+});
+
 document.getElementById("f_hybrid").addEventListener("change", (e) => {
   document.getElementById("f_hybrid_other").style.display = e.target.value === "__OTHER__" ? "block" : "none";
 });
@@ -483,8 +572,17 @@ document.querySelectorAll(".tab").forEach(tab => {
     tab.classList.add("active");
     document.querySelectorAll("main section").forEach(s => s.style.display = "none");
     document.getElementById("tab-" + tab.dataset.tab).style.display = "block";
-    if (tab.dataset.tab === "dashboard") loadDashboard();
     if (tab.dataset.tab === "mydata") renderMyData();
+    if (tab.dataset.tab === "dashboard"){
+      if (dashUnlocked){
+        document.getElementById("dashLockScreen").style.display = "none";
+        document.getElementById("dashContent").style.display = "block";
+        loadDashboard();
+      } else {
+        document.getElementById("dashLockScreen").style.display = "block";
+        document.getElementById("dashContent").style.display = "none";
+      }
+    }
   });
 });
 
@@ -528,22 +626,30 @@ document.getElementById("submitBtn").addEventListener("click", async () => {
   const observations = document.getElementById("f_observations").value;
 
   const required = {
-    "Crop": crop, "FO Name": name, "FO Mobile": tmMobile, "HQ": hq, "Zone": zone,
-    "Region": region, "Territory": territory, "Season": season,
-    "Demo Hybrid": hybrid, "DOS": dos, "Farmer Name": farmerName,
-    "Farmer Mobile": farmerMobile, "Farmer Category": farmerCat,
-    "Village": village, "Block/Tehsil": block, "District": district,
-    "No. of Demo": numDemo, "Demo Qty": demoQty, "Plot Type": plotType,
-    "Comp Hybrid 1": comp1, "Competition DOS": compDos1,
-    "Crystal Yield": crystalYield, "Competition 1 Yield": compYield1,
-    "Observations": observations
+    "f_crop": crop, "f_name": name, "f_tmmobile": tmMobile, "f_hq": hq, "f_zone": zone,
+    "f_region": region, "f_territory": territory, "f_season": season,
+    "f_hybrid": hybrid, "f_dos": dos, "f_farmername": farmerName,
+    "f_farmermobile": farmerMobile, "f_farmercat": farmerCat,
+    "f_village": village, "f_block": block, "f_district": district,
+    "f_numdemo": numDemo, "f_demoqty": demoQty, "f_plottype": plotType,
+    "f_comphybrid1": comp1, "f_compdos1": compDos1,
+    "f_crystalyield": crystalYield, "f_compyield1": compYield1,
+    "f_observations": observations
   };
-  const missing = Object.entries(required).filter(([k,v]) => !v).map(([k]) => k);
-  if (hybrid === "__OTHER__" && !hybridOther){ missing.push("Demo Hybrid (manual name)"); }
-  if (comp1 === "__OTHER__" && !comp1Other){ missing.push("Comp Hybrid 1 (manual name)"); }
 
-  if (missing.length){
-    showToast("Missing: " + missing.slice(0,3).join(", ") + (missing.length>3 ? "..." : ""), true);
+  // Clear previous error highlights
+  Object.keys(required).forEach(id => document.getElementById(id).classList.remove("field-error"));
+  document.getElementById("f_hybrid_other").classList.remove("field-error");
+  document.getElementById("f_comphybrid1_other").classList.remove("field-error");
+
+  const missingIds = Object.entries(required).filter(([k,v]) => !v).map(([k]) => k);
+  if (hybrid === "__OTHER__" && !hybridOther){ missingIds.push("f_hybrid_other"); }
+  if (comp1 === "__OTHER__" && !comp1Other){ missingIds.push("f_comphybrid1_other"); }
+
+  if (missingIds.length){
+    missingIds.forEach(id => document.getElementById(id).classList.add("field-error"));
+    document.getElementById(missingIds[0]).scrollIntoView({ behavior: "smooth", block: "center" });
+    showToast(`${missingIds.length} required field(s) missing — highlighted in red`, true);
     return;
   }
   if (API_URL.includes("PASTE_YOUR")){
@@ -624,9 +730,9 @@ async function fetchAllData(){
 }
 
 /* ====== MY DATA ====== */
-document.getElementById("my_name").addEventListener("change", renderMyData);
+let myDataLoaded = false;
 
-document.getElementById("my_name").addEventListener("input", debounce(renderMyData, 400));
+document.getElementById("my_name").addEventListener("input", debounce(() => filterMyData(), 250));
 
 function debounce(fn, delay){
   let timer;
@@ -634,17 +740,37 @@ function debounce(fn, delay){
 }
 
 async function renderMyData(){
-  const name = document.getElementById("my_name").value.trim();
   const container = document.getElementById("myDataResults");
-  if (!name){ container.innerHTML = ""; return; }
-  container.innerHTML = '<div class="empty">Loading...</div>';
-  allRows = await fetchAllData();
+  const query = document.getElementById("my_name").value.trim();
+  if (!myDataLoaded){
+    container.innerHTML = '<div class="empty">Loading your data…</div>';
+    allRows = await fetchAllData();
+    myDataLoaded = true;
+  }
+  if (!query){
+    container.innerHTML = '<div class="card empty"><div class="icon">🔍</div>Type your name or mobile number above<div class="sub">Your submissions will appear here</div></div>';
+    return;
+  }
+  filterMyData();
+}
+
+function filterMyData(){
+  const container = document.getElementById("myDataResults");
+  const query = document.getElementById("my_name").value.trim().toUpperCase();
+  if (!query){
+    container.innerHTML = '<div class="card empty"><div class="icon">🔍</div>Type your name or mobile number above<div class="sub">Your submissions will appear here</div></div>';
+    return;
+  }
   const mine = allRows
     .map((r, idx) => ({...r, _rowIndex: idx}))
-    .filter(r => (r.TMName||"").trim().toLowerCase() === name.toLowerCase());
+    .filter(r => {
+      const nm = (r.TMName||"").toUpperCase();
+      const mob = (r.TMMobile||"").toString();
+      return nm.includes(query) || mob.includes(query);
+    });
 
   if (!mine.length){
-    container.innerHTML = '<div class="card empty"><div class="icon">📭</div>No entries yet<div class="sub">Submissions you make will appear here</div></div>';
+    container.innerHTML = '<div class="card empty"><div class="icon">📭</div>No matching entries found<div class="sub">Check the spelling or try your mobile number</div></div>';
     return;
   }
   const sorted = mine.sort((a,b) => new Date(b.Timestamp) - new Date(a.Timestamp));
@@ -717,26 +843,69 @@ document.getElementById("updateYieldBtn").addEventListener("click", async () => 
   btn.disabled = false;
 });
 
-/* ====== DASHBOARD ====== */
-document.getElementById("dash_view").addEventListener("change", (e) => {
-  document.getElementById("zoneSelectWrap").style.display = e.target.value === "ZONE" ? "block" : "none";
+/* ====== DASHBOARD: PIN UNLOCK ====== */
+let dashUnlocked = false;
+let activeSeasonFilter = "ALL";
+let chartCropInstance, chartZoneInstance, chartHybridCompInstance;
+
+document.getElementById("dashUnlockBtn").addEventListener("click", () => {
+  const entered = document.getElementById("dash_pin").value.trim();
+  if (entered === DASHBOARD_PIN){
+    dashUnlocked = true;
+    document.getElementById("dashLockScreen").style.display = "none";
+    document.getElementById("dashContent").style.display = "block";
+    loadDashboard();
+  } else {
+    showToast("Incorrect PIN", true);
+  }
+});
+
+document.getElementById("dash_zone").addEventListener("change", (e) => {
+  const zone = e.target.value;
+  const regionSel = document.getElementById("dash_region");
+  const regions = zone ? (ZONE_REGIONS[zone] || []) : [...new Set(Object.values(ZONE_REGIONS).flat())].sort();
+  regionSel.innerHTML = '<option value="">All Regions</option>' + regions.map(r => `<option>${r}</option>`).join("");
   loadDashboard();
 });
-document.getElementById("dash_zone").addEventListener("change", loadDashboard);
+document.getElementById("dash_region").addEventListener("change", loadDashboard);
 
 async function loadDashboard(){
+  if (!dashUnlocked) return;
   allRows = await fetchAllData();
-  const view = document.getElementById("dash_view").value;
-  const zoneFilter = document.getElementById("dash_zone").value;
+  myDataLoaded = true;
 
+  renderSeasonFilterBar();
   let rows = allRows;
-  if (view === "ZONE" && zoneFilter) rows = rows.filter(r => r.Zone === zoneFilter);
+  if (activeSeasonFilter !== "ALL") rows = rows.filter(r => r.Season === activeSeasonFilter);
+
+  const zoneFilter = document.getElementById("dash_zone").value;
+  const regionFilter = document.getElementById("dash_region").value;
+  if (zoneFilter) rows = rows.filter(r => r.Zone === zoneFilter);
+  if (regionFilter) rows = rows.filter(r => r.Region === regionFilter);
 
   renderCropFilterBar(rows);
   if (activeCropFilter !== "ALL") rows = rows.filter(r => r.Crop === activeCropFilter);
 
   renderStats(rows);
+  renderCropChart(rows);
+  renderZoneChart(rows);
+  populateHybridSelect(rows);
+  renderHybridCompAnalysis(rows);
   renderDashTable(rows);
+}
+
+function renderSeasonFilterBar(){
+  const seasons = ["ALL", "Kharif", "Rabi"];
+  const bar = document.getElementById("seasonFilterBar");
+  bar.innerHTML = seasons.map(s =>
+    `<div class="chip ${s===activeSeasonFilter?'active':''}" data-season="${s}">${s==='ALL'?'All Seasons':s}</div>`
+  ).join("");
+  bar.querySelectorAll(".chip").forEach(chip => {
+    chip.addEventListener("click", () => {
+      activeSeasonFilter = chip.dataset.season;
+      loadDashboard();
+    });
+  });
 }
 
 function renderCropFilterBar(rows){
@@ -755,12 +924,153 @@ function renderCropFilterBar(rows){
 
 function renderStats(rows){
   const totalDemos = rows.reduce((s,r) => s + (parseFloat(r.NumDemo)||0), 0);
-  const withYield = rows.filter(r => r.CrystalYield).length;
+  const withYield = rows.filter(r => r.CrystalYield && r.CrystalYield !== '0').length;
   const submitters = new Set(rows.map(r => r.TMName)).size;
   document.getElementById("stat_total").textContent = rows.length;
   document.getElementById("stat_qty").textContent = totalDemos.toLocaleString('en-IN');
   document.getElementById("stat_demo").textContent = withYield;
   document.getElementById("stat_tms").textContent = submitters;
+}
+
+const CHART_COLORS = ['#2E8B57','#D9A441','#7A5230','#1B5E3A','#C0392B','#6B7570','#8E6C8A','#3E7C9E'];
+
+function renderCropChart(rows){
+  const counts = {};
+  rows.forEach(r => { const c = r.Crop || "Unknown"; counts[c] = (counts[c]||0) + 1; });
+  const labels = Object.keys(counts);
+  const data = Object.values(counts);
+  if (chartCropInstance) chartCropInstance.destroy();
+  chartCropInstance = new Chart(document.getElementById("chartCrop"), {
+    type: 'doughnut',
+    data: { labels, datasets: [{ data, backgroundColor: CHART_COLORS }] },
+    options: { maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { font: { size: 11 } } } } }
+  });
+}
+
+function renderZoneChart(rows){
+  const counts = {};
+  rows.forEach(r => { const z = r.Zone || "Unknown"; counts[z] = (counts[z]||0) + 1; });
+  const labels = Object.keys(counts).sort();
+  const data = labels.map(l => counts[l]);
+  if (chartZoneInstance) chartZoneInstance.destroy();
+  chartZoneInstance = new Chart(document.getElementById("chartZone"), {
+    type: 'bar',
+    data: { labels, datasets: [{ label: 'Entries', data, backgroundColor: '#2E8B57', borderRadius: 6 }] },
+    options: { maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+  });
+}
+
+/* ====== HYBRID VS COMPETITION ANALYSIS ====== */
+function populateHybridSelect(rows){
+  const sel = document.getElementById("hybrid_select");
+  const prevValue = sel.value;
+  const hybrids = [...new Set(rows.map(r => r.DemoHybrid).filter(Boolean))].sort();
+  sel.innerHTML = '<option value="">Select a hybrid to analyze</option>' +
+    hybrids.map(h => `<option>${h}</option>`).join("");
+  if (hybrids.includes(prevValue)) sel.value = prevValue;
+}
+
+document.getElementById("hybrid_select").addEventListener("change", () => {
+  let rows = allRows;
+  if (activeSeasonFilter !== "ALL") rows = rows.filter(r => r.Season === activeSeasonFilter);
+  const zoneFilter = document.getElementById("dash_zone").value;
+  const regionFilter = document.getElementById("dash_region").value;
+  if (zoneFilter) rows = rows.filter(r => r.Zone === zoneFilter);
+  if (regionFilter) rows = rows.filter(r => r.Region === regionFilter);
+  if (activeCropFilter !== "ALL") rows = rows.filter(r => r.Crop === activeCropFilter);
+  renderHybridCompAnalysis(rows);
+});
+
+function renderHybridCompAnalysis(rows){
+  const selectedHybrid = document.getElementById("hybrid_select").value;
+  const tableContainer = document.getElementById("hybridAnalysisTable");
+  const canvas = document.getElementById("chartHybridComp");
+
+  if (!selectedHybrid){
+    if (chartHybridCompInstance){ chartHybridCompInstance.destroy(); chartHybridCompInstance = null; }
+    tableContainer.innerHTML = '<div class="empty"><div class="icon">👆</div>Select a Crystal hybrid above to see its performance against every competitor it has faced</div>';
+    return;
+  }
+
+  // Collect every (CompHybrid1/2, yields) pair for this Crystal hybrid
+  const matchups = {}; // compName -> { crystalYields:[], compYields:[], wins, total }
+  rows.filter(r => r.DemoHybrid === selectedHybrid).forEach(r => {
+    const cy = parseFloat(r.CrystalYield) || 0;
+    const hasYield = r.CrystalYield && r.CrystalYield !== '0';
+    if (!hasYield) return;
+
+    if (r.CompHybrid1 && r.CompYield1 && r.CompYield1 !== '0'){
+      const cpy = parseFloat(r.CompYield1) || 0;
+      const k = r.CompHybrid1;
+      if (!matchups[k]) matchups[k] = { crystalYields: [], compYields: [], wins: 0, total: 0 };
+      matchups[k].crystalYields.push(cy);
+      matchups[k].compYields.push(cpy);
+      matchups[k].total++;
+      if (cy > cpy) matchups[k].wins++;
+    }
+    if (r.CompHybrid2 && r.CompYield2 && r.CompYield2 !== '0'){
+      const cpy2 = parseFloat(r.CompYield2) || 0;
+      const k2 = r.CompHybrid2;
+      if (!matchups[k2]) matchups[k2] = { crystalYields: [], compYields: [], wins: 0, total: 0 };
+      matchups[k2].crystalYields.push(cy);
+      matchups[k2].compYields.push(cpy2);
+      matchups[k2].total++;
+      if (cy > cpy2) matchups[k2].wins++;
+    }
+  });
+
+  const compNames = Object.keys(matchups);
+  if (!compNames.length){
+    if (chartHybridCompInstance){ chartHybridCompInstance.destroy(); chartHybridCompInstance = null; }
+    tableContainer.innerHTML = '<div class="empty"><div class="icon">📊</div>No yield data yet for this hybrid<div class="sub">Once FOs add yield numbers, the comparison will appear here</div></div>';
+    return;
+  }
+
+  const avg = arr => arr.reduce((s,v)=>s+v,0)/arr.length;
+  const avgCrystalOverall = avg(compNames.flatMap(c => matchups[c].crystalYields)).toFixed(1);
+  const compAvgs = compNames.map(c => avg(matchups[c].compYields));
+
+  // Bar chart: Crystal hybrid (constant bar) vs each competitor
+  if (chartHybridCompInstance) chartHybridCompInstance.destroy();
+  chartHybridCompInstance = new Chart(canvas, {
+    type: 'bar',
+    data: {
+      labels: [selectedHybrid, ...compNames],
+      datasets: [{
+        label: 'Avg Yield/Acre',
+        data: [parseFloat(avgCrystalOverall), ...compAvgs.map(v => v.toFixed(1))],
+        backgroundColor: [ '#2E8B57', ...compNames.map((_,i) => CHART_COLORS[(i+2) % CHART_COLORS.length]) ],
+        borderRadius: 6
+      }]
+    },
+    options: {
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: { y: { beginAtZero: true } }
+    }
+  });
+
+  // Detail table
+  const rowsHtml = compNames.map(c => {
+    const m = matchups[c];
+    const avgCrystal = avg(m.crystalYields).toFixed(1);
+    const avgComp = avg(m.compYields).toFixed(1);
+    const diff = (avgCrystal - avgComp).toFixed(1);
+    const winRate = Math.round((m.wins/m.total)*100);
+    const badgeClass = winRate >= 50 ? 'done' : 'pending';
+    return `<tr>
+      <td><b>${c}</b></td>
+      <td>${avgCrystal}</td>
+      <td>${avgComp}</td>
+      <td style="color:${diff>=0?'var(--green-dark)':'var(--danger)'}; font-weight:700;">${diff>=0?'+':''}${diff}</td>
+      <td><span class="badge ${badgeClass}">${winRate}% win (${m.total})</span></td>
+    </tr>`;
+  }).join("");
+
+  tableContainer.innerHTML = `<div class="table-wrap"><table>
+    <tr><th>Vs Competition</th><th>${selectedHybrid} Avg</th><th>Comp Avg</th><th>Diff</th><th>Win Rate</th></tr>
+    ${rowsHtml}
+  </table></div>`;
 }
 
 function renderDashTable(rows){
@@ -771,10 +1081,10 @@ function renderDashTable(rows){
   }
   const sorted = [...rows].sort((a,b) => new Date(b.Timestamp) - new Date(a.Timestamp));
   container.innerHTML = `<div class="table-wrap"><table>
-    <tr><th>Date</th><th>TM Name</th><th>Zone</th><th>Region</th><th>Territory</th><th>Crop</th><th>Hybrid</th><th>Comp 1</th><th>Village</th><th>District</th><th>Crystal Yield</th></tr>
+    <tr><th>Date</th><th>FO Name</th><th>Season</th><th>Zone</th><th>Region</th><th>Territory</th><th>Crop</th><th>Hybrid</th><th>Comp 1</th><th>Village</th><th>District</th><th>Crystal Yield</th></tr>
     ${sorted.map(r => `<tr>
       <td>${new Date(r.Timestamp).toLocaleDateString('en-IN')}</td>
-      <td>${r.TMName||""}</td><td>${r.Zone||""}</td><td>${r.Region||""}</td><td>${r.Territory||""}</td>
+      <td>${r.TMName||""}</td><td>${r.Season||""}</td><td>${r.Zone||""}</td><td>${r.Region||""}</td><td>${r.Territory||""}</td>
       <td>${r.Crop||""}</td><td>${r.DemoHybrid||""}</td><td>${r.CompHybrid1||"—"}</td>
       <td>${r.Village||"—"}</td><td>${r.District||"—"}</td><td>${r.CrystalYield||"—"}</td>
     </tr>`).join("")}
