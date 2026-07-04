@@ -27,6 +27,8 @@ label{display:block;font-size:12.5px;font-weight:600;color:var(--gray);margin:14
 label:first-child{margin-top:0;}
 .req-star{color:var(--danger);font-weight:700;}
 select,input,textarea{width:100%;padding:13px 12px;font-size:15px;border:1.5px solid var(--line);border-radius:9px;background:white;color:var(--ink);font-family:inherit;}
+input.uc{text-transform:uppercase;}
+input.uc::placeholder{text-transform:none;}
 select:focus,input:focus,textarea:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 3px rgba(46,139,87,0.15);}
 select.field-error,input.field-error,textarea.field-error{border-color:var(--danger)!important;background:#FDF1EF!important;box-shadow:0 0 0 3px rgba(192,57,43,0.12)!important;animation:shake 0.3s;}
 @keyframes shake{0%,100%{transform:translateX(0);}25%{transform:translateX(-4px);}75%{transform:translateX(4px);}}
@@ -69,8 +71,13 @@ td{padding:10px 8px;border-bottom:1px solid var(--line);white-space:nowrap;}
 @keyframes spin{to{transform:rotate(360deg);}}
 .section-title{font-size:13px;font-weight:700;color:var(--green-dark);text-transform:uppercase;letter-spacing:0.3px;margin:18px 0 10px;}
 .section-title:first-child{margin-top:0;}
+.collapse-header{display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;}
+.collapse-header .toggle-icon{font-size:16px;color:var(--gray);transition:transform 0.2s;margin-left:8px;flex-shrink:0;}
+.collapse-header.collapsed .toggle-icon{transform:rotate(-90deg);}
+.collapsible-body{transition:none;}
+.collapsible-body.hidden{display:none;}
 .name-search{margin-bottom:10px;}
-.dash-slicers{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;}
+.dash-slicers{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:12px;}
 .dash-grid-2{display:grid;grid-template-columns:1fr;gap:12px;}
 .chart-box{position:relative;height:220px;width:100%;}
 .chart-box canvas{position:absolute;top:0;left:0;width:100%!important;height:100%!important;}
@@ -123,13 +130,13 @@ td{padding:10px 8px;border-bottom:1px solid var(--line);white-space:nowrap;}
     <select id="f_crop"><option value="">Select Crop</option><option>Maize</option><option>Paddy</option></select>
 
     <label>FO Name <span class="req-star">*</span></label>
-    <input id="f_name" placeholder="Type your full name" style="text-transform:uppercase;">
+    <input id="f_name" class="uc" placeholder="Type your full name">
 
     <label>FO Mobile No <span class="req-star">*</span></label>
     <input id="f_tmmobile" type="tel" placeholder="10-digit mobile number">
 
     <label>HQ (Headquarter) <span class="req-star">*</span></label>
-    <input id="f_hq" placeholder="Your headquarter location">
+    <input class="uc" id="f_hq" placeholder="Your headquarter location">
 
     <div class="row2">
       <div>
@@ -152,13 +159,13 @@ td{padding:10px 8px;border-bottom:1px solid var(--line);white-space:nowrap;}
 
     <label>Demo Hybrid Name <span class="req-star">*</span></label>
     <select id="f_hybrid"><option value="">Select Hybrid</option></select>
-    <input id="f_hybrid_other" placeholder="Type new hybrid name" style="display:none;margin-top:8px;">
+    <input class="uc" id="f_hybrid_other" placeholder="Type new hybrid name" style="display:none;margin-top:8px;">
 
     <label>Date of Sowing (DOS) <span class="req-star">*</span></label>
     <input id="f_dos" type="date">
 
     <label>Name of Farmer <span class="req-star">*</span></label>
-    <input id="f_farmername" placeholder="Farmer's full name">
+    <input class="uc" id="f_farmername" placeholder="Farmer's full name">
 
     <div class="row2">
       <div>
@@ -172,16 +179,16 @@ td{padding:10px 8px;border-bottom:1px solid var(--line);white-space:nowrap;}
     </div>
 
     <label>Village <span class="req-star">*</span></label>
-    <input id="f_village" placeholder="Village name">
+    <input class="uc" id="f_village" placeholder="Village name">
 
     <div class="row2">
       <div>
         <label>Block / Tehsil <span class="req-star">*</span></label>
-        <input id="f_block" placeholder="Block/Tehsil name">
+        <input class="uc" id="f_block" placeholder="Block/Tehsil name">
       </div>
       <div>
         <label>District <span class="req-star">*</span></label>
-        <input id="f_district" placeholder="District name">
+        <input class="uc" id="f_district" placeholder="District name">
       </div>
     </div>
 
@@ -203,14 +210,14 @@ td{padding:10px 8px;border-bottom:1px solid var(--line);white-space:nowrap;}
 
     <label>Comp Hybrid 1 <span class="req-star">*</span></label>
     <select id="f_comphybrid1"><option value="">Select or choose Other</option></select>
-    <input id="f_comphybrid1_other" placeholder="Type competition hybrid name" style="display:none;margin-top:8px;">
+    <input class="uc" id="f_comphybrid1_other" placeholder="Type competition hybrid name" style="display:none;margin-top:8px;">
 
     <label>Competition DOS <span class="req-star">*</span></label>
     <input id="f_compdos1" type="date">
 
     <label>Comp Hybrid 2 (optional)</label>
     <select id="f_comphybrid2"><option value="">None / Not applicable</option></select>
-    <input id="f_comphybrid2_other" placeholder="Type competition hybrid name" style="display:none;margin-top:8px;">
+    <input class="uc" id="f_comphybrid2_other" placeholder="Type competition hybrid name" style="display:none;margin-top:8px;">
 
     <label>Competition 2 DOS (optional)</label>
     <input id="f_compdos2" type="date">
@@ -230,10 +237,10 @@ td{padding:10px 8px;border-bottom:1px solid var(--line);white-space:nowrap;}
     <input id="f_compyield2" type="number" placeholder="e.g. 22">
 
     <label>Top 2 Key Observations <span class="req-star">*</span></label>
-    <textarea id="f_observations" rows="2" placeholder="e.g. Better cob filling, drought tolerance"></textarea>
+    <textarea class="uc" id="f_observations" rows="2" placeholder="e.g. Better cob filling, drought tolerance"></textarea>
 
     <label>Remarks (optional)</label>
-    <textarea id="f_remarks" rows="2" placeholder="Any notes..."></textarea>
+    <textarea class="uc" id="f_remarks" rows="2" placeholder="Any notes..."></textarea>
 
     <button class="btn" id="submitBtn">Submit Entry</button>
   </div>
@@ -284,7 +291,7 @@ td{padding:10px 8px;border-bottom:1px solid var(--line);white-space:nowrap;}
     <div class="filter-bar" id="seasonFilterBar"></div>
     <div class="filter-bar" id="cropFilterBar"></div>
 
-    <!-- Zone + Region slicers -->
+    <!-- Zone + Region + Territory slicers -->
     <div class="dash-slicers">
       <div>
         <label style="margin:0 0 6px;">Zone</label>
@@ -293,6 +300,10 @@ td{padding:10px 8px;border-bottom:1px solid var(--line);white-space:nowrap;}
       <div>
         <label style="margin:0 0 6px;">Region</label>
         <select id="dash_region"><option value="">All Regions</option></select>
+      </div>
+      <div>
+        <label style="margin:0 0 6px;">Territory</label>
+        <select id="dash_territory"><option value="">All Territories</option></select>
       </div>
     </div>
 
@@ -309,7 +320,11 @@ td{padding:10px 8px;border-bottom:1px solid var(--line);white-space:nowrap;}
 
     <!-- Data Quality Score -->
     <div class="card">
-      <div class="section-title" style="margin-top:0;">📋 Data Quality Score</div>
+      <div class="collapse-header" onclick="toggleSection('dq')">
+        <div class="section-title" style="margin-top:0;">📋 Data Quality Score</div>
+        <span class="toggle-icon">▼</span>
+      </div>
+      <div class="collapsible-body" id="body-dq">
       <div class="quality-row">
         <span class="quality-label">Complete entries</span>
         <span class="quality-score" id="dq_complete" style="color:var(--green-dark);">—</span>
@@ -328,12 +343,18 @@ td{padding:10px 8px;border-bottom:1px solid var(--line);white-space:nowrap;}
       </div>
     </div>
 
+      </div>
     <!-- Pending Yield Alert -->
     <div class="card">
-      <div class="section-title" style="margin-top:0;">⚠️ Pending Yield — Follow Up Needed</div>
+      <div class="collapse-header" onclick="toggleSection('py')">
+        <div class="section-title" style="margin-top:0;">⚠️ Pending Yield — Follow Up Needed</div>
+        <span class="toggle-icon">▼</span>
+      </div>
+      <div class="collapsible-body" id="body-py">
       <div id="pendingYieldList"></div>
     </div>
 
+      </div>
     <!-- Charts row -->
     <div class="dash-grid-2">
       <div class="card">
@@ -348,41 +369,71 @@ td{padding:10px 8px;border-bottom:1px solid var(--line);white-space:nowrap;}
 
     <!-- Seasonal comparison -->
     <div class="card">
-      <div class="section-title" style="margin-top:0;">📅 Kharif vs Rabi — Yield Comparison</div>
+      <div class="collapse-header" onclick="toggleSection('seasonal')">
+        <div class="section-title" style="margin-top:0;">📅 Kharif vs Rabi — Yield Comparison</div>
+        <span class="toggle-icon">▼</span>
+      </div>
+      <div class="collapsible-body" id="body-seasonal">
       <div class="chart-box"><canvas id="chartSeasonal"></canvas></div>
     </div>
 
+      </div>
     <!-- FO Scorecard -->
     <div class="card">
-      <div class="section-title" style="margin-top:0;">👤 FO Performance Scorecard</div>
+      <div class="collapse-header" onclick="toggleSection('fo')">
+        <div class="section-title" style="margin-top:0;">👤 FO Performance Scorecard</div>
+        <span class="toggle-icon">▼</span>
+      </div>
+      <div class="collapsible-body" id="body-fo">
       <div id="foScorecard"></div>
     </div>
 
+      </div>
     <!-- Competition Heatmap -->
     <div class="card">
-      <div class="section-title" style="margin-top:0;">🔥 Competition Heatmap — Most Faced Brands</div>
+      <div class="collapse-header" onclick="toggleSection('heatmap')">
+        <div class="section-title" style="margin-top:0;">🔥 Competition Heatmap — Most Faced Brands</div>
+        <span class="toggle-icon">▼</span>
+      </div>
+      <div class="collapsible-body" id="body-heatmap">
       <div id="compHeatmap"></div>
     </div>
 
+      </div>
     <!-- Hybrid vs Competition -->
     <div class="card">
-      <div class="section-title" style="margin-top:0;">🔍 Hybrid vs Competition Analysis</div>
+      <div class="collapse-header" onclick="toggleSection('hybrid')">
+        <div class="section-title" style="margin-top:0;">🔍 Hybrid vs Competition Analysis</div>
+        <span class="toggle-icon">▼</span>
+      </div>
+      <div class="collapsible-body" id="body-hybrid">
       <label style="margin:0 0 8px;">Select Crystal Hybrid</label>
       <select id="hybrid_select"><option value="">Select a hybrid to analyze</option></select>
       <div class="chart-box" style="margin-top:14px;"><canvas id="chartHybridComp"></canvas></div>
       <div id="hybridAnalysisTable" style="margin-top:14px;"></div>
     </div>
 
+      </div>
     <!-- Territory drill-down -->
     <div class="card">
-      <div class="section-title" style="margin-top:0;">📍 Territory Drill-Down</div>
+      <div class="collapse-header" onclick="toggleSection('territory')">
+        <div class="section-title" style="margin-top:0;">📍 Territory Drill-Down</div>
+        <span class="toggle-icon">▼</span>
+      </div>
+      <div class="collapsible-body" id="body-territory">
       <div id="territoryTable"></div>
     </div>
 
+      </div>
     <!-- All submissions table -->
-    <div class="section-title">All Submissions</div>
+    <div class="collapse-header" onclick="toggleSection('alldata')">
+      <div class="section-title">All Submissions</div>
+      <span class="toggle-icon">▼</span>
+    </div>
+    <div class="collapsible-body" id="body-alldata">
     <div id="dashTable"></div>
 
+    </div>
   </div>
 </section>
 
@@ -438,7 +489,31 @@ let myDataLoaded = false;
 let currentEditRowId = null;
 let chartCropInst, chartZoneInst, chartSeasonalInst, chartHybridCompInst;
 
-/* ====== INIT — ZONE/REGION/TERRITORY CASCADE ====== */
+/* ====== UPPERCASE ENFORCEMENT (CSS + JS double layer) ====== */
+// CSS handles display, JS ensures actual value stored is also uppercase
+const ucFields = ["f_name","f_hq","f_farmername","f_village","f_block","f_district","f_hybrid_other","f_comphybrid1_other","f_comphybrid2_other","f_observations","f_remarks"];
+ucFields.forEach(id => {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.addEventListener("input", () => {
+    const pos = el.selectionStart;
+    el.value = el.value.toUpperCase();
+    try { el.setSelectionRange(pos, pos); } catch(e) {}
+  });
+});
+
+/* ====== MOBILE NUMBER VALIDATION ====== */
+function isValidMobile(num) {
+  return /^\d{10}$/.test((num||"").toString().replace(/\s/g,""));
+}
+// Real-time: only allow digits, max 10
+["f_tmmobile","f_farmermobile"].forEach(id => {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.addEventListener("input", () => {
+    el.value = el.value.replace(/\D/g,"").slice(0,10);
+  });
+});
 document.getElementById("f_zone").addEventListener("change", () => {
   const zone = document.getElementById("f_zone").value;
   const regions = ZONE_REGIONS[zone] || [];
@@ -529,6 +604,11 @@ document.getElementById("submitBtn").addEventListener("click", async () => {
   const missing = Object.entries(required).filter(([k,v])=>!v).map(([k])=>k);
   if (hybrid==="__OTHER__"&&!hybridOther) missing.push("f_hybrid_other");
   if (comp1==="__OTHER__"&&!comp1Other) missing.push("f_comphybrid1_other");
+
+  // Mobile number 10-digit check
+  if (tmMobile && !isValidMobile(tmMobile)) { missing.push("f_tmmobile"); }
+  if (farmerMobile && !isValidMobile(farmerMobile)) { missing.push("f_farmermobile"); }
+
   if (missing.length) {
     missing.forEach(id=>{ const el=document.getElementById(id); if(el) el.classList.add("field-error"); });
     document.getElementById(missing[0]).scrollIntoView({behavior:"smooth",block:"center"});
@@ -643,9 +723,16 @@ document.getElementById("dash_zone").addEventListener("change", e=>{
   const zone=e.target.value;
   const regions=zone?(ZONE_REGIONS[zone]||[]):[...new Set(Object.values(ZONE_REGIONS).flat())].sort();
   document.getElementById("dash_region").innerHTML='<option value="">All Regions</option>'+regions.map(r=>`<option>${r}</option>`).join("");
+  document.getElementById("dash_territory").innerHTML='<option value="">All Territories</option>';
   loadDashboard();
 });
-document.getElementById("dash_region").addEventListener("change", loadDashboard);
+document.getElementById("dash_region").addEventListener("change", e=>{
+  const region=e.target.value;
+  const territories=region?(REGION_TERRITORIES[region]||[]):[...new Set(Object.values(REGION_TERRITORIES).flat())].sort();
+  document.getElementById("dash_territory").innerHTML='<option value="">All Territories</option>'+territories.map(t=>`<option>${t}</option>`).join("");
+  loadDashboard();
+});
+document.getElementById("dash_territory").addEventListener("change", loadDashboard);
 document.getElementById("hybrid_select").addEventListener("change", ()=>renderHybridCompAnalysis(getFilteredRows()));
 
 async function loadDashboard() {
@@ -665,8 +752,10 @@ function getFilteredRows(){
   if(activeSeasonFilter!=="ALL") rows=rows.filter(r=>r.Season===activeSeasonFilter);
   const zone=document.getElementById("dash_zone").value;
   const region=document.getElementById("dash_region").value;
+  const territory=document.getElementById("dash_territory").value;
   if(zone) rows=rows.filter(r=>r.Zone===zone);
   if(region) rows=rows.filter(r=>r.Region===region);
+  if(territory) rows=rows.filter(r=>r.Territory===territory);
   if(activeCropFilter!=="ALL") rows=rows.filter(r=>r.Crop===activeCropFilter);
   return rows;
 }
@@ -893,6 +982,19 @@ document.getElementById("exportBtn").addEventListener("click",()=>{
   a.click();
   showToast("✅ Exporting data...");
 });
+
+/* ====== COLLAPSIBLE SECTIONS ====== */
+function toggleSection(id){
+  const body=document.getElementById("body-"+id);
+  const header=body.previousElementSibling;
+  if(body.classList.contains("hidden")){
+    body.classList.remove("hidden");
+    header.classList.remove("collapsed");
+  } else {
+    body.classList.add("hidden");
+    header.classList.add("collapsed");
+  }
+}
 
 /* ====== PWA ====== */
 let deferredPrompt;
