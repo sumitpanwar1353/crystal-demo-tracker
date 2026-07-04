@@ -3,165 +3,104 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Crystal POG Tracker</title>
+<title>Crystal Demo Tracker</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#1B5E3A">
 <style>
-  :root{
-    --green-dark:#1B5E3A;
-    --green:#2E8B57;
-    --green-light:#E8F5EC;
-    --soil:#7A5230;
-    --wheat:#D9A441;
-    --ink:#1A1F1C;
-    --gray:#6B7570;
-    --line:#D8E2DC;
-    --white:#FFFFFF;
-    --danger:#C0392B;
-  }
-  *{box-sizing:border-box;margin:0;padding:0;}
-  body{
-    font-family:'Segoe UI',system-ui,-apple-system,Roboto,sans-serif;
-    background:var(--green-light);
-    color:var(--ink);
-    -webkit-tap-highlight-color:transparent;
-    padding-bottom:80px;
-  }
-  header{
-    background:var(--green-dark);
-    color:white;
-    padding:18px 16px 16px;
-    position:sticky; top:0; z-index:20;
-    box-shadow:0 2px 8px rgba(0,0,0,0.15);
-  }
-  header h1{font-size:18px; font-weight:700; letter-spacing:0.2px;}
-  header p{font-size:12px; opacity:0.85; margin-top:2px;}
-  .tabs{
-    display:flex; background:white; position:sticky; top:64px; z-index:19;
-    border-bottom:1px solid var(--line);
-  }
-  .tab{
-    flex:1; text-align:center; padding:12px 4px; font-size:12.5px; font-weight:600;
-    color:var(--gray); border-bottom:3px solid transparent; cursor:pointer;
-  }
-  .tab.active{color:var(--green-dark); border-bottom-color:var(--green-dark);}
-  main{padding:14px;}
-  .card{
-    background:white; border-radius:12px; padding:16px; margin-bottom:12px;
-    border:1px solid var(--line);
-  }
-  label{
-    display:block; font-size:12.5px; font-weight:600; color:var(--gray);
-    margin:14px 0 6px; text-transform:uppercase; letter-spacing:0.3px;
-  }
-  label:first-child{margin-top:0;}
-  .req-star{color:var(--danger); font-weight:700;}
-  select.field-error, input.field-error, textarea.field-error{
-    border-color:var(--danger) !important; background:#FDF1EF !important;
-    box-shadow:0 0 0 3px rgba(192,57,43,0.12) !important;
-    animation: shake 0.3s;
-  }
-  @keyframes shake{
-    0%,100%{transform:translateX(0);} 25%{transform:translateX(-4px);} 75%{transform:translateX(4px);}
-  }
-  select, input, textarea{
-    width:100%; padding:13px 12px; font-size:15px; border:1.5px solid var(--line);
-    border-radius:9px; background:white; color:var(--ink); font-family:inherit;
-  }
-  select:focus, input:focus, textarea:focus{
-    outline:none; border-color:var(--green); box-shadow:0 0 0 3px rgba(46,139,87,0.15);
-  }
-  .row2{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
-  .btn{
-    width:100%; padding:15px; font-size:15.5px; font-weight:700; border:none;
-    border-radius:10px; background:var(--green-dark); color:white; margin-top:18px;
-    cursor:pointer;
-  }
-  .btn:active{background:var(--green);}
-  .btn-outline{
-    background:white; color:var(--green-dark); border:1.5px solid var(--green-dark);
-  }
-  .toast{
-    position:fixed; bottom:90px; left:16px; right:16px; background:var(--ink);
-    color:white; padding:14px; border-radius:10px; text-align:center; font-size:14px;
-    font-weight:600; z-index:50; display:none; box-shadow:0 4px 16px rgba(0,0,0,0.25);
-  }
-  .toast.show{display:block; animation:slideUp 0.25s ease;}
-  .toast.err{background:var(--danger);}
-  @keyframes slideUp{from{transform:translateY(20px); opacity:0;} to{transform:translateY(0); opacity:1;}}
-
-  .stat-grid{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px;}
-  .stat{
-    background:white; border-radius:12px; padding:14px; border:1px solid var(--line);
-    border-left:4px solid var(--green);
-  }
-  .stat .num{font-size:24px; font-weight:800; color:var(--green-dark);}
-  .stat .lbl{font-size:11.5px; color:var(--gray); font-weight:600; text-transform:uppercase; margin-top:2px;}
-
-  .filter-bar{display:flex; gap:8px; overflow-x:auto; padding:2px 0 12px; -ms-overflow-style:none; scrollbar-width:none;}
-  .filter-bar::-webkit-scrollbar{display:none;}
-  .chip{
-    flex-shrink:0; padding:8px 14px; font-size:12.5px; font-weight:600; border-radius:20px;
-    background:white; border:1.5px solid var(--line); color:var(--gray); cursor:pointer;
-  }
-  .chip.active{background:var(--green-dark); color:white; border-color:var(--green-dark);}
-
-  table{width:100%; border-collapse:collapse; font-size:12.5px;}
-  th{
-    text-align:left; padding:10px 8px; background:var(--green-light); color:var(--green-dark);
-    font-weight:700; position:sticky; top:0; white-space:nowrap;
-  }
-  td{padding:10px 8px; border-bottom:1px solid var(--line); white-space:nowrap;}
-  .table-wrap{overflow-x:auto; border-radius:10px; border:1px solid var(--line);}
-  .badge{padding:3px 9px; border-radius:20px; font-size:11px; font-weight:700;}
-  .badge.done{background:#E3F4E9; color:var(--green-dark);}
-  .badge.pending{background:#FBEFD9; color:#9C6B0E;}
-
-  .empty{text-align:center; padding:40px 20px; color:var(--gray);}
-  .empty .icon{font-size:36px; margin-bottom:10px;}
-  .empty .sub{font-size:13px; margin-top:4px;}
-
-  .install-banner{
-    background:var(--wheat); color:var(--ink); padding:10px 14px; font-size:12.5px;
-    font-weight:600; display:none; align-items:center; justify-content:space-between;
-  }
-  .install-banner.show{display:flex;}
-  .install-banner button{
-    background:var(--green-dark); color:white; border:none; padding:6px 12px;
-    border-radius:6px; font-size:12px; font-weight:700;
-  }
-  .spinner{
-    display:inline-block; width:16px; height:16px; border:2px solid rgba(255,255,255,0.4);
-    border-top-color:white; border-radius:50%; animation:spin 0.7s linear infinite; vertical-align:middle; margin-right:6px;
-  }
-  @keyframes spin{to{transform:rotate(360deg);}}
-  .section-title{font-size:13px; font-weight:700; color:var(--green-dark); text-transform:uppercase; letter-spacing:0.3px; margin:18px 0 10px;}
-  .section-title:first-child{margin-top:0;}
-  .name-search{margin-bottom:10px;}
-
-  .dash-slicers{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px;}
-  .dash-grid-2{display:grid; grid-template-columns:1fr; gap:12px;}
-  .chart-box{ position:relative; height:220px; width:100%; }
-  .chart-box canvas{ position:absolute; top:0; left:0; width:100% !important; height:100% !important; }
-
-  /* ===== DESKTOP / LAPTOP LAYOUT ===== */
-  @media (min-width: 900px){
-    body{ max-width: 1280px; margin: 0 auto; padding-bottom: 20px; }
-    .tabs{ top: 0; }
-    main{ padding: 18px 24px; }
-    .dash-wrap{
-      display:grid;
-      grid-template-columns: 280px 1fr;
-      gap: 14px;
-      align-items: start;
-    }
-    .dash-col-left{ grid-column: 1; display:flex; flex-direction:column; gap:10px; }
-    .dash-col-right{ grid-column: 2; display:flex; flex-direction:column; gap:14px; min-width:0; }
-    .dash-slicers{ grid-template-columns: 1fr; }
-    .dash-stats{ grid-template-columns: repeat(4, 1fr); }
-    .dash-grid-2{ grid-template-columns: 1fr 1fr; }
-    .table-wrap{ max-height: 420px; }
-  }
+:root{
+  --green-dark:#1B5E3A;--green:#2E8B57;--green-light:#E8F5EC;
+  --soil:#7A5230;--wheat:#D9A441;--ink:#1A1F1C;--gray:#6B7570;
+  --line:#D8E2DC;--white:#FFFFFF;--danger:#C0392B;--sky:#3E7C9E;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Segoe UI',system-ui,-apple-system,Roboto,sans-serif;background:var(--green-light);color:var(--ink);-webkit-tap-highlight-color:transparent;padding-bottom:80px;}
+header{background:var(--green-dark);color:white;padding:18px 16px 16px;position:sticky;top:0;z-index:20;box-shadow:0 2px 8px rgba(0,0,0,0.15);}
+header h1{font-size:18px;font-weight:700;}
+header p{font-size:12px;opacity:0.85;margin-top:2px;}
+.tabs{display:flex;background:white;position:sticky;top:64px;z-index:19;border-bottom:1px solid var(--line);overflow-x:auto;-ms-overflow-style:none;scrollbar-width:none;}
+.tabs::-webkit-scrollbar{display:none;}
+.tab{flex-shrink:0;text-align:center;padding:12px 14px;font-size:12px;font-weight:600;color:var(--gray);border-bottom:3px solid transparent;cursor:pointer;white-space:nowrap;}
+.tab.active{color:var(--green-dark);border-bottom-color:var(--green-dark);}
+main{padding:14px;}
+.card{background:white;border-radius:12px;padding:16px;margin-bottom:12px;border:1px solid var(--line);}
+label{display:block;font-size:12.5px;font-weight:600;color:var(--gray);margin:14px 0 6px;text-transform:uppercase;letter-spacing:0.3px;}
+label:first-child{margin-top:0;}
+.req-star{color:var(--danger);font-weight:700;}
+select,input,textarea{width:100%;padding:13px 12px;font-size:15px;border:1.5px solid var(--line);border-radius:9px;background:white;color:var(--ink);font-family:inherit;}
+input.uc{text-transform:uppercase;}
+input.uc::placeholder{text-transform:none;}
+select:focus,input:focus,textarea:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 3px rgba(46,139,87,0.15);}
+select.field-error,input.field-error,textarea.field-error{border-color:var(--danger)!important;background:#FDF1EF!important;box-shadow:0 0 0 3px rgba(192,57,43,0.12)!important;animation:shake 0.3s;}
+@keyframes shake{0%,100%{transform:translateX(0);}25%{transform:translateX(-4px);}75%{transform:translateX(4px);}}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.btn{width:100%;padding:15px;font-size:15.5px;font-weight:700;border:none;border-radius:10px;background:var(--green-dark);color:white;margin-top:18px;cursor:pointer;}
+.btn:active{background:var(--green);}
+.btn-outline{background:white;color:var(--green-dark);border:1.5px solid var(--green-dark);}
+.btn-sm{padding:9px 14px;font-size:13px;font-weight:700;border:none;border-radius:8px;background:var(--green-dark);color:white;cursor:pointer;width:auto;}
+.toast{position:fixed;bottom:90px;left:16px;right:16px;background:var(--ink);color:white;padding:14px;border-radius:10px;text-align:center;font-size:14px;font-weight:600;z-index:50;display:none;box-shadow:0 4px 16px rgba(0,0,0,0.25);}
+.toast.show{display:block;animation:slideUp 0.25s ease;}
+.toast.err{background:var(--danger);}
+@keyframes slideUp{from{transform:translateY(20px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;}
+.stat{background:white;border-radius:12px;padding:14px;border:1px solid var(--line);border-left:4px solid var(--green);}
+.stat.warn{border-left-color:var(--danger);}
+.stat.sky{border-left-color:var(--sky);}
+.stat .num{font-size:24px;font-weight:800;color:var(--green-dark);}
+.stat.warn .num{color:var(--danger);}
+.stat.sky .num{color:var(--sky);}
+.stat .lbl{font-size:11.5px;color:var(--gray);font-weight:600;text-transform:uppercase;margin-top:2px;}
+.filter-bar{display:flex;gap:8px;overflow-x:auto;padding:2px 0 12px;-ms-overflow-style:none;scrollbar-width:none;}
+.filter-bar::-webkit-scrollbar{display:none;}
+.chip{flex-shrink:0;padding:8px 14px;font-size:12.5px;font-weight:600;border-radius:20px;background:white;border:1.5px solid var(--line);color:var(--gray);cursor:pointer;}
+.chip.active{background:var(--green-dark);color:white;border-color:var(--green-dark);}
+.table-wrap{overflow-x:auto;border-radius:10px;border:1px solid var(--line);}
+table{width:100%;border-collapse:collapse;font-size:12.5px;}
+th{text-align:left;padding:10px 8px;background:var(--green-light);color:var(--green-dark);font-weight:700;white-space:nowrap;}
+td{padding:10px 8px;border-bottom:1px solid var(--line);white-space:nowrap;}
+.badge{padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;}
+.badge.done{background:#E3F4E9;color:var(--green-dark);}
+.badge.pending{background:#FBEFD9;color:#9C6B0E;}
+.badge.danger{background:#FBECEC;color:var(--danger);}
+.empty{text-align:center;padding:40px 20px;color:var(--gray);}
+.empty .icon{font-size:36px;margin-bottom:10px;}
+.empty .sub{font-size:13px;margin-top:4px;}
+.install-banner{background:var(--wheat);color:var(--ink);padding:10px 14px;font-size:12.5px;font-weight:600;display:none;align-items:center;justify-content:space-between;}
+.install-banner.show{display:flex;}
+.install-banner button{background:var(--green-dark);color:white;border:none;padding:6px 12px;border-radius:6px;font-size:12px;font-weight:700;}
+.spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,0.4);border-top-color:white;border-radius:50%;animation:spin 0.7s linear infinite;vertical-align:middle;margin-right:6px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.section-title{font-size:13px;font-weight:700;color:var(--green-dark);text-transform:uppercase;letter-spacing:0.3px;margin:18px 0 10px;}
+.section-title:first-child{margin-top:0;}
+.collapse-header{display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;}
+.collapse-header .toggle-icon{font-size:16px;color:var(--gray);transition:transform 0.2s;margin-left:8px;flex-shrink:0;}
+.collapse-header.collapsed .toggle-icon{transform:rotate(-90deg);}
+.collapsible-body{transition:none;}
+.collapsible-body.hidden{display:none;}
+.name-search{margin-bottom:10px;}
+.dash-slicers{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:12px;}
+.dash-grid-2{display:grid;grid-template-columns:1fr;gap:12px;}
+.chart-box{position:relative;height:220px;width:100%;}
+.chart-box canvas{position:absolute;top:0;left:0;width:100%!important;height:100%!important;}
+.fo-card{background:white;border-radius:10px;padding:12px 14px;border:1px solid var(--line);margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;}
+.fo-card .fo-name{font-size:14px;font-weight:700;color:var(--ink);}
+.fo-card .fo-stats{font-size:11.5px;color:var(--gray);margin-top:3px;}
+.fo-progress{height:5px;background:var(--line);border-radius:10px;margin-top:8px;overflow:hidden;}
+.fo-progress-fill{height:100%;background:var(--green);border-radius:10px;transition:width 0.4s;}
+.heatmap-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.heatmap-label{font-size:12px;font-weight:600;min-width:80px;color:var(--ink);}
+.heatmap-bar{flex:1;height:28px;background:var(--line);border-radius:6px;overflow:hidden;position:relative;}
+.heatmap-fill{height:100%;background:var(--danger);border-radius:6px;display:flex;align-items:center;padding-left:8px;font-size:11px;font-weight:700;color:white;min-width:28px;}
+.quality-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--line);}
+.quality-row:last-child{border-bottom:none;}
+.quality-label{font-size:13px;color:var(--ink);}
+.quality-score{font-size:16px;font-weight:800;}
+@media (min-width:900px){
+  body{max-width:1280px;margin:0 auto;padding-bottom:20px;}
+  main{padding:18px 24px;}
+  .dash-slicers{grid-template-columns:1fr;}
+  .dash-grid-2{grid-template-columns:1fr 1fr;}
+  .stat-grid{grid-template-columns:repeat(4,1fr);}
+}
 </style>
 </head>
 <body>
@@ -173,7 +112,7 @@
 
 <header>
   <h1>🌾 Crystal Demo Tracker</h1>
-  <p>Maize & Paddy — Demo Data 2026</p>
+  <p>Field Crops — Demo Data</p>
 </header>
 
 <div class="tabs">
@@ -184,274 +123,319 @@
 
 <main>
 
-  <!-- ENTRY TAB -->
-  <section id="tab-entry">
+<!-- ENTRY TAB -->
+<section id="tab-entry">
+  <div class="card">
+    <label>Crop <span class="req-star">*</span></label>
+    <select id="f_crop"><option value="">Select Crop</option><option>Maize</option><option>Paddy</option></select>
+
+    <label>FO Name <span class="req-star">*</span></label>
+    <input id="f_name" class="uc" placeholder="Type your full name">
+
+    <label>FO Mobile No <span class="req-star">*</span></label>
+    <input id="f_tmmobile" type="tel" placeholder="10-digit mobile number">
+
+    <label>HQ (Headquarter) <span class="req-star">*</span></label>
+    <input class="uc" id="f_hq" placeholder="Your headquarter location">
+
+    <div class="row2">
+      <div>
+        <label>Zone <span class="req-star">*</span></label>
+        <select id="f_zone"><option value="">Select</option><option>ZONE-1</option><option>ZONE-2</option><option>ZONE-3</option><option>ZONE-4</option><option>ZONE-5</option></select>
+      </div>
+      <div>
+        <label>Region <span class="req-star">*</span></label>
+        <select id="f_region"><option value="">Select Region</option></select>
+      </div>
+    </div>
+
+    <label>Territory <span class="req-star">*</span></label>
+    <select id="f_territory"><option value="">Select Territory</option></select>
+
+    <label>Season <span class="req-star">*</span></label>
+    <select id="f_season"><option value="">Select</option><option>Kharif 25-26</option><option>Rabi 25-26</option><option>Spring 25-26</option><option>Kharif 26-27</option><option>Rabi 26-27</option><option>Spring 26-27</option></select>
+
+    <div class="section-title">Crystal Demo Details</div>
+
+    <label>Demo Hybrid Name <span class="req-star">*</span></label>
+    <select id="f_hybrid"><option value="">Select Hybrid</option></select>
+    <input class="uc" id="f_hybrid_other" placeholder="Type new hybrid name" style="display:none;margin-top:8px;">
+
+    <label>Date of Sowing (DOS) <span class="req-star">*</span></label>
+    <input id="f_dos" type="date">
+
+    <label>Name of Farmer <span class="req-star">*</span></label>
+    <input class="uc" id="f_farmername" placeholder="Farmer's full name">
+
+    <div class="row2">
+      <div>
+        <label>Farmer Mobile No <span class="req-star">*</span></label>
+        <input id="f_farmermobile" type="tel" placeholder="10-digit number">
+      </div>
+      <div>
+        <label>Farmer Category <span class="req-star">*</span></label>
+        <select id="f_farmercat"><option value="">Select</option><option>Progressive</option><option>Pradhan</option><option>Common</option></select>
+      </div>
+    </div>
+
+    <label>Village <span class="req-star">*</span></label>
+    <input class="uc" id="f_village" placeholder="Village name">
+
+    <div class="row2">
+      <div>
+        <label>Block / Tehsil <span class="req-star">*</span></label>
+        <input class="uc" id="f_block" placeholder="Block/Tehsil name">
+      </div>
+      <div>
+        <label>District <span class="req-star">*</span></label>
+        <input class="uc" id="f_district" placeholder="District name">
+      </div>
+    </div>
+
+    <div class="row2">
+      <div>
+        <label>No. of Demo Given <span class="req-star">*</span></label>
+        <input id="f_numdemo" type="number" placeholder="e.g. 1">
+      </div>
+      <div>
+        <label>Demo Qty (Kg) <span class="req-star">*</span></label>
+        <input id="f_demoqty" type="number" placeholder="e.g. 2">
+      </div>
+    </div>
+
+    <label>Plot Type <span class="req-star">*</span></label>
+    <select id="f_plottype"><option value="">Select</option><option>Side By Side</option><option>Without Competition</option></select>
+
+    <div class="section-title">Competition Details</div>
+
+    <label>Comp Hybrid 1 <span class="req-star">*</span></label>
+    <select id="f_comphybrid1"><option value="">Select or choose Other</option></select>
+    <input class="uc" id="f_comphybrid1_other" placeholder="Type competition hybrid name" style="display:none;margin-top:8px;">
+
+    <label>Competition DOS <span class="req-star">*</span></label>
+    <input id="f_compdos1" type="date">
+
+    <label>Comp Hybrid 2 (optional)</label>
+    <select id="f_comphybrid2"><option value="">None / Not applicable</option></select>
+    <input class="uc" id="f_comphybrid2_other" placeholder="Type competition hybrid name" style="display:none;margin-top:8px;">
+
+    <label>Competition 2 DOS (optional)</label>
+    <input id="f_compdos2" type="date">
+
+    <div class="section-title">Yield Data</div>
+    <div class="row2">
+      <div>
+        <label>Crystal Yield/Acre <span class="req-star">*</span></label>
+        <input id="f_crystalyield" type="number" placeholder="0 if unknown">
+      </div>
+      <div>
+        <label>Comp 1 Yield/Acre <span class="req-star">*</span></label>
+        <input id="f_compyield1" type="number" placeholder="0 if unknown">
+      </div>
+    </div>
+    <label>Comp 2 Yield/Acre</label>
+    <input id="f_compyield2" type="number" placeholder="e.g. 22">
+
+    <label>Top 2 Key Observations <span class="req-star">*</span></label>
+    <textarea class="uc" id="f_observations" rows="2" placeholder="e.g. Better cob filling, drought tolerance"></textarea>
+
+    <label>Remarks (optional)</label>
+    <textarea class="uc" id="f_remarks" rows="2" placeholder="Any notes..."></textarea>
+
+    <button class="btn" id="submitBtn">Submit Entry</button>
+  </div>
+</section>
+
+<!-- MY DATA TAB -->
+<section id="tab-mydata" style="display:none;">
+  <div class="card name-search">
+    <label>Type your name or mobile number</label>
+    <input id="my_name" placeholder="Search by name or mobile number">
+  </div>
+  <div id="myDataResults"></div>
+</section>
+
+<!-- UPDATE YIELD SECTION -->
+<section id="tab-updateyield" style="display:none;">
+  <div class="card">
+    <div class="section-title" style="margin-top:0;">Update Yield & Observation</div>
+    <div id="updateYieldInfo" style="background:var(--green-light);padding:10px 12px;border-radius:8px;font-size:12.5px;margin-bottom:14px;"></div>
+    <label>Crystal Yield/Acre</label>
+    <input id="u_crystalyield" type="number" placeholder="e.g. 28">
+    <label>Competition 1 Yield/Acre</label>
+    <input id="u_compyield1" type="number" placeholder="e.g. 24">
+    <label>Competition 2 Yield/Acre</label>
+    <input id="u_compyield2" type="number" placeholder="e.g. 22">
+    <label>Top 2 Key Observations</label>
+    <textarea id="u_observations" rows="3" placeholder="e.g. Better cob filling, drought tolerance"></textarea>
+    <button class="btn" id="updateYieldBtn">Save Update</button>
+    <button class="btn btn-outline" id="cancelUpdateBtn" style="margin-top:10px;">Cancel</button>
+  </div>
+</section>
+
+<!-- DASHBOARD TAB -->
+<section id="tab-dashboard" style="display:none;">
+  <!-- PIN SCREEN -->
+  <div class="card" id="dashLockScreen">
+    <div class="section-title" style="margin-top:0;">🔒 Dashboard Access</div>
+    <p style="font-size:13px;color:var(--gray);margin-bottom:14px;">Enter your access PIN to view the dashboard.</p>
+    <label>Access PIN</label>
+    <input id="dash_pin" type="password" inputmode="numeric" placeholder="Enter PIN" maxlength="6">
+    <button class="btn" id="dashUnlockBtn">Unlock Dashboard</button>
+  </div>
+
+  <!-- DASHBOARD CONTENT -->
+  <div id="dashContent" style="display:none;">
+
+    <!-- Season + Crop filters -->
+    <div class="filter-bar" id="seasonFilterBar"></div>
+    <div class="filter-bar" id="cropFilterBar"></div>
+
+    <!-- Zone + Region + Territory slicers -->
+    <div class="dash-slicers">
+      <div>
+        <label style="margin:0 0 6px;">Zone</label>
+        <select id="dash_zone"><option value="">All Zones</option><option>ZONE-1</option><option>ZONE-2</option><option>ZONE-3</option><option>ZONE-4</option><option>ZONE-5</option></select>
+      </div>
+      <div>
+        <label style="margin:0 0 6px;">Region</label>
+        <select id="dash_region"><option value="">All Regions</option></select>
+      </div>
+      <div>
+        <label style="margin:0 0 6px;">Territory</label>
+        <select id="dash_territory"><option value="">All Territories</option></select>
+      </div>
+    </div>
+
+    <!-- Export button -->
+    <button class="btn-sm" id="exportBtn" style="margin-bottom:14px;">⬇️ Export to Excel</button>
+
+    <!-- KPI stats -->
+    <div class="stat-grid">
+      <div class="stat"><div class="num" id="stat_total">0</div><div class="lbl">Total Entries</div></div>
+      <div class="stat"><div class="num" id="stat_demos">0</div><div class="lbl">Total Demos</div></div>
+      <div class="stat warn"><div class="num" id="stat_pending">0</div><div class="lbl">Yield Pending</div></div>
+      <div class="stat sky"><div class="num" id="stat_fos">0</div><div class="lbl">Active FOs</div></div>
+    </div>
+
+    <!-- Data Quality Score -->
     <div class="card">
-      <label>Crop <span class="req-star">*</span></label>
-      <select id="f_crop">
-        <option value="">Select Crop</option>
-        <option>Maize</option>
-        <option>Paddy</option>
-      </select>
-
-      <label>FO Name <span class="req-star">*</span></label>
-      <input id="f_name" placeholder="Type your full name" style="text-transform:uppercase;">
-
-      <label>FO Mobile No <span class="req-star">*</span></label>
-      <input id="f_tmmobile" type="tel" placeholder="10-digit mobile number">
-
-      <label>HQ (Headquarter) <span class="req-star">*</span></label>
-      <input id="f_hq" placeholder="Your headquarter location">
-
-      <div class="row2">
-        <div>
-          <label>Zone <span class="req-star">*</span></label>
-          <select id="f_zone">
-            <option value="">Select</option>
-            <option>ZONE-1</option><option>ZONE-2</option>
-            <option>ZONE-3</option><option>ZONE-4</option>
-            <option>ZONE-5</option>
-          </select>
-        </div>
-        <div>
-          <label>Region <span class="req-star">*</span></label>
-          <select id="f_region">
-            <option value="">Select Region</option>
-          </select>
-        </div>
+      <div class="collapse-header" onclick="toggleSection('dq')">
+        <div class="section-title" style="margin-top:0;">📋 Data Quality Score</div>
+        <span class="toggle-icon">▼</span>
       </div>
-
-      <label>Territory <span class="req-star">*</span></label>
-      <select id="f_territory">
-        <option value="">Select Territory</option>
-      </select>
-
-      <label>Season <span class="req-star">*</span></label>
-      <select id="f_season">
-        <option value="">Select</option>
-        <option>Kharif</option>
-        <option>Rabi</option>
-      </select>
-
-      <div class="section-title">Crystal Demo Details</div>
-
-      <label>Demo Hybrid Name (Crystal) <span class="req-star">*</span></label>
-      <select id="f_hybrid">
-        <option value="">Select Hybrid</option>
-        <option value="__OTHER__">Other (type manually)</option>
-      </select>
-      <input id="f_hybrid_other" placeholder="Type new hybrid name" style="display:none; margin-top:8px;">
-
-      <label>Date of Sowing — DOS (DD/MM/YYYY) <span class="req-star">*</span></label>
-      <input id="f_dos" type="date">
-
-      <label>Name of Farmer <span class="req-star">*</span></label>
-      <input id="f_farmername" placeholder="Farmer's full name">
-
-      <div class="row2">
-        <div>
-          <label>Farmer Mobile No <span class="req-star">*</span></label>
-          <input id="f_farmermobile" type="tel" placeholder="10-digit number">
-        </div>
-        <div>
-          <label>Farmer Category <span class="req-star">*</span></label>
-          <select id="f_farmercat">
-            <option value="">Select</option>
-            <option>Progressive</option>
-            <option>Pradhan</option>
-            <option>Common</option>
-          </select>
-        </div>
+      <div class="collapsible-body" id="body-dq">
+      <div class="quality-row">
+        <span class="quality-label">Complete entries</span>
+        <span class="quality-score" id="dq_complete" style="color:var(--green-dark);">—</span>
       </div>
-
-      <label>Village <span class="req-star">*</span></label>
-      <input id="f_village" placeholder="Village name">
-
-      <div class="row2">
-        <div>
-          <label>Block / Tehsil <span class="req-star">*</span></label>
-          <input id="f_block" placeholder="Block/Tehsil name">
-        </div>
-        <div>
-          <label>District <span class="req-star">*</span></label>
-          <input id="f_district" placeholder="District name">
-        </div>
+      <div class="quality-row">
+        <span class="quality-label">Valid mobile numbers</span>
+        <span class="quality-score" id="dq_mobile" style="color:var(--green-dark);">—</span>
       </div>
-
-      <div class="row2">
-        <div>
-          <label>No. of Demo Given <span class="req-star">*</span></label>
-          <input id="f_numdemo" type="number" placeholder="e.g. 1">
-        </div>
-        <div>
-          <label>Demo Qty (Kg) <span class="req-star">*</span></label>
-          <input id="f_demoqty" type="number" placeholder="e.g. 2">
-        </div>
+      <div class="quality-row">
+        <span class="quality-label">Yield data filled</span>
+        <span class="quality-score" id="dq_yield" style="color:var(--green-dark);">—</span>
       </div>
-
-      <label>Plot Type <span class="req-star">*</span></label>
-      <select id="f_plottype">
-        <option value="">Select</option>
-        <option>Side By Side</option>
-        <option>Without Competition</option>
-      </select>
-
-      <div class="section-title">Competition Details</div>
-
-      <label>Comp Hybrid 1 <span style="color:var(--danger)">*</span></label>
-      <select id="f_comphybrid1">
-        <option value="">Select or choose Other</option>
-        <option value="__OTHER__">Other (type manually)</option>
-      </select>
-      <input id="f_comphybrid1_other" placeholder="Type competition hybrid name" style="display:none; margin-top:8px;">
-
-      <label>Competition DOS (DD/MM/YYYY) <span class="req-star">*</span></label>
-      <input id="f_compdos1" type="date">
-
-      <label>Comp Hybrid 2 (optional)</label>
-      <select id="f_comphybrid2">
-        <option value="">None / Not applicable</option>
-        <option value="__OTHER__">Other (type manually)</option>
-      </select>
-      <input id="f_comphybrid2_other" placeholder="Type competition hybrid name" style="display:none; margin-top:8px;">
-
-      <label>Competition 2 DOS (optional)</label>
-      <input id="f_compdos2" type="date">
-
-      <div class="section-title">Yield Comparison (fill after harvest, optional now)</div>
-
-      <div class="row2">
-        <div>
-          <label>Crystal Yield/Acre <span class="req-star">*</span></label>
-          <input id="f_crystalyield" type="number" placeholder="e.g. 28">
-        </div>
-        <div>
-          <label>Competition 1 Yield/Acre <span class="req-star">*</span></label>
-          <input id="f_compyield1" type="number" placeholder="e.g. 24">
-        </div>
-      </div>
-      <label>Competition 2 Yield/Acre</label>
-      <input id="f_compyield2" type="number" placeholder="e.g. 22">
-
-      <label>Top 2 Key Observations of Crystal Hybrid <span class="req-star">*</span></label>
-      <textarea id="f_observations" rows="2" placeholder="e.g. Better cob filling, drought tolerance"></textarea>
-
-      <label>Remarks (optional)</label>
-      <textarea id="f_remarks" rows="2" placeholder="Any notes..."></textarea>
-
-      <button class="btn" id="submitBtn">Submit Entry</button>
-    </div>
-  </section>
-
-  <!-- MY DATA TAB -->
-  <section id="tab-mydata" style="display:none;">
-    <div class="card name-search">
-      <label>Type your name to view your submissions</label>
-      <input id="my_name" placeholder="Type your name or mobile number">
-    </div>
-    <div id="myDataResults"></div>
-  </section>
-
-  <!-- DASHBOARD TAB (PIN protected) -->
-  <section id="tab-dashboard" style="display:none;">
-
-    <!-- PIN LOCK SCREEN -->
-    <div class="card" id="dashLockScreen">
-      <div class="section-title" style="margin-top:0;">🔒 Dashboard Access</div>
-      <p style="font-size:13px; color:var(--gray); margin-bottom:14px;">Enter the access PIN to view the analytics dashboard.</p>
-      <label>Access PIN</label>
-      <input id="dash_pin" type="password" inputmode="numeric" placeholder="Enter PIN" maxlength="6">
-      <button class="btn" id="dashUnlockBtn">Unlock Dashboard</button>
-    </div>
-
-    <!-- ACTUAL DASHBOARD (hidden until unlocked) -->
-    <div id="dashContent" class="dash-wrap" style="display:none;">
-
-      <div class="dash-col-left">
-        <div class="filter-bar" id="seasonFilterBar"></div>
-
-        <div class="dash-slicers">
-          <div>
-            <label style="margin:0 0 6px;">Zone</label>
-            <select id="dash_zone">
-              <option value="">All Zones</option>
-              <option>ZONE-1</option><option>ZONE-2</option>
-              <option>ZONE-3</option><option>ZONE-4</option>
-              <option>ZONE-5</option>
-            </select>
-          </div>
-          <div>
-            <label style="margin:0 0 6px;">Region</label>
-            <select id="dash_region">
-              <option value="">All Regions</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="filter-bar" id="cropFilterBar"></div>
-      </div>
-
-      <div class="dash-col-right">
-
-        <div class="stat-grid dash-stats">
-          <div class="stat"><div class="num" id="stat_total">0</div><div class="lbl">Total Entries</div></div>
-          <div class="stat"><div class="num" id="stat_qty">0</div><div class="lbl">Total Demos Given</div></div>
-          <div class="stat"><div class="num" id="stat_demo">0</div><div class="lbl">Yield Data Captured</div></div>
-          <div class="stat"><div class="num" id="stat_tms">0</div><div class="lbl">Active FOs</div></div>
-        </div>
-
-        <div class="dash-grid-2">
-          <div class="card">
-            <div class="section-title" style="margin-top:0;">Entries by Crop</div>
-            <div class="chart-box"><canvas id="chartCrop"></canvas></div>
-          </div>
-          <div class="card">
-            <div class="section-title" style="margin-top:0;">Entries by Zone</div>
-            <div class="chart-box"><canvas id="chartZone"></canvas></div>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="section-title" style="margin-top:0;">🔍 Hybrid vs Competition Analysis</div>
-          <label style="margin:0 0 8px;">Select Crystal Hybrid</label>
-          <select id="hybrid_select">
-            <option value="">Select a hybrid to analyze</option>
-          </select>
-          <div class="chart-box" style="margin-top:14px;"><canvas id="chartHybridComp"></canvas></div>
-          <div id="hybridAnalysisTable" style="margin-top:14px;"></div>
-        </div>
-
-        <div>
-          <div class="section-title">All Submissions</div>
-          <div id="dashTable"><div class="empty"><div class="icon">📭</div>Loading data...</div></div>
-        </div>
-
+      <div class="quality-row">
+        <span class="quality-label">Observations filled</span>
+        <span class="quality-score" id="dq_obs" style="color:var(--green-dark);">—</span>
       </div>
     </div>
-  </section>
 
-  <!-- UPDATE YIELD MODAL (shown inline as a card) -->
-  <section id="tab-updateyield" style="display:none;">
+      </div>
+    <!-- Pending Yield Alert -->
     <div class="card">
-      <div class="section-title" style="margin-top:0;">Update Yield & Observation</div>
-      <div id="updateYieldInfo" style="background:var(--green-light); padding:10px 12px; border-radius:8px; font-size:12.5px; margin-bottom:14px;"></div>
-
-      <label>Crystal Yield/Acre</label>
-      <input id="u_crystalyield" type="number" placeholder="e.g. 28">
-
-      <label>Competition 1 Yield/Acre</label>
-      <input id="u_compyield1" type="number" placeholder="e.g. 24">
-
-      <label>Competition 2 Yield/Acre</label>
-      <input id="u_compyield2" type="number" placeholder="e.g. 22">
-
-      <label>Top 2 Key Observations of Crystal Hybrid</label>
-      <textarea id="u_observations" rows="3" placeholder="e.g. Better cob filling, drought tolerance"></textarea>
-
-      <button class="btn" id="updateYieldBtn">Save Update</button>
-      <button class="btn btn-outline" id="cancelUpdateBtn" style="margin-top:10px;">Cancel</button>
+      <div class="collapse-header" onclick="toggleSection('py')">
+        <div class="section-title" style="margin-top:0;">⚠️ Pending Yield — Follow Up Needed</div>
+        <span class="toggle-icon">▼</span>
+      </div>
+      <div class="collapsible-body" id="body-py">
+      <div id="pendingYieldList"></div>
     </div>
-  </section>
+
+      </div>
+    <!-- Charts row -->
+    <div class="dash-grid-2">
+      <div class="card">
+        <div class="section-title" style="margin-top:0;">Entries by Crop</div>
+        <div class="chart-box"><canvas id="chartCrop"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="section-title" style="margin-top:0;">Entries by Zone</div>
+        <div class="chart-box"><canvas id="chartZone"></canvas></div>
+      </div>
+    </div>
+
+    <!-- Seasonal comparison -->
+    <div class="card">
+      <div class="collapse-header" onclick="toggleSection('seasonal')">
+        <div class="section-title" style="margin-top:0;">📅 Season-wise Yield Comparison</div>
+        <span class="toggle-icon">▼</span>
+      </div>
+      <div class="collapsible-body" id="body-seasonal">
+      <div class="chart-box"><canvas id="chartSeasonal"></canvas></div>
+    </div>
+
+      </div>
+    <!-- FO Scorecard -->
+    <div class="card">
+      <div class="collapse-header" onclick="toggleSection('fo')">
+        <div class="section-title" style="margin-top:0;">👤 FO Performance Scorecard</div>
+        <span class="toggle-icon">▼</span>
+      </div>
+      <div class="collapsible-body" id="body-fo">
+      <div id="foScorecard"></div>
+    </div>
+
+      </div>
+    <!-- Competition Heatmap -->
+    <div class="card">
+      <div class="collapse-header" onclick="toggleSection('heatmap')">
+        <div class="section-title" style="margin-top:0;">🔥 Competition Heatmap — Most Faced Brands</div>
+        <span class="toggle-icon">▼</span>
+      </div>
+      <div class="collapsible-body" id="body-heatmap">
+      <div id="compHeatmap"></div>
+    </div>
+
+      </div>
+    <!-- Hybrid vs Competition -->
+    <div class="card">
+      <div class="collapse-header" onclick="toggleSection('hybrid')">
+        <div class="section-title" style="margin-top:0;">🔍 Hybrid vs Competition Analysis</div>
+        <span class="toggle-icon">▼</span>
+      </div>
+      <div class="collapsible-body" id="body-hybrid">
+      <label style="margin:0 0 8px;">Select Crystal Hybrid</label>
+      <select id="hybrid_select"><option value="">Select a hybrid to analyze</option></select>
+      <div class="chart-box" style="margin-top:14px;"><canvas id="chartHybridComp"></canvas></div>
+      <div id="hybridAnalysisTable" style="margin-top:14px;"></div>
+    </div>
+
+      </div>
+    <!-- Territory drill-down -->
+    <div class="card">
+      <div class="collapse-header" onclick="toggleSection('territory')">
+        <div class="section-title" style="margin-top:0;">📍 Territory Drill-Down</div>
+        <span class="toggle-icon">▼</span>
+      </div>
+      <div class="collapsible-body" id="body-territory">
+      <div id="territoryTable"></div>
+    </div>
+
+      </div>
+    <!-- All submissions table -->
+    <div class="collapse-header" onclick="toggleSection('alldata')">
+      <div class="section-title">All Submissions</div>
+      <span class="toggle-icon">▼</span>
+    </div>
+    <div class="collapsible-body" id="body-alldata">
+    <div id="dashTable"></div>
+
+    </div>
+  </div>
+</section>
 
 </main>
 
@@ -460,110 +444,105 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script>
 /* ====== CONFIG ====== */
-// PASTE YOUR GOOGLE APPS SCRIPT WEB APP URL HERE AFTER DEPLOYMENT
 const API_URL = "https://script.google.com/macros/s/AKfycbz4igMfs67I2Nor8rcF-BlRr_EkxpcAqN_Ejvtuzi2-wEubq-JoVE3zsZfXlo34Hv4H/exec";
-
-// Change this PIN to whatever you want — only people you share this with can view the dashboard
 const DASHBOARD_PIN = "2026";
 
-// Official Zone -> Region -> Territory mapping (from company master data)
 const ZONE_REGIONS = {
-  "ZONE-1": ["BHATINDA", "HISSAR"],
-  "ZONE-2": ["AHAMDABAD", "ALWAR", "JAIPUR", "UP-AGRA"],
-  "ZONE-3": ["LUCKNOW", "PATNA", "RAIPUR"],
-  "ZONE-4": ["CS NAGAR", "JALGAON", "NAGPUR"],
-  "ZONE-5": ["GUNTUR", "HUBLI", "HYDERABAD", "WARANGAL"],
-  "ZONE HO-RETAIL": ["HO-RETAIL"]
+  "ZONE-1":["BHATINDA","HISSAR"],
+  "ZONE-2":["AHAMDABAD","ALWAR","JAIPUR","UP-AGRA"],
+  "ZONE-3":["LUCKNOW","PATNA","RAIPUR"],
+  "ZONE-4":["CS NAGAR","JALGAON","NAGPUR"],
+  "ZONE-5":["GUNTUR","HUBLI","HYDERABAD","WARANGAL"]
 };
 const REGION_TERRITORIES = {
-  "BHATINDA": ["JALANDHAR", "PB-AMRITSAR", "PB-BHATINDA", "PB-MOGA", "PB-Mansa", "PB-PATIALA", "RJ-HANUMANGARH", "RJ-SRIGANGANAGAR"],
-  "HISSAR": ["HR-SIRSA"],
-  "AHAMDABAD": ["GU-BADOLI", "GU-HIMMATNAGAR", "GU-VADODARA"],
-  "ALWAR": ["RJ-BHARATPUR"],
-  "JAIPUR": ["HINDAUN", "RJ - Dausa(Seed)", "RJ-BHILWARA", "RJ-CHITTORGARH", "RJ-JAIPUR", "RJ-Kota", "RJ-SAWAI MADHOPUR"],
-  "UP-AGRA": ["UP-BAREILLY", "UP-KANPUR", "UP-MUZAFFARNAGAR"],
-  "LUCKNOW": ["UP-AYODHYA", "UP-AZAMGARH", "UP-BAHRAICH", "UP-GORAKKHPUR", "UP-HARDOI", "UP-KANNAUJ", "UP-PRAYAGRAJ"],
-  "PATNA": ["BH-Araria", "BH-BETIAH", "BH-Khagaria", "BH-PATNA", "BH-PURNEA", "BH-SAHARSA", "BH-SAMASTIPUR", "RAIGANJ"],
-  "RAIPUR": ["BH-DALTANGANJ", "BH-RANCHI", "CG-AMBIKAPUR", "CG-RAMANUJGANJ", "MP-REWA"],
-  "CS NAGAR": ["MS-AHMADNAGAR", "MS-JALNA", "MS-MALEGAON", "MS-SOLAPUR"],
-  "JALGAON": ["MP-GUNA", "MP-KHARGAON", "MS-Dhule", "MS-JALGAON"],
-  "NAGPUR": ["MP-CHINDWARA", "MS-AKOLA", "MS-NAGPUR"],
-  "GUNTUR": ["AP-ADONI", "AP-ELURU", "AP-GUNTUR", "AP-KURNOOL"],
-  "HUBLI": ["KA-BELLARY", "KA-DAVANGERE", "KA-HUBLI", "KA-MYSORE", "KA-RAICHUR", "KA-VIJAYAPURA"],
-  "HYDERABAD": ["TG-JADCHARLA", "TG-KHAMMAM", "TG-NAGARKURNOOL", "TG-NARAYANKHED", "TG-Nalgonda", "TG-SADASHIVPET"],
-  "WARANGAL": ["TG-ADILABAD", "TG-GAJWEL", "TG-KARIMNAGAR", "TG-NIZAMABAD"],
-  "HO-RETAIL": ["HO-RETAIL"]
+  "BHATINDA":["JALANDHAR","PB-AMRITSAR","PB-BHATINDA","PB-MOGA","PB-Mansa","PB-PATIALA","RJ-HANUMANGARH","RJ-SRIGANGANAGAR"],
+  "HISSAR":["HR-SIRSA"],
+  "AHAMDABAD":["GU-BADOLI","GU-HIMMATNAGAR","GU-VADODARA"],
+  "ALWAR":["RJ-BHARATPUR"],
+  "JAIPUR":["HINDAUN","RJ-Dausa(Seed)","RJ-BHILWARA","RJ-CHITTORGARH","RJ-JAIPUR","RJ-Kota","RJ-SAWAI MADHOPUR"],
+  "UP-AGRA":["UP-BAREILLY","UP-KANPUR","UP-MUZAFFARNAGAR"],
+  "LUCKNOW":["UP-AYODHYA","UP-AZAMGARH","UP-BAHRAICH","UP-GORAKKHPUR","UP-HARDOI","UP-KANNAUJ","UP-PRAYAGRAJ"],
+  "PATNA":["BH-Araria","BH-BETIAH","BH-Khagaria","BH-PATNA","BH-PURNEA","BH-SAHARSA","BH-SAMASTIPUR","RAIGANJ"],
+  "RAIPUR":["BH-DALTANGANJ","BH-RANCHI","CG-AMBIKAPUR","CG-RAMANUJGANJ","MP-REWA"],
+  "CS NAGAR":["MS-AHMADNAGAR","MS-JALNA","MS-MALEGAON","MS-SOLAPUR"],
+  "JALGAON":["MP-GUNA","MP-KHARGAON","MS-Dhule","MS-JALGAON"],
+  "NAGPUR":["MP-CHINDWARA","MS-AKOLA","MS-NAGPUR"],
+  "GUNTUR":["AP-ADONI","AP-ELURU","AP-GUNTUR","AP-KURNOOL"],
+  "HUBLI":["KA-BELLARY","KA-DAVANGERE","KA-HUBLI","KA-MYSORE","KA-RAICHUR","KA-VIJAYAPURA"],
+  "HYDERABAD":["TG-JADCHARLA","TG-KHAMMAM","TG-NAGARKURNOOL","TG-NARAYANKHED","TG-Nalgonda","TG-SADASHIVPET"],
+  "WARANGAL":["TG-ADILABAD","TG-GAJWEL","TG-KARIMNAGAR","TG-NIZAMABAD"]
 };
-
-// Official Crystal hybrid names by crop (complete portfolio as provided)
 const CRYSTAL_HYBRIDS = {
-  Maize: ["CMH 157", "CMH 3456", "CMH 6453", "ICRON 4455", "PA 6004", "PA 6096", "PA 6106", "PA 6108", "PA 6110", "PA 6121", "PA 6123", "PA 6322", "PA 6354", "PA 6401", "PA 6666", "PA 6730", "PA 6755", "RMH 1818", "RMH 1899 S", "RMH 666*"],
-  Paddy: ["10X Gold", "CHR 106", "CHR 846", "Deepika", "Divya", "Divyashree", "Heera", "IRICE 413", "IRICE 4655", "Narmada", "PA 4601", "PA 4633", "PA 4647", "PA 4666 G", "PA 4672", "Pro Poha"]
+  Maize:["CMH 157","CMH 3456","CMH 6453","ICRON 4455","PA 6004","PA 6096","PA 6106","PA 6108","PA 6110","PA 6121","PA 6123","PA 6322","PA 6354","PA 6401","PA 6666","PA 6730","PA 6755","RMH 1818","RMH 1899 S","RMH 666*"],
+  Paddy:["10X Gold","CHR 106","CHR 846","Deepika","Divya","Divyashree","Heera","IRICE 413","IRICE 4655","Narmada","PA 4601","PA 4633","PA 4647","PA 4666 G","PA 4672","Pro Poha"]
 };
-
-// Common competition hybrids by crop (for quick-select; "Other" always available)
 const COMP_HYBRIDS = {
-  Maize: ["DKC 9133", "DKC 9178", "DKC 9208", "ADV 741", "ADV 751", "ADV 768", "CP 333", "CP 555", "CP 509", "AVATAR", "Bioseed 9546", "666 Star"],
-  Paddy: ["Arize 6444", "Arize 6444 Gold", "27P31", "27P37", "Ankur 6077", "Arize 5333", "GX202", "Gajab", "Champion", "Chamak", "Dhadak Gold", "Dhananjay Gold"]
+  Maize:["DKC 9133","DKC 9178","DKC 9208","ADV 741","ADV 751","ADV 768","CP 333","CP 555","CP 509","AVATAR","Bioseed 9546","666 Star"],
+  Paddy:["Arize 6444","Arize 6444 Gold","27P31","27P37","Ankur 6077","Arize 5333","GX202","Gajab","Champion","Chamak","Dhadak Gold","Dhananjay Gold"]
 };
 
 let allRows = [];
 let activeCropFilter = "ALL";
+let activeSeasonFilter = "ALL";
+let dashUnlocked = false;
+let myDataLoaded = false;
 let currentEditRowId = null;
+let chartCropInst, chartZoneInst, chartSeasonalInst, chartHybridCompInst;
 
-/* ====== INIT ====== */
-function populateRegionDropdown(){
+/* ====== UPPERCASE ENFORCEMENT (CSS + JS double layer) ====== */
+// CSS handles display, JS ensures actual value stored is also uppercase
+const ucFields = ["f_name","f_hq","f_farmername","f_village","f_block","f_district","f_hybrid_other","f_comphybrid1_other","f_comphybrid2_other","f_observations","f_remarks"];
+ucFields.forEach(id => {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.addEventListener("input", () => {
+    const pos = el.selectionStart;
+    el.value = el.value.toUpperCase();
+    try { el.setSelectionRange(pos, pos); } catch(e) {}
+  });
+});
+
+/* ====== MOBILE NUMBER VALIDATION ====== */
+function isValidMobile(num) {
+  return /^\d{10}$/.test((num||"").toString().replace(/\s/g,""));
+}
+// Real-time: only allow digits, max 10
+["f_tmmobile","f_farmermobile"].forEach(id => {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.addEventListener("input", () => {
+    el.value = el.value.replace(/\D/g,"").slice(0,10);
+  });
+});
+document.getElementById("f_zone").addEventListener("change", () => {
   const zone = document.getElementById("f_zone").value;
-  const regionSel = document.getElementById("f_region");
   const regions = ZONE_REGIONS[zone] || [];
-  regionSel.innerHTML = '<option value="">Select Region</option>' + regions.map(r => `<option>${r}</option>`).join("");
+  const rSel = document.getElementById("f_region");
+  rSel.innerHTML = '<option value="">Select Region</option>' + regions.map(r => `<option>${r}</option>`).join("");
   document.getElementById("f_territory").innerHTML = '<option value="">Select Territory</option>';
-}
-function populateTerritoryDropdown(){
+});
+document.getElementById("f_region").addEventListener("change", () => {
   const region = document.getElementById("f_region").value;
-  const terrSel = document.getElementById("f_territory");
   const territories = REGION_TERRITORIES[region] || [];
-  terrSel.innerHTML = '<option value="">Select Territory</option>' + territories.map(t => `<option>${t}</option>`).join("");
+  document.getElementById("f_territory").innerHTML = '<option value="">Select Territory</option>' + territories.map(t => `<option>${t}</option>`).join("");
+});
+document.getElementById("f_crop").addEventListener("change", (e) => populateHybridDropdowns(e.target.value));
+
+function populateHybridDropdowns(crop) {
+  const hSel = document.getElementById("f_hybrid");
+  const c1 = document.getElementById("f_comphybrid1");
+  const c2 = document.getElementById("f_comphybrid2");
+  hSel.innerHTML = '<option value="">Select Hybrid</option>' + (CRYSTAL_HYBRIDS[crop]||[]).map(h=>`<option>${h}</option>`).join("") + '<option value="__OTHER__">Other (type manually)</option>';
+  c1.innerHTML = '<option value="">Select or choose Other</option>' + (COMP_HYBRIDS[crop]||[]).map(h=>`<option>${h}</option>`).join("") + '<option value="__OTHER__">Other (type manually)</option>';
+  c2.innerHTML = '<option value="">None / Not applicable</option>' + (COMP_HYBRIDS[crop]||[]).map(h=>`<option>${h}</option>`).join("") + '<option value="__OTHER__">Other (type manually)</option>';
 }
-document.getElementById("f_zone").addEventListener("change", populateRegionDropdown);
-document.getElementById("f_region").addEventListener("change", populateTerritoryDropdown);
+document.getElementById("f_hybrid").addEventListener("change", e => { document.getElementById("f_hybrid_other").style.display = e.target.value === "__OTHER__" ? "block" : "none"; });
+document.getElementById("f_comphybrid1").addEventListener("change", e => { document.getElementById("f_comphybrid1_other").style.display = e.target.value === "__OTHER__" ? "block" : "none"; });
+document.getElementById("f_comphybrid2").addEventListener("change", e => { document.getElementById("f_comphybrid2_other").style.display = e.target.value === "__OTHER__" ? "block" : "none"; });
 
-function populateHybridDropdowns(crop){
-  const hybridSel = document.getElementById("f_hybrid");
-  const comp1Sel = document.getElementById("f_comphybrid1");
-  const comp2Sel = document.getElementById("f_comphybrid2");
-
-  hybridSel.innerHTML = '<option value="">Select Hybrid</option>' +
-    (CRYSTAL_HYBRIDS[crop] || []).map(h => `<option>${h}</option>`).join("") +
-    '<option value="__OTHER__">Other (type manually)</option>';
-
-  comp1Sel.innerHTML = '<option value="">Select or choose Other</option>' +
-    (COMP_HYBRIDS[crop] || []).map(h => `<option>${h}</option>`).join("") +
-    '<option value="__OTHER__">Other (type manually)</option>';
-
-  comp2Sel.innerHTML = '<option value="">None / Not applicable</option>' +
-    (COMP_HYBRIDS[crop] || []).map(h => `<option>${h}</option>`).join("") +
-    '<option value="__OTHER__">Other (type manually)</option>';
-}
-
-document.getElementById("f_crop").addEventListener("change", (e) => {
-  populateHybridDropdowns(e.target.value);
-});
-
-// Auto-clear red highlight as soon as a field gets a value
-document.querySelectorAll("#tab-entry input, #tab-entry select, #tab-entry textarea").forEach(el => {
-  el.addEventListener("input", () => { if (el.value) el.classList.remove("field-error"); });
-  el.addEventListener("change", () => { if (el.value) el.classList.remove("field-error"); });
-});
-
-document.getElementById("f_hybrid").addEventListener("change", (e) => {
-  document.getElementById("f_hybrid_other").style.display = e.target.value === "__OTHER__" ? "block" : "none";
-});
-document.getElementById("f_comphybrid1").addEventListener("change", (e) => {
-  document.getElementById("f_comphybrid1_other").style.display = e.target.value === "__OTHER__" ? "block" : "none";
-});
-document.getElementById("f_comphybrid2").addEventListener("change", (e) => {
-  document.getElementById("f_comphybrid2_other").style.display = e.target.value === "__OTHER__" ? "block" : "none";
+document.querySelectorAll("#tab-entry input,#tab-entry select,#tab-entry textarea").forEach(el => {
+  el.addEventListener("input", () => { if(el.value) el.classList.remove("field-error"); });
+  el.addEventListener("change", () => { if(el.value) el.classList.remove("field-error"); });
 });
 
 /* ====== TABS ====== */
@@ -574,544 +553,458 @@ document.querySelectorAll(".tab").forEach(tab => {
     document.querySelectorAll("main section").forEach(s => s.style.display = "none");
     document.getElementById("tab-" + tab.dataset.tab).style.display = "block";
     if (tab.dataset.tab === "mydata") renderMyData();
-    if (tab.dataset.tab === "dashboard"){
-      if (dashUnlocked){
-        document.getElementById("dashLockScreen").style.display = "none";
-        document.getElementById("dashContent").style.display = "block";
-        loadDashboard();
-      } else {
-        document.getElementById("dashLockScreen").style.display = "block";
-        document.getElementById("dashContent").style.display = "none";
-      }
+    if (tab.dataset.tab === "dashboard") {
+      if (dashUnlocked) { document.getElementById("dashLockScreen").style.display="none"; document.getElementById("dashContent").style.display="block"; loadDashboard(); }
+      else { document.getElementById("dashLockScreen").style.display="block"; document.getElementById("dashContent").style.display="none"; }
     }
   });
 });
 
 /* ====== TOAST ====== */
-function showToast(msg, isErr){
+function showToast(msg, isErr) {
   const t = document.getElementById("toast");
-  t.textContent = msg;
-  t.className = "toast show" + (isErr ? " err" : "");
-  setTimeout(() => t.className = "toast", 2500);
+  t.textContent = msg; t.className = "toast show" + (isErr ? " err" : "");
+  setTimeout(() => t.className = "toast", 2800);
 }
 
 /* ====== SUBMIT ====== */
 document.getElementById("submitBtn").addEventListener("click", async () => {
-  const crop = document.getElementById("f_crop").value;
-  const name = document.getElementById("f_name").value;
-  const tmMobile = document.getElementById("f_tmmobile").value;
-  const hq = document.getElementById("f_hq").value;
-  const zone = document.getElementById("f_zone").value;
-  const region = document.getElementById("f_region").value;
-  const territory = document.getElementById("f_territory").value;
-  const season = document.getElementById("f_season").value;
-  let hybrid = document.getElementById("f_hybrid").value;
-  const hybridOther = document.getElementById("f_hybrid_other").value;
-  const dos = document.getElementById("f_dos").value;
-  const farmerName = document.getElementById("f_farmername").value;
-  const farmerMobile = document.getElementById("f_farmermobile").value;
-  const farmerCat = document.getElementById("f_farmercat").value;
-  const village = document.getElementById("f_village").value;
-  const block = document.getElementById("f_block").value;
-  const district = document.getElementById("f_district").value;
-  const numDemo = document.getElementById("f_numdemo").value;
-  const demoQty = document.getElementById("f_demoqty").value;
-  const plotType = document.getElementById("f_plottype").value;
-  let comp1 = document.getElementById("f_comphybrid1").value;
-  const comp1Other = document.getElementById("f_comphybrid1_other").value;
-  let comp2 = document.getElementById("f_comphybrid2").value;
-  const comp2Other = document.getElementById("f_comphybrid2_other").value;
-  const compDos1 = document.getElementById("f_compdos1").value;
-  const crystalYield = document.getElementById("f_crystalyield").value;
-  const compYield1 = document.getElementById("f_compyield1").value;
-  const observations = document.getElementById("f_observations").value;
+  const crop=document.getElementById("f_crop").value;
+  const name=document.getElementById("f_name").value;
+  const tmMobile=document.getElementById("f_tmmobile").value;
+  const hq=document.getElementById("f_hq").value;
+  const zone=document.getElementById("f_zone").value;
+  const region=document.getElementById("f_region").value;
+  const territory=document.getElementById("f_territory").value;
+  const season=document.getElementById("f_season").value;
+  let hybrid=document.getElementById("f_hybrid").value;
+  const hybridOther=document.getElementById("f_hybrid_other").value;
+  const dos=document.getElementById("f_dos").value;
+  const farmerName=document.getElementById("f_farmername").value;
+  const farmerMobile=document.getElementById("f_farmermobile").value;
+  const farmerCat=document.getElementById("f_farmercat").value;
+  const village=document.getElementById("f_village").value;
+  const block=document.getElementById("f_block").value;
+  const district=document.getElementById("f_district").value;
+  const numDemo=document.getElementById("f_numdemo").value;
+  const demoQty=document.getElementById("f_demoqty").value;
+  const plotType=document.getElementById("f_plottype").value;
+  let comp1=document.getElementById("f_comphybrid1").value;
+  const comp1Other=document.getElementById("f_comphybrid1_other").value;
+  let comp2=document.getElementById("f_comphybrid2").value;
+  const comp2Other=document.getElementById("f_comphybrid2_other").value;
+  const compDos1=document.getElementById("f_compdos1").value;
+  const crystalYield=document.getElementById("f_crystalyield").value;
+  const compYield1=document.getElementById("f_compyield1").value;
+  const observations=document.getElementById("f_observations").value;
 
-  const required = {
-    "f_crop": crop, "f_name": name, "f_tmmobile": tmMobile, "f_hq": hq, "f_zone": zone,
-    "f_region": region, "f_territory": territory, "f_season": season,
-    "f_hybrid": hybrid, "f_dos": dos, "f_farmername": farmerName,
-    "f_farmermobile": farmerMobile, "f_farmercat": farmerCat,
-    "f_village": village, "f_block": block, "f_district": district,
-    "f_numdemo": numDemo, "f_demoqty": demoQty, "f_plottype": plotType,
-    "f_comphybrid1": comp1, "f_compdos1": compDos1,
-    "f_crystalyield": crystalYield, "f_compyield1": compYield1,
-    "f_observations": observations
-  };
+  const required = {"f_crop":crop,"f_name":name,"f_tmmobile":tmMobile,"f_hq":hq,"f_zone":zone,"f_region":region,"f_territory":territory,"f_season":season,"f_hybrid":hybrid,"f_dos":dos,"f_farmername":farmerName,"f_farmermobile":farmerMobile,"f_farmercat":farmerCat,"f_village":village,"f_block":block,"f_district":district,"f_numdemo":numDemo,"f_demoqty":demoQty,"f_plottype":plotType,"f_comphybrid1":comp1,"f_compdos1":compDos1,"f_crystalyield":crystalYield,"f_compyield1":compYield1,"f_observations":observations};
 
-  // Clear previous error highlights
-  Object.keys(required).forEach(id => document.getElementById(id).classList.remove("field-error"));
-  document.getElementById("f_hybrid_other").classList.remove("field-error");
-  document.getElementById("f_comphybrid1_other").classList.remove("field-error");
+  document.querySelectorAll(".field-error").forEach(el=>el.classList.remove("field-error"));
+  const missing = Object.entries(required).filter(([k,v])=>!v).map(([k])=>k);
+  if (hybrid==="__OTHER__"&&!hybridOther) missing.push("f_hybrid_other");
+  if (comp1==="__OTHER__"&&!comp1Other) missing.push("f_comphybrid1_other");
 
-  const missingIds = Object.entries(required).filter(([k,v]) => !v).map(([k]) => k);
-  if (hybrid === "__OTHER__" && !hybridOther){ missingIds.push("f_hybrid_other"); }
-  if (comp1 === "__OTHER__" && !comp1Other){ missingIds.push("f_comphybrid1_other"); }
+  // Mobile number 10-digit check
+  if (tmMobile && !isValidMobile(tmMobile)) { missing.push("f_tmmobile"); }
+  if (farmerMobile && !isValidMobile(farmerMobile)) { missing.push("f_farmermobile"); }
 
-  if (missingIds.length){
-    missingIds.forEach(id => document.getElementById(id).classList.add("field-error"));
-    document.getElementById(missingIds[0]).scrollIntoView({ behavior: "smooth", block: "center" });
-    showToast(`${missingIds.length} required field(s) missing — highlighted in red`, true);
+  if (missing.length) {
+    missing.forEach(id=>{ const el=document.getElementById(id); if(el) el.classList.add("field-error"); });
+    document.getElementById(missing[0]).scrollIntoView({behavior:"smooth",block:"center"});
+    showToast(`${missing.length} required field(s) missing — highlighted in red`, true);
     return;
   }
-  if (API_URL.includes("PASTE_YOUR")){
-    showToast("Setup incomplete: Apps Script URL not added yet", true);
-    return;
-  }
+  if (hybrid==="__OTHER__") hybrid=hybridOther;
+  if (comp1==="__OTHER__") comp1=comp1Other;
+  if (comp2==="__OTHER__") comp2=comp2Other;
 
-  if (hybrid === "__OTHER__") hybrid = hybridOther;
-  if (comp1 === "__OTHER__") comp1 = comp1Other;
-  if (comp2 === "__OTHER__") comp2 = comp2Other;
-
-  const btn = document.getElementById("submitBtn");
-  btn.innerHTML = '<span class="spinner"></span>Submitting...';
-  btn.disabled = true;
-
-  const params = new URLSearchParams({
-    action: "submit",
-    crop: crop,
-    tmName: name,
-    tmMobile: tmMobile,
-    hq: hq,
-    zone: zone,
-    region: region,
-    territory: territory,
-    season: season,
-    demoHybrid: hybrid,
-    dos: dos,
-    farmerName: farmerName,
-    farmerMobile: farmerMobile,
-    farmerCategory: farmerCat,
-    village: village,
-    block: block,
-    district: district,
-    numDemo: numDemo,
-    demoQty: demoQty,
-    plotType: plotType,
-    compHybrid1: comp1,
-    compDos1: compDos1,
-    compHybrid2: comp2,
-    compDos2: document.getElementById("f_compdos2").value,
-    crystalYield: crystalYield,
-    compYield1: compYield1,
-    compYield2: document.getElementById("f_compyield2").value,
-    observations: observations,
-    remarks: document.getElementById("f_remarks").value
-  });
-
-  try{
-    const res = await fetch(API_URL, { method: "POST", body: params });
-    const data = await res.json();
-    if (data.ok){
+  const btn=document.getElementById("submitBtn");
+  btn.innerHTML='<span class="spinner"></span>Submitting...'; btn.disabled=true;
+  const params=new URLSearchParams({action:"submit",crop,tmName:name,tmMobile,hq,zone,region,territory,season,demoHybrid:hybrid,dos,farmerName,farmerMobile,farmerCategory:farmerCat,village,block,district,numDemo,demoQty,plotType,compHybrid1:comp1,compDos1,compHybrid2:comp2,compDos2:document.getElementById("f_compdos2").value,crystalYield,compYield1,compYield2:document.getElementById("f_compyield2").value,observations,remarks:document.getElementById("f_remarks").value});
+  try {
+    const res=await fetch(API_URL,{method:"POST",body:params});
+    const data=await res.json();
+    if(data.ok){
       showToast("✅ Entry submitted successfully");
-      document.querySelectorAll("#tab-entry input, #tab-entry textarea").forEach(i => i.value = "");
-      document.querySelectorAll("#tab-entry select").forEach(s => s.selectedIndex = 0);
-      document.getElementById("f_hybrid_other").style.display = "none";
-      document.getElementById("f_comphybrid1_other").style.display = "none";
-      document.getElementById("f_comphybrid2_other").style.display = "none";
-    } else {
-      showToast("Error: " + data.error, true);
-    }
-  } catch(err){
-    showToast("Network error — check connection", true);
-  }
-  btn.innerHTML = "Submit Entry";
-  btn.disabled = false;
+      document.querySelectorAll("#tab-entry input,#tab-entry textarea").forEach(i=>i.value="");
+      document.querySelectorAll("#tab-entry select").forEach(s=>s.selectedIndex=0);
+      ["f_hybrid_other","f_comphybrid1_other","f_comphybrid2_other"].forEach(id=>document.getElementById(id).style.display="none");
+    } else { showToast("Error: "+data.error,true); }
+  } catch(err) { showToast("Network error — check connection",true); }
+  btn.innerHTML="Submit Entry"; btn.disabled=false;
 });
 
-/* ====== FETCH ALL DATA ====== */
-async function fetchAllData(){
-  if (API_URL.includes("PASTE_YOUR")) return [];
-  try{
-    const res = await fetch(API_URL + "?action=list");
-    const data = await res.json();
+/* ====== FETCH ====== */
+async function fetchAllData() {
+  try {
+    const res=await fetch(API_URL+"?action=list");
+    const data=await res.json();
     return data.ok ? data.rows : [];
-  } catch(err){
-    return [];
-  }
+  } catch(e) { return []; }
 }
 
 /* ====== MY DATA ====== */
-let myDataLoaded = false;
+document.getElementById("my_name").addEventListener("input", debounce(()=>filterMyData(),250));
 
-document.getElementById("my_name").addEventListener("input", debounce(() => filterMyData(), 250));
+function debounce(fn,delay){ let t; return(...args)=>{clearTimeout(t);t=setTimeout(()=>fn(...args),delay);}; }
 
-function debounce(fn, delay){
-  let timer;
-  return (...args) => { clearTimeout(timer); timer = setTimeout(() => fn(...args), delay); };
-}
-
-async function renderMyData(){
-  const container = document.getElementById("myDataResults");
-  const query = document.getElementById("my_name").value.trim();
-  if (!myDataLoaded){
-    container.innerHTML = '<div class="empty">Loading your data…</div>';
-    allRows = await fetchAllData();
-    myDataLoaded = true;
-  }
-  if (!query){
-    container.innerHTML = '<div class="card empty"><div class="icon">🔍</div>Type your name or mobile number above<div class="sub">Your submissions will appear here</div></div>';
-    return;
+async function renderMyData() {
+  const container=document.getElementById("myDataResults");
+  if (!myDataLoaded) {
+    container.innerHTML='<div class="empty">Loading your data…</div>';
+    allRows=await fetchAllData(); myDataLoaded=true;
   }
   filterMyData();
 }
 
-function filterMyData(){
-  const container = document.getElementById("myDataResults");
-  const query = document.getElementById("my_name").value.trim().toUpperCase();
-  if (!query){
-    container.innerHTML = '<div class="card empty"><div class="icon">🔍</div>Type your name or mobile number above<div class="sub">Your submissions will appear here</div></div>';
-    return;
+function filterMyData() {
+  const container=document.getElementById("myDataResults");
+  const query=document.getElementById("my_name").value.trim().toUpperCase();
+  if (!query) {
+    container.innerHTML='<div class="card empty"><div class="icon">🔍</div>Type your name or mobile number<div class="sub">Your submissions will appear here</div></div>'; return;
   }
-  const mine = allRows
-    .map((r, idx) => ({...r, _rowIndex: idx}))
-    .filter(r => {
-      const nm = (r.TMName||"").toUpperCase();
-      const mob = (r.TMMobile||"").toString();
-      return nm.includes(query) || mob.includes(query);
-    });
-
-  if (!mine.length){
-    container.innerHTML = '<div class="card empty"><div class="icon">📭</div>No matching entries found<div class="sub">Check the spelling or try your mobile number</div></div>';
-    return;
-  }
-  const sorted = mine.sort((a,b) => new Date(b.Timestamp) - new Date(a.Timestamp));
-  container.innerHTML = sorted.map(r => `
+  const mine=allRows.map((r,idx)=>({...r,_rowIndex:idx})).filter(r=>(r.TMName||"").toUpperCase().includes(query)||(r.TMMobile||"").toString().includes(query));
+  if (!mine.length) { container.innerHTML='<div class="card empty"><div class="icon">📭</div>No matching entries<div class="sub">Try your mobile number</div></div>'; return; }
+  container.innerHTML=mine.sort((a,b)=>new Date(b.Timestamp)-new Date(a.Timestamp)).map(r=>`
     <div class="card" style="padding:14px;">
-      <div style="display:flex; justify-content:space-between; align-items:start; margin-bottom:8px;">
+      <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:8px;">
         <div>
-          <div style="font-weight:700; font-size:14px;">${r.Crop||""} — ${r.DemoHybrid||""}</div>
-          <div style="font-size:12px; color:var(--gray); margin-top:2px;">${r.FarmerName||""} · ${r.Village||""} · ${new Date(r.Timestamp).toLocaleDateString('en-IN')}</div>
+          <div style="font-weight:700;font-size:14px;">${r.Crop||""} — ${r.DemoHybrid||""}</div>
+          <div style="font-size:12px;color:var(--gray);margin-top:2px;">${r.FarmerName||""} · ${r.Village||""} · ${new Date(r.Timestamp).toLocaleDateString('en-IN')}</div>
         </div>
-        <span class="badge ${r.CrystalYield && r.CrystalYield !== '0' ? 'done' : 'pending'}">${r.CrystalYield && r.CrystalYield !== '0' ? 'Yield Added' : 'Yield Pending'}</span>
+        <span class="badge ${r.CrystalYield&&r.CrystalYield!=='0'?'done':'pending'}">${r.CrystalYield&&r.CrystalYield!=='0'?'Yield Added':'Yield Pending'}</span>
       </div>
-      <button class="btn btn-outline" style="margin-top:8px; padding:10px;" onclick='openUpdateYield(${r._rowIndex})'>Update Yield / Observation</button>
-    </div>
-  `).join("");
+      <button class="btn btn-outline" style="margin-top:8px;padding:10px;" onclick="openUpdateYield(${r._rowIndex})">Update Yield / Observation</button>
+    </div>`).join("");
 }
 
-function openUpdateYield(rowIndex){
-  const r = allRows[rowIndex];
-  currentEditRowId = r.Timestamp; // use timestamp as unique identifier
-  document.getElementById("updateYieldInfo").innerHTML =
-    `<b>${r.Crop} — ${r.DemoHybrid}</b><br>Farmer: ${r.FarmerName} · Village: ${r.Village}<br>Comp 1: ${r.CompHybrid1||"—"}`;
-  document.getElementById("u_crystalyield").value = r.CrystalYield || "";
-  document.getElementById("u_compyield1").value = r.CompYield1 || "";
-  document.getElementById("u_compyield2").value = r.CompYield2 || "";
-  document.getElementById("u_observations").value = r.Observations || "";
-
-  document.querySelectorAll("main section").forEach(s => s.style.display = "none");
-  document.getElementById("tab-updateyield").style.display = "block";
+function openUpdateYield(idx) {
+  const r=allRows[idx];
+  currentEditRowId=r.Timestamp;
+  document.getElementById("updateYieldInfo").innerHTML=`<b>${r.Crop} — ${r.DemoHybrid}</b><br>Farmer: ${r.FarmerName} · Village: ${r.Village}<br>Comp 1: ${r.CompHybrid1||"—"}`;
+  document.getElementById("u_crystalyield").value=r.CrystalYield||"";
+  document.getElementById("u_compyield1").value=r.CompYield1||"";
+  document.getElementById("u_compyield2").value=r.CompYield2||"";
+  document.getElementById("u_observations").value=r.Observations||"";
+  document.querySelectorAll("main section").forEach(s=>s.style.display="none");
+  document.getElementById("tab-updateyield").style.display="block";
 }
 
-document.getElementById("cancelUpdateBtn").addEventListener("click", () => {
-  document.getElementById("tab-updateyield").style.display = "none";
-  document.getElementById("tab-mydata").style.display = "block";
+document.getElementById("cancelUpdateBtn").addEventListener("click",()=>{
+  document.getElementById("tab-updateyield").style.display="none";
+  document.getElementById("tab-mydata").style.display="block";
 });
 
 document.getElementById("updateYieldBtn").addEventListener("click", async () => {
-  if (API_URL.includes("PASTE_YOUR")){
-    showToast("Setup incomplete: Apps Script URL not added yet", true);
-    return;
-  }
-  const btn = document.getElementById("updateYieldBtn");
-  btn.innerHTML = '<span class="spinner"></span>Saving...';
-  btn.disabled = true;
-
-  const params = new URLSearchParams({
-    action: "update",
-    timestamp: currentEditRowId,
-    crystalYield: document.getElementById("u_crystalyield").value,
-    compYield1: document.getElementById("u_compyield1").value,
-    compYield2: document.getElementById("u_compyield2").value,
-    observations: document.getElementById("u_observations").value
-  });
-
-  try{
-    const res = await fetch(API_URL, { method: "POST", body: params });
-    const data = await res.json();
-    if (data.ok){
-      showToast("✅ Yield updated successfully");
-      document.getElementById("tab-updateyield").style.display = "none";
-      document.getElementById("tab-mydata").style.display = "block";
-      renderMyData();
-    } else {
-      showToast("Error: " + data.error, true);
-    }
-  } catch(err){
-    showToast("Network error — check connection", true);
-  }
-  btn.innerHTML = "Save Update";
-  btn.disabled = false;
+  const btn=document.getElementById("updateYieldBtn");
+  btn.innerHTML='<span class="spinner"></span>Saving...'; btn.disabled=true;
+  const params=new URLSearchParams({action:"update",timestamp:currentEditRowId,crystalYield:document.getElementById("u_crystalyield").value,compYield1:document.getElementById("u_compyield1").value,compYield2:document.getElementById("u_compyield2").value,observations:document.getElementById("u_observations").value});
+  try {
+    const res=await fetch(API_URL,{method:"POST",body:params});
+    const data=await res.json();
+    if(data.ok){showToast("✅ Yield updated successfully");document.getElementById("tab-updateyield").style.display="none";document.getElementById("tab-mydata").style.display="block";allRows=await fetchAllData();filterMyData();}
+    else{showToast("Error: "+data.error,true);}
+  } catch(e){showToast("Network error",true);}
+  btn.innerHTML="Save Update"; btn.disabled=false;
 });
 
-/* ====== DASHBOARD: PIN UNLOCK ====== */
-let dashUnlocked = false;
-let activeSeasonFilter = "ALL";
-let chartCropInstance, chartZoneInstance, chartHybridCompInstance;
-
-document.getElementById("dashUnlockBtn").addEventListener("click", () => {
-  const entered = document.getElementById("dash_pin").value.trim();
-  if (entered === DASHBOARD_PIN){
-    dashUnlocked = true;
-    document.getElementById("dashLockScreen").style.display = "none";
-    document.getElementById("dashContent").style.display = "block";
+/* ====== DASHBOARD ====== */
+document.getElementById("dashUnlockBtn").addEventListener("click",()=>{
+  if(document.getElementById("dash_pin").value.trim()===DASHBOARD_PIN){
+    dashUnlocked=true;
+    document.getElementById("dashLockScreen").style.display="none";
+    document.getElementById("dashContent").style.display="block";
     loadDashboard();
-  } else {
-    showToast("Incorrect PIN", true);
-  }
+  } else { showToast("Incorrect PIN",true); }
 });
 
-document.getElementById("dash_zone").addEventListener("change", (e) => {
-  const zone = e.target.value;
-  const regionSel = document.getElementById("dash_region");
-  const regions = zone ? (ZONE_REGIONS[zone] || []) : [...new Set(Object.values(ZONE_REGIONS).flat())].sort();
-  regionSel.innerHTML = '<option value="">All Regions</option>' + regions.map(r => `<option>${r}</option>`).join("");
+document.getElementById("dash_zone").addEventListener("change", e=>{
+  const zone=e.target.value;
+  const regions=zone?(ZONE_REGIONS[zone]||[]):[...new Set(Object.values(ZONE_REGIONS).flat())].sort();
+  document.getElementById("dash_region").innerHTML='<option value="">All Regions</option>'+regions.map(r=>`<option>${r}</option>`).join("");
+  document.getElementById("dash_territory").innerHTML='<option value="">All Territories</option>';
   loadDashboard();
 });
-document.getElementById("dash_region").addEventListener("change", loadDashboard);
+document.getElementById("dash_region").addEventListener("change", e=>{
+  const region=e.target.value;
+  const territories=region?(REGION_TERRITORIES[region]||[]):[...new Set(Object.values(REGION_TERRITORIES).flat())].sort();
+  document.getElementById("dash_territory").innerHTML='<option value="">All Territories</option>'+territories.map(t=>`<option>${t}</option>`).join("");
+  loadDashboard();
+});
+document.getElementById("dash_territory").addEventListener("change", loadDashboard);
+document.getElementById("hybrid_select").addEventListener("change", ()=>renderHybridCompAnalysis(getFilteredRows()));
 
-async function loadDashboard(){
+async function loadDashboard() {
   if (!dashUnlocked) return;
-  allRows = await fetchAllData();
-  myDataLoaded = true;
+  allRows=await fetchAllData(); myDataLoaded=true;
+  renderSeasonFilterBar(); renderCropFilterBar();
+  const rows=getFilteredRows();
+  renderStats(rows); renderDataQuality(rows); renderPendingYield(rows);
+  renderCropChart(rows); renderZoneChart(rows); renderSeasonalChart(rows);
+  renderFOScorecard(rows); renderCompHeatmap(rows);
+  populateHybridSelect(rows); renderHybridCompAnalysis(rows);
+  renderTerritoryTable(rows); renderDashTable(rows);
+}
 
-  renderSeasonFilterBar();
-  let rows = allRows;
-  if (activeSeasonFilter !== "ALL") rows = rows.filter(r => r.Season === activeSeasonFilter);
-
-  const zoneFilter = document.getElementById("dash_zone").value;
-  const regionFilter = document.getElementById("dash_region").value;
-  if (zoneFilter) rows = rows.filter(r => r.Zone === zoneFilter);
-  if (regionFilter) rows = rows.filter(r => r.Region === regionFilter);
-
-  renderCropFilterBar(rows);
-  if (activeCropFilter !== "ALL") rows = rows.filter(r => r.Crop === activeCropFilter);
-
-  renderStats(rows);
-  renderCropChart(rows);
-  renderZoneChart(rows);
-  populateHybridSelect(rows);
-  renderHybridCompAnalysis(rows);
-  renderDashTable(rows);
+function getFilteredRows(){
+  let rows=allRows;
+  if(activeSeasonFilter!=="ALL") rows=rows.filter(r=>r.Season===activeSeasonFilter);
+  const zone=document.getElementById("dash_zone").value;
+  const region=document.getElementById("dash_region").value;
+  const territory=document.getElementById("dash_territory").value;
+  if(zone) rows=rows.filter(r=>r.Zone===zone);
+  if(region) rows=rows.filter(r=>r.Region===region);
+  if(territory) rows=rows.filter(r=>r.Territory===territory);
+  if(activeCropFilter!=="ALL") rows=rows.filter(r=>r.Crop===activeCropFilter);
+  return rows;
 }
 
 function renderSeasonFilterBar(){
-  const seasons = ["ALL", "Kharif", "Rabi"];
-  const bar = document.getElementById("seasonFilterBar");
-  bar.innerHTML = seasons.map(s =>
-    `<div class="chip ${s===activeSeasonFilter?'active':''}" data-season="${s}">${s==='ALL'?'All Seasons':s}</div>`
-  ).join("");
-  bar.querySelectorAll(".chip").forEach(chip => {
-    chip.addEventListener("click", () => {
-      activeSeasonFilter = chip.dataset.season;
-      loadDashboard();
-    });
-  });
+  const bar=document.getElementById("seasonFilterBar");
+  bar.innerHTML=["ALL","Kharif 25-26","Rabi 25-26","Spring 25-26","Kharif 26-27","Rabi 26-27","Spring 26-27"].map(s=>`<div class="chip ${s===activeSeasonFilter?'active':''}" data-season="${s}">${s==="ALL"?"All Seasons":s}</div>`).join("");
+  bar.querySelectorAll(".chip").forEach(c=>c.addEventListener("click",()=>{activeSeasonFilter=c.dataset.season;loadDashboard();}));
 }
-
-function renderCropFilterBar(rows){
-  const crops = ["ALL", ...new Set(allRows.map(r => r.Crop).filter(Boolean))];
-  const bar = document.getElementById("cropFilterBar");
-  bar.innerHTML = crops.map(c =>
-    `<div class="chip ${c===activeCropFilter?'active':''}" data-crop="${c}">${c==='ALL'?'All Crops':c}</div>`
-  ).join("");
-  bar.querySelectorAll(".chip").forEach(chip => {
-    chip.addEventListener("click", () => {
-      activeCropFilter = chip.dataset.crop;
-      loadDashboard();
-    });
-  });
+function renderCropFilterBar(){
+  const crops=["ALL",...new Set(allRows.map(r=>r.Crop).filter(Boolean))];
+  const bar=document.getElementById("cropFilterBar");
+  bar.innerHTML=crops.map(c=>`<div class="chip ${c===activeCropFilter?'active':''}" data-crop="${c}">${c==="ALL"?"All Crops":c}</div>`).join("");
+  bar.querySelectorAll(".chip").forEach(c=>c.addEventListener("click",()=>{activeCropFilter=c.dataset.crop;loadDashboard();}));
 }
 
 function renderStats(rows){
-  const totalDemos = rows.reduce((s,r) => s + (parseFloat(r.NumDemo)||0), 0);
-  const withYield = rows.filter(r => r.CrystalYield && r.CrystalYield !== '0').length;
-  const submitters = new Set(rows.map(r => r.TMName)).size;
-  document.getElementById("stat_total").textContent = rows.length;
-  document.getElementById("stat_qty").textContent = totalDemos.toLocaleString('en-IN');
-  document.getElementById("stat_demo").textContent = withYield;
-  document.getElementById("stat_tms").textContent = submitters;
+  const demos=rows.reduce((s,r)=>s+(parseFloat(r.NumDemo)||0),0);
+  const pending=rows.filter(r=>!r.CrystalYield||r.CrystalYield==="0").length;
+  const fos=new Set(rows.map(r=>r.TMName)).size;
+  document.getElementById("stat_total").textContent=rows.length;
+  document.getElementById("stat_demos").textContent=demos.toLocaleString("en-IN");
+  document.getElementById("stat_pending").textContent=pending;
+  document.getElementById("stat_fos").textContent=fos;
 }
 
-const CHART_COLORS = ['#2E8B57','#D9A441','#7A5230','#1B5E3A','#C0392B','#6B7570','#8E6C8A','#3E7C9E'];
+function renderDataQuality(rows){
+  if(!rows.length){["dq_complete","dq_mobile","dq_yield","dq_obs"].forEach(id=>document.getElementById(id).textContent="—");return;}
+  const pct=n=>Math.round(n/rows.length*100)+"%";
+  const complete=rows.filter(r=>r.TMName&&r.FarmerName&&r.Village&&r.District&&r.DemoHybrid&&r.CompHybrid1).length;
+  const mobile=rows.filter(r=>(r.FarmerMobile||"").toString().replace(/\D/g,"").length===10).length;
+  const yieldFilled=rows.filter(r=>r.CrystalYield&&r.CrystalYield!=="0").length;
+  const obs=rows.filter(r=>r.Observations&&r.Observations.trim().length>5).length;
+  const color=n=>n>=80?"var(--green-dark)":n>=50?"var(--wheat)":"var(--danger)";
+  [["dq_complete",complete],["dq_mobile",mobile],["dq_yield",yieldFilled],["dq_obs",obs]].forEach(([id,n])=>{
+    const el=document.getElementById(id);
+    el.textContent=pct(n); el.style.color=color(Math.round(n/rows.length*100));
+  });
+}
+
+function renderPendingYield(rows){
+  const pending=rows.filter(r=>!r.CrystalYield||r.CrystalYield==="0");
+  const container=document.getElementById("pendingYieldList");
+  if(!pending.length){container.innerHTML='<div style="color:var(--green-dark);font-weight:700;padding:8px 0;">✅ All entries have yield data!</div>';return;}
+  const byTerritory={};
+  pending.forEach(r=>{const k=r.Territory||"Unknown";if(!byTerritory[k])byTerritory[k]=0;byTerritory[k]++;});
+  container.innerHTML=Object.entries(byTerritory).sort((a,b)=>b[1]-a[1]).map(([t,n])=>`
+    <div class="quality-row">
+      <span class="quality-label">${t}</span>
+      <span class="badge danger">${n} pending</span>
+    </div>`).join("");
+}
+
+const COLORS=["#2E8B57","#D9A441","#7A5230","#1B5E3A","#C0392B","#6B7570","#3E7C9E","#8E6C8A"];
+function mkChart(id,type,labels,datasets,opts={}){
+  const inst=new Chart(document.getElementById(id),{type,data:{labels,datasets},options:{maintainAspectRatio:false,resizeDelay:200,plugins:{legend:{display:opts.legend!==undefined?opts.legend:false}},...(opts.scales?{scales:opts.scales}:{})}});
+  return inst;
+}
 
 function renderCropChart(rows){
-  const counts = {};
-  rows.forEach(r => { const c = r.Crop || "Unknown"; counts[c] = (counts[c]||0) + 1; });
-  const labels = Object.keys(counts);
-  const data = Object.values(counts);
-  if (chartCropInstance) chartCropInstance.destroy();
-  chartCropInstance = new Chart(document.getElementById("chartCrop"), {
-    type: 'doughnut',
-    data: { labels, datasets: [{ data, backgroundColor: CHART_COLORS }] },
-    options: { maintainAspectRatio: false, resizeDelay: 200, plugins: { legend: { position: 'bottom', labels: { font: { size: 11 } } } } }
-  });
+  const counts={};rows.forEach(r=>{const c=r.Crop||"Unknown";counts[c]=(counts[c]||0)+1;});
+  if(chartCropInst) chartCropInst.destroy();
+  chartCropInst=mkChart("chartCrop","doughnut",Object.keys(counts),[{data:Object.values(counts),backgroundColor:COLORS}],{legend:true});
 }
-
 function renderZoneChart(rows){
-  const counts = {};
-  rows.forEach(r => { const z = r.Zone || "Unknown"; counts[z] = (counts[z]||0) + 1; });
-  const labels = Object.keys(counts).sort();
-  const data = labels.map(l => counts[l]);
-  if (chartZoneInstance) chartZoneInstance.destroy();
-  chartZoneInstance = new Chart(document.getElementById("chartZone"), {
-    type: 'bar',
-    data: { labels, datasets: [{ label: 'Entries', data, backgroundColor: '#2E8B57', borderRadius: 6 }] },
-    options: { maintainAspectRatio: false, resizeDelay: 200, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+  const counts={};rows.forEach(r=>{const z=r.Zone||"Unknown";counts[z]=(counts[z]||0)+1;});
+  const labels=Object.keys(counts).sort();
+  if(chartZoneInst) chartZoneInst.destroy();
+  chartZoneInst=mkChart("chartZone","bar",labels,[{label:"Entries",data:labels.map(l=>counts[l]),backgroundColor:"#2E8B57",borderRadius:6}],{scales:{y:{beginAtZero:true}}});
+}
+
+function renderSeasonalChart(rows){
+  const withYield=rows.filter(r=>r.CrystalYield&&r.CrystalYield!=="0");
+  const hybrids=[...new Set(withYield.map(r=>r.DemoHybrid).filter(Boolean))].sort().slice(0,8);
+  const seasons=[...new Set(withYield.map(r=>r.Season).filter(Boolean))].sort();
+  const avg=(arr)=>arr.length?arr.reduce((s,v)=>s+v,0)/arr.length:0;
+  const seasonColors=["#2E8B57","#D9A441","#7A5230","#3E7C9E","#C0392B","#8E6C8A"];
+  const datasets=seasons.map((s,i)=>({
+    label:s,
+    data:hybrids.map(h=>avg(withYield.filter(r=>r.DemoHybrid===h&&r.Season===s).map(r=>parseFloat(r.CrystalYield)||0))),
+    backgroundColor:seasonColors[i%seasonColors.length],
+    borderRadius:4
+  }));
+  if(chartSeasonalInst) chartSeasonalInst.destroy();
+  if(!hybrids.length||!seasons.length){chartSeasonalInst=null;return;}
+  chartSeasonalInst=mkChart("chartSeasonal","bar",hybrids,datasets,{legend:true,scales:{y:{beginAtZero:true}}});
+}
+
+function renderFOScorecard(rows){
+  const container=document.getElementById("foScorecard");
+  const foMap={};
+  rows.forEach(r=>{
+    const fo=r.TMName||"Unknown";
+    if(!foMap[fo]) foMap[fo]={total:0,yieldDone:0};
+    foMap[fo].total++;
+    if(r.CrystalYield&&r.CrystalYield!=="0") foMap[fo].yieldDone++;
   });
+  if(!Object.keys(foMap).length){container.innerHTML='<div class="empty"><div class="icon">👤</div>No data yet</div>';return;}
+  container.innerHTML=Object.entries(foMap).sort((a,b)=>b[1].total-a[1].total).map(([fo,d])=>{
+    const yieldPct=Math.round(d.yieldDone/d.total*100);
+    return`<div class="fo-card">
+      <div style="flex:1;">
+        <div class="fo-name">${fo}</div>
+        <div class="fo-stats">${d.total} entries · ${d.yieldDone} yield filled (${yieldPct}%)</div>
+        <div class="fo-progress"><div class="fo-progress-fill" style="width:${yieldPct}%"></div></div>
+      </div>
+      <span class="badge ${yieldPct===100?'done':yieldPct>=50?'pending':'danger'}" style="margin-left:12px;">${yieldPct}%</span>
+    </div>`;
+  }).join("");
 }
 
-/* ====== HYBRID VS COMPETITION ANALYSIS ====== */
+function renderCompHeatmap(rows){
+  const container=document.getElementById("compHeatmap");
+  const counts={};
+  rows.forEach(r=>{
+    if(r.CompHybrid1) counts[r.CompHybrid1]=(counts[r.CompHybrid1]||0)+1;
+    if(r.CompHybrid2) counts[r.CompHybrid2]=(counts[r.CompHybrid2]||0)+1;
+  });
+  const sorted=Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,10);
+  if(!sorted.length){container.innerHTML='<div class="empty"><div class="icon">🔥</div>No competition data yet</div>';return;}
+  const max=sorted[0][1];
+  container.innerHTML=sorted.map(([brand,n])=>`
+    <div class="heatmap-row">
+      <div class="heatmap-label">${brand}</div>
+      <div class="heatmap-bar"><div class="heatmap-fill" style="width:${Math.round(n/max*100)}%">${n}</div></div>
+    </div>`).join("");
+}
+
 function populateHybridSelect(rows){
-  const sel = document.getElementById("hybrid_select");
-  const prevValue = sel.value;
-  const hybrids = [...new Set(rows.map(r => r.DemoHybrid).filter(Boolean))].sort();
-  sel.innerHTML = '<option value="">Select a hybrid to analyze</option>' +
-    hybrids.map(h => `<option>${h}</option>`).join("");
-  if (hybrids.includes(prevValue)) sel.value = prevValue;
+  const sel=document.getElementById("hybrid_select");
+  const prev=sel.value;
+  const hybrids=[...new Set(rows.map(r=>r.DemoHybrid).filter(Boolean))].sort();
+  sel.innerHTML='<option value="">Select a hybrid to analyze</option>'+hybrids.map(h=>`<option>${h}</option>`).join("");
+  if(hybrids.includes(prev)) sel.value=prev;
 }
-
-document.getElementById("hybrid_select").addEventListener("change", () => {
-  let rows = allRows;
-  if (activeSeasonFilter !== "ALL") rows = rows.filter(r => r.Season === activeSeasonFilter);
-  const zoneFilter = document.getElementById("dash_zone").value;
-  const regionFilter = document.getElementById("dash_region").value;
-  if (zoneFilter) rows = rows.filter(r => r.Zone === zoneFilter);
-  if (regionFilter) rows = rows.filter(r => r.Region === regionFilter);
-  if (activeCropFilter !== "ALL") rows = rows.filter(r => r.Crop === activeCropFilter);
-  renderHybridCompAnalysis(rows);
-});
 
 function renderHybridCompAnalysis(rows){
-  const selectedHybrid = document.getElementById("hybrid_select").value;
-  const tableContainer = document.getElementById("hybridAnalysisTable");
-  const canvas = document.getElementById("chartHybridComp");
-
-  if (!selectedHybrid){
-    if (chartHybridCompInstance){ chartHybridCompInstance.destroy(); chartHybridCompInstance = null; }
-    tableContainer.innerHTML = '<div class="empty"><div class="icon">👆</div>Select a Crystal hybrid above to see its performance against every competitor it has faced</div>';
-    return;
+  const sel=document.getElementById("hybrid_select").value;
+  const tableDiv=document.getElementById("hybridAnalysisTable");
+  const canvas=document.getElementById("chartHybridComp");
+  if(!sel){
+    if(chartHybridCompInst){chartHybridCompInst.destroy();chartHybridCompInst=null;}
+    tableDiv.innerHTML='<div class="empty"><div class="icon">👆</div>Select a Crystal hybrid above</div>'; return;
   }
-
-  // Collect every (CompHybrid1/2, yields) pair for this Crystal hybrid
-  const matchups = {}; // compName -> { crystalYields:[], compYields:[], wins, total }
-  rows.filter(r => r.DemoHybrid === selectedHybrid).forEach(r => {
-    const cy = parseFloat(r.CrystalYield) || 0;
-    const hasYield = r.CrystalYield && r.CrystalYield !== '0';
-    if (!hasYield) return;
-
-    if (r.CompHybrid1 && r.CompYield1 && r.CompYield1 !== '0'){
-      const cpy = parseFloat(r.CompYield1) || 0;
-      const k = r.CompHybrid1;
-      if (!matchups[k]) matchups[k] = { crystalYields: [], compYields: [], wins: 0, total: 0 };
-      matchups[k].crystalYields.push(cy);
-      matchups[k].compYields.push(cpy);
-      matchups[k].total++;
-      if (cy > cpy) matchups[k].wins++;
-    }
-    if (r.CompHybrid2 && r.CompYield2 && r.CompYield2 !== '0'){
-      const cpy2 = parseFloat(r.CompYield2) || 0;
-      const k2 = r.CompHybrid2;
-      if (!matchups[k2]) matchups[k2] = { crystalYields: [], compYields: [], wins: 0, total: 0 };
-      matchups[k2].crystalYields.push(cy);
-      matchups[k2].compYields.push(cpy2);
-      matchups[k2].total++;
-      if (cy > cpy2) matchups[k2].wins++;
-    }
+  const matchups={};
+  rows.filter(r=>r.DemoHybrid===sel).forEach(r=>{
+    const cy=parseFloat(r.CrystalYield)||0;
+    if(!r.CrystalYield||r.CrystalYield==="0") return;
+    [[r.CompHybrid1,r.CompYield1],[r.CompHybrid2,r.CompYield2]].forEach(([comp,cy2])=>{
+      if(!comp||!cy2||cy2==="0") return;
+      const k=comp; const cpy=parseFloat(cy2)||0;
+      if(!matchups[k]) matchups[k]={crystalY:[],compY:[],wins:0,total:0};
+      matchups[k].crystalY.push(cy); matchups[k].compY.push(cpy); matchups[k].total++;
+      if(cy>cpy) matchups[k].wins++;
+    });
   });
-
-  const compNames = Object.keys(matchups);
-  if (!compNames.length){
-    if (chartHybridCompInstance){ chartHybridCompInstance.destroy(); chartHybridCompInstance = null; }
-    tableContainer.innerHTML = '<div class="empty"><div class="icon">📊</div>No yield data yet for this hybrid<div class="sub">Once FOs add yield numbers, the comparison will appear here</div></div>';
-    return;
-  }
-
-  const avg = arr => arr.reduce((s,v)=>s+v,0)/arr.length;
-  const avgCrystalOverall = avg(compNames.flatMap(c => matchups[c].crystalYields)).toFixed(1);
-  const compAvgs = compNames.map(c => avg(matchups[c].compYields));
-
-  // Bar chart: Crystal hybrid (constant bar) vs each competitor
-  if (chartHybridCompInstance) chartHybridCompInstance.destroy();
-  chartHybridCompInstance = new Chart(canvas, {
-    type: 'bar',
-    data: {
-      labels: [selectedHybrid, ...compNames],
-      datasets: [{
-        label: 'Avg Yield/Acre',
-        data: [parseFloat(avgCrystalOverall), ...compAvgs.map(v => v.toFixed(1))],
-        backgroundColor: [ '#2E8B57', ...compNames.map((_,i) => CHART_COLORS[(i+2) % CHART_COLORS.length]) ],
-        borderRadius: 6
-      }]
-    },
-    options: {
-      maintainAspectRatio: false,
-      resizeDelay: 200,
-      plugins: { legend: { display: false } },
-      scales: { y: { beginAtZero: true } }
-    }
-  });
-
-  // Detail table
-  const rowsHtml = compNames.map(c => {
-    const m = matchups[c];
-    const avgCrystal = avg(m.crystalYields).toFixed(1);
-    const avgComp = avg(m.compYields).toFixed(1);
-    const diff = (avgCrystal - avgComp).toFixed(1);
-    const winRate = Math.round((m.wins/m.total)*100);
-    const badgeClass = winRate >= 50 ? 'done' : 'pending';
-    return `<tr>
-      <td><b>${c}</b></td>
-      <td>${avgCrystal}</td>
-      <td>${avgComp}</td>
-      <td style="color:${diff>=0?'var(--green-dark)':'var(--danger)'}; font-weight:700;">${diff>=0?'+':''}${diff}</td>
-      <td><span class="badge ${badgeClass}">${winRate}% win (${m.total})</span></td>
-    </tr>`;
-  }).join("");
-
-  tableContainer.innerHTML = `<div class="table-wrap"><table>
-    <tr><th>Vs Competition</th><th>${selectedHybrid} Avg</th><th>Comp Avg</th><th>Diff</th><th>Win Rate</th></tr>
-    ${rowsHtml}
+  const comps=Object.keys(matchups);
+  if(!comps.length){if(chartHybridCompInst){chartHybridCompInst.destroy();chartHybridCompInst=null;}tableDiv.innerHTML='<div class="empty"><div class="icon">📊</div>No yield data yet for this hybrid</div>';return;}
+  const avg=arr=>arr.reduce((s,v)=>s+v,0)/arr.length;
+  const avgCrystal=avg(comps.flatMap(c=>matchups[c].crystalY));
+  const labels=[sel,...comps];
+  const data=[avgCrystal,...comps.map(c=>avg(matchups[c].compY))];
+  const bgColors=["#2E8B57",...comps.map((_,i)=>COLORS[(i+2)%COLORS.length])];
+  if(chartHybridCompInst) chartHybridCompInst.destroy();
+  chartHybridCompInst=new Chart(canvas,{type:"bar",data:{labels,datasets:[{label:"Avg Yield/Acre",data:data.map(v=>+v.toFixed(1)),backgroundColor:bgColors,borderRadius:6}]},options:{maintainAspectRatio:false,resizeDelay:200,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true}}}});
+  tableDiv.innerHTML=`<div class="table-wrap"><table>
+    <tr><th>Vs Competition</th><th>${sel} Avg</th><th>Comp Avg</th><th>Diff</th><th>Win Rate</th></tr>
+    ${comps.map(c=>{
+      const aC=avg(matchups[c].crystalY).toFixed(1);
+      const aP=avg(matchups[c].compY).toFixed(1);
+      const diff=(aC-aP).toFixed(1);
+      const wr=Math.round(matchups[c].wins/matchups[c].total*100);
+      return`<tr><td><b>${c}</b></td><td>${aC}</td><td>${aP}</td><td style="color:${diff>=0?'var(--green-dark)':'var(--danger)'};font-weight:700;">${diff>=0?'+':''}${diff}</td><td><span class="badge ${wr>=50?'done':'pending'}">${wr}% (${matchups[c].total})</span></td></tr>`;
+    }).join("")}
   </table></div>`;
 }
 
-function renderDashTable(rows){
-  const container = document.getElementById("dashTable");
-  if (!rows.length){
-    container.innerHTML = '<div class="card empty"><div class="icon">📭</div>No submissions yet<div class="sub">Data will appear here once field staff start submitting</div></div>';
-    return;
-  }
-  const sorted = [...rows].sort((a,b) => new Date(b.Timestamp) - new Date(a.Timestamp));
-  container.innerHTML = `<div class="table-wrap"><table>
-    <tr><th>Date</th><th>FO Name</th><th>Season</th><th>Zone</th><th>Region</th><th>Territory</th><th>Crop</th><th>Hybrid</th><th>Comp 1</th><th>Village</th><th>District</th><th>Crystal Yield</th></tr>
-    ${sorted.map(r => `<tr>
-      <td>${new Date(r.Timestamp).toLocaleDateString('en-IN')}</td>
-      <td>${r.TMName||""}</td><td>${r.Season||""}</td><td>${r.Zone||""}</td><td>${r.Region||""}</td><td>${r.Territory||""}</td>
-      <td>${r.Crop||""}</td><td>${r.DemoHybrid||""}</td><td>${r.CompHybrid1||"—"}</td>
-      <td>${r.Village||"—"}</td><td>${r.District||"—"}</td><td>${r.CrystalYield||"—"}</td>
+function renderTerritoryTable(rows){
+  const container=document.getElementById("territoryTable");
+  const terrMap={};
+  rows.forEach(r=>{
+    const t=r.Territory||"Unknown";
+    if(!terrMap[t]) terrMap[t]={entries:0,demos:0,yieldDone:0,hybrids:new Set(),fos:new Set()};
+    terrMap[t].entries++;
+    terrMap[t].demos+=(parseFloat(r.NumDemo)||0);
+    if(r.CrystalYield&&r.CrystalYield!=="0") terrMap[t].yieldDone++;
+    if(r.DemoHybrid) terrMap[t].hybrids.add(r.DemoHybrid);
+    if(r.TMName) terrMap[t].fos.add(r.TMName);
+  });
+  if(!Object.keys(terrMap).length){container.innerHTML='<div class="empty"><div class="icon">📍</div>No data yet</div>';return;}
+  container.innerHTML=`<div class="table-wrap"><table>
+    <tr><th>Territory</th><th>Entries</th><th>Demos</th><th>Hybrids</th><th>FOs</th><th>Yield %</th></tr>
+    ${Object.entries(terrMap).sort((a,b)=>b[1].entries-a[1].entries).map(([t,d])=>`
+    <tr>
+      <td><b>${t}</b></td><td>${d.entries}</td><td>${d.demos}</td>
+      <td>${d.hybrids.size}</td><td>${d.fos.size}</td>
+      <td><span class="badge ${Math.round(d.yieldDone/d.entries*100)>=80?'done':Math.round(d.yieldDone/d.entries*100)>=50?'pending':'danger'}">${Math.round(d.yieldDone/d.entries*100)}%</span></td>
     </tr>`).join("")}
   </table></div>`;
 }
 
-/* ====== PWA INSTALL PROMPT ====== */
-let deferredPrompt;
-window.addEventListener("beforeinstallprompt", (e) => {
-  e.preventDefault();
-  deferredPrompt = e;
-  document.getElementById("installBanner").classList.add("show");
-});
-document.getElementById("installBtn").addEventListener("click", async () => {
-  if (deferredPrompt){
-    deferredPrompt.prompt();
-    await deferredPrompt.userChoice;
-    document.getElementById("installBanner").classList.remove("show");
-  }
+function renderDashTable(rows){
+  const container=document.getElementById("dashTable");
+  if(!rows.length){container.innerHTML='<div class="card empty"><div class="icon">📭</div>No submissions yet</div>';return;}
+  container.innerHTML=`<div class="table-wrap"><table>
+    <tr><th>Date</th><th>FO Name</th><th>Season</th><th>Zone</th><th>Region</th><th>Territory</th><th>Crop</th><th>Hybrid</th><th>Comp 1</th><th>Village</th><th>District</th><th>Crystal Yield</th></tr>
+    ${[...rows].sort((a,b)=>new Date(b.Timestamp)-new Date(a.Timestamp)).map(r=>`<tr>
+      <td>${new Date(r.Timestamp).toLocaleDateString('en-IN')}</td>
+      <td>${r.TMName||""}</td><td>${r.Season||""}</td><td>${r.Zone||""}</td><td>${r.Region||""}</td><td>${r.Territory||""}</td>
+      <td>${r.Crop||""}</td><td>${r.DemoHybrid||""}</td><td>${r.CompHybrid1||"—"}</td>
+      <td>${r.Village||"—"}</td><td>${r.District||"—"}</td>
+      <td><span class="badge ${r.CrystalYield&&r.CrystalYield!=='0'?'done':'pending'}">${r.CrystalYield||"0"}</span></td>
+    </tr>`).join("")}
+  </table></div>`;
+}
+
+/* ====== EXPORT TO EXCEL ====== */
+document.getElementById("exportBtn").addEventListener("click",()=>{
+  const rows=getFilteredRows();
+  if(!rows.length){showToast("No data to export",true);return;}
+  const headers=["Date","FO Name","Mobile","HQ","Zone","Region","Territory","Season","Crop","Demo Hybrid","DOS","Farmer Name","Farmer Mobile","Farmer Category","Village","Block","District","Num Demo","Demo Qty","Plot Type","Comp Hybrid 1","Comp DOS 1","Comp Hybrid 2","Comp DOS 2","Crystal Yield","Comp Yield 1","Comp Yield 2","Observations","Remarks"];
+  const keys=["Timestamp","TMName","TMMobile","HQ","Zone","Region","Territory","Season","Crop","DemoHybrid","DOS","FarmerName","FarmerMobile","FarmerCategory","Village","Block","District","NumDemo","DemoQty","PlotType","CompHybrid1","CompDOS1","CompHybrid2","CompDOS2","CrystalYield","CompYield1","CompYield2","Observations","Remarks"];
+  const csvRows=[headers.join(","),...rows.map(r=>keys.map(k=>{const v=(r[k]||"").toString().replace(/"/g,'""');return`"${v}"`;}).join(","))];
+  const blob=new Blob([csvRows.join("\n")],{type:"text/csv"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download=`Crystal_Demo_Data_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  showToast("✅ Exporting data...");
 });
 
-/* ====== SERVICE WORKER ====== */
-if ('serviceWorker' in navigator){
-  navigator.serviceWorker.register('sw.js').catch(()=>{});
+/* ====== COLLAPSIBLE SECTIONS ====== */
+function toggleSection(id){
+  const body=document.getElementById("body-"+id);
+  const header=body.previousElementSibling;
+  if(body.classList.contains("hidden")){
+    body.classList.remove("hidden");
+    header.classList.remove("collapsed");
+  } else {
+    body.classList.add("hidden");
+    header.classList.add("collapsed");
+  }
 }
+
+/* ====== PWA ====== */
+let deferredPrompt;
+window.addEventListener("beforeinstallprompt",(e)=>{e.preventDefault();deferredPrompt=e;document.getElementById("installBanner").classList.add("show");});
+document.getElementById("installBtn").addEventListener("click",async()=>{if(deferredPrompt){deferredPrompt.prompt();await deferredPrompt.userChoice;document.getElementById("installBanner").classList.remove("show");}});
+if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script>
 </body>
 </html>
