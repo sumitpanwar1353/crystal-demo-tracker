@@ -1001,7 +1001,7 @@ function renderHybridCompAnalysis(rows){
       if(cy>cpy) matchups[k].wins++;
     });
   });
-  const comps=Object.keys(matchups);
+  const comps=Object.keys(matchups).sort((a,b)=>matchups[b].total-matchups[a].total);
   if(!comps.length){if(chartHybridCompInst){chartHybridCompInst.destroy();chartHybridCompInst=null;}tableDiv.innerHTML='<div class="empty"><div class="icon">📊</div>No yield data yet for this hybrid</div>';return;}
   const avg=arr=>arr.reduce((s,v)=>s+v,0)/arr.length;
   const avgCrystal=avg(comps.flatMap(c=>matchups[c].crystalY));
