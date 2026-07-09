@@ -17,10 +17,10 @@ body{font-family:'Segoe UI',system-ui,-apple-system,Roboto,sans-serif;background
 header{background:var(--green-dark);color:white;padding:18px 16px 16px;position:sticky;top:0;z-index:20;box-shadow:0 2px 8px rgba(0,0,0,0.15);}
 header h1{font-size:18px;font-weight:700;}
 header p{font-size:12px;opacity:0.85;margin-top:2px;}
-.tabs{display:flex;background:white;position:sticky;top:64px;z-index:19;border-bottom:1px solid var(--line);overflow-x:auto;-ms-overflow-style:none;scrollbar-width:none;}
-.tabs::-webkit-scrollbar{display:none;}
-.tab{flex-shrink:0;text-align:center;padding:12px 14px;font-size:12px;font-weight:600;color:var(--gray);border-bottom:3px solid transparent;cursor:pointer;white-space:nowrap;}
-.tab.active{color:var(--green-dark);border-bottom-color:var(--green-dark);}
+.tabs{display:flex;background:white;position:sticky;top:64px;z-index:19;border-bottom:2px solid var(--green-light);padding:6px 8px;gap:4px;}
+.tab{flex:1;text-align:center;padding:11px 6px;font-size:12.5px;font-weight:700;color:var(--gray);border-radius:10px;cursor:pointer;white-space:nowrap;letter-spacing:0.2px;transition:all 0.2s;}
+.tab.active{color:var(--green-dark);background:var(--green-light);}
+.tab:active{transform:scale(0.97);}
 main{padding:14px;}
 .card{background:white;border-radius:12px;padding:16px;margin-bottom:12px;border:1px solid var(--line);}
 label{display:block;font-size:12.5px;font-weight:600;color:var(--gray);margin:14px 0 6px;text-transform:uppercase;letter-spacing:0.3px;}
@@ -116,8 +116,8 @@ td{padding:10px 8px;border-bottom:1px solid var(--line);white-space:nowrap;}
 </header>
 
 <div class="tabs">
-  <div class="tab active" data-tab="entry">📝 Submit</div>
-  <div class="tab" data-tab="mydata">👤 My Data</div>
+  <div class="tab active" data-tab="entry">📝 Entry</div>
+  <div class="tab" data-tab="mydata">🗒 My Data</div>
   <div class="tab" data-tab="dashboard">📊 Dashboard</div>
 </div>
 
@@ -127,7 +127,11 @@ td{padding:10px 8px;border-bottom:1px solid var(--line);white-space:nowrap;}
 <section id="tab-entry">
   <div class="card">
     <label>Crop <span class="req-star">*</span></label>
-    <select id="f_crop"><option value="">Select Crop</option><option>Maize</option><option>Paddy</option></select>
+    <select id="f_crop"><option value="">Select Crop</option>
+      <option>Maize</option><option>Paddy</option><option>HY Paddy</option><option>Res Paddy</option>
+      <option>Wheat</option><option>Cotton</option><option>Sorghum</option>
+      <option>Pearl Millet</option><option>Mustard</option><option>Fodder</option><option>Basmati</option>
+    </select>
 
     <label>FO Name <span class="req-star">*</span></label>
     <input id="f_name" class="uc" placeholder="Type your full name">
@@ -153,7 +157,7 @@ td{padding:10px 8px;border-bottom:1px solid var(--line);white-space:nowrap;}
     <select id="f_territory"><option value="">Select Territory</option></select>
 
     <label>Season <span class="req-star">*</span></label>
-    <select id="f_season"><option value="">Select</option><option>Kharif 25-26</option><option>Rabi 25-26</option><option>Spring 25-26</option><option>Kharif 26-27</option><option>Rabi 26-27</option><option>Spring 26-27</option></select>
+    <select id="f_season"><option value="">Select</option><option>Rabi 25-26</option><option>Kharif 26-27</option><option>Rabi 26-27</option></select>
 
     <div class="section-title">Crystal Demo Details</div>
 
@@ -194,17 +198,36 @@ td{padding:10px 8px;border-bottom:1px solid var(--line);white-space:nowrap;}
 
     <div class="row2">
       <div>
-        <label>No. of Demo Given <span class="req-star">*</span></label>
+        <label>No. of Demo Packets Given <span class="req-star">*</span></label>
         <input id="f_numdemo" type="number" placeholder="e.g. 1">
       </div>
       <div>
-        <label>Demo Qty (Kg) <span class="req-star">*</span></label>
-        <input id="f_demoqty" type="number" placeholder="e.g. 2">
+        <label>No. of Rows/Lines <span class="req-star">*</span></label>
+        <input id="f_numrows" type="number" placeholder="e.g. 8">
       </div>
     </div>
 
-    <label>Plot Type <span class="req-star">*</span></label>
-    <select id="f_plottype"><option value="">Select</option><option>Side By Side</option><option>Without Competition</option></select>
+    <div class="row2">
+      <div>
+        <label>Row to Row Spacing (cm)</label>
+        <input id="f_rowspacing" type="number" placeholder="e.g. 60">
+      </div>
+      <div>
+        <label>Plant to Plant Spacing (cm)</label>
+        <input id="f_plantspacing" type="number" placeholder="e.g. 20">
+      </div>
+    </div>
+
+    <div class="row2">
+      <div>
+        <label>Soil Type <span class="req-star">*</span></label>
+        <select id="f_soiltype"><option value="">Select</option><option>Light Soil</option><option>Medium Soil</option><option>Heavy Soil</option></select>
+      </div>
+      <div>
+        <label>Irrigation Type <span class="req-star">*</span></label>
+        <select id="f_irrigation"><option value="">Select</option><option>Irrigated</option><option>Rainfed</option></select>
+      </div>
+    </div>
 
     <div class="section-title">Competition Details</div>
 
@@ -212,29 +235,33 @@ td{padding:10px 8px;border-bottom:1px solid var(--line);white-space:nowrap;}
     <select id="f_comphybrid1"><option value="">Select or choose Other</option></select>
     <input class="uc" id="f_comphybrid1_other" placeholder="Type competition hybrid name" style="display:none;margin-top:8px;">
 
-    <label>Competition DOS <span class="req-star">*</span></label>
-    <input id="f_compdos1" type="date">
+    <div id="compExtraFields">
+      <label>Competition DOS <span class="req-star">*</span></label>
+      <input id="f_compdos1" type="date">
 
-    <label>Comp Hybrid 2 (optional)</label>
-    <select id="f_comphybrid2"><option value="">None / Not applicable</option></select>
-    <input class="uc" id="f_comphybrid2_other" placeholder="Type competition hybrid name" style="display:none;margin-top:8px;">
+      <label>Comp Hybrid 2 (optional)</label>
+      <select id="f_comphybrid2"><option value="">None / Not applicable</option></select>
+      <input class="uc" id="f_comphybrid2_other" placeholder="Type competition hybrid name" style="display:none;margin-top:8px;">
 
-    <label>Competition 2 DOS (optional)</label>
-    <input id="f_compdos2" type="date">
-
-    <div class="section-title">Yield Data</div>
-    <div class="row2">
-      <div>
-        <label>Crystal Yield/Acre <span class="req-star">*</span></label>
-        <input id="f_crystalyield" type="number" placeholder="0 if unknown">
-      </div>
-      <div>
-        <label>Comp 1 Yield/Acre <span class="req-star">*</span></label>
-        <input id="f_compyield1" type="number" placeholder="0 if unknown">
-      </div>
+      <label>Competition 2 DOS (optional)</label>
+      <input id="f_compdos2" type="date">
     </div>
-    <label>Comp 2 Yield/Acre</label>
-    <input id="f_compyield2" type="number" placeholder="e.g. 22">
+
+    <div class="section-title" id="yieldSectionTitle">Yield Data</div>
+    <div id="yieldDataSection">
+      <div class="row2">
+        <div>
+          <label>Crystal Yield/Acre <span class="req-star">*</span></label>
+          <input id="f_crystalyield" type="number" placeholder="0 if unknown">
+        </div>
+        <div>
+          <label>Comp 1 Yield/Acre <span class="req-star">*</span></label>
+          <input id="f_compyield1" type="number" placeholder="0 if unknown">
+        </div>
+      </div>
+      <label>Comp 2 Yield/Acre</label>
+      <input id="f_compyield2" type="number" placeholder="e.g. 22">
+    </div>
 
     <label>Top 2 Key Observations <span class="req-star">*</span></label>
     <textarea class="uc" id="f_observations" rows="2" placeholder="e.g. Better cob filling, drought tolerance"></textarea>
@@ -268,6 +295,8 @@ td{padding:10px 8px;border-bottom:1px solid var(--line);white-space:nowrap;}
     <input id="u_compyield2" type="number" placeholder="e.g. 22">
     <label>Top 2 Key Observations</label>
     <textarea id="u_observations" rows="3" placeholder="e.g. Better cob filling, drought tolerance"></textarea>
+    <label>Remarks</label>
+    <textarea id="u_remarks" rows="2" placeholder="Any notes..."></textarea>
     <button class="btn" id="updateYieldBtn">Save Update</button>
     <button class="btn btn-outline" id="cancelUpdateBtn" style="margin-top:10px;">Cancel</button>
   </div>
@@ -367,14 +396,15 @@ td{padding:10px 8px;border-bottom:1px solid var(--line);white-space:nowrap;}
       </div>
     </div>
 
-    <!-- Seasonal comparison -->
+    <!-- Soil Type / Irrigation Analysis -->
     <div class="card">
-      <div class="collapse-header" onclick="toggleSection('seasonal')">
-        <div class="section-title" style="margin-top:0;">📅 Season-wise Yield Comparison</div>
+      <div class="collapse-header" onclick="toggleSection('analysis')">
+        <div class="section-title" style="margin-top:0;">🌱 Soil Type & Irrigation-wise Hybrid Analysis</div>
         <span class="toggle-icon">▼</span>
       </div>
-      <div class="collapsible-body" id="body-seasonal">
-      <div class="chart-box"><canvas id="chartSeasonal"></canvas></div>
+      <div class="collapsible-body" id="body-analysis">
+      <div class="filter-bar" id="analysisModeBar"></div>
+      <div class="chart-box"><canvas id="chartAnalysis"></canvas></div>
     </div>
 
       </div>
@@ -448,37 +478,58 @@ const API_URL = "https://script.google.com/macros/s/AKfycbz4igMfs67I2Nor8rcF-BlR
 const DASHBOARD_PIN = "2026";
 
 const ZONE_REGIONS = {
-  "ZONE-1":["BHATINDA","HISSAR"],
-  "ZONE-2":["AHAMDABAD","ALWAR","JAIPUR","UP-AGRA"],
-  "ZONE-3":["LUCKNOW","PATNA","RAIPUR"],
-  "ZONE-4":["CS NAGAR","JALGAON","NAGPUR"],
-  "ZONE-5":["GUNTUR","HUBLI","HYDERABAD","WARANGAL"]
+  "ZONE-1": ["BHATINDA", "HISSAR"],
+  "ZONE-2": ["AHAMDABAD", "ALWAR", "GWALIOR", "JAIPUR", "JODHPUR", "RAJKOT", "UP-AGRA"],
+  "ZONE-3": ["LUCKNOW", "PATNA", "RAIPUR"],
+  "ZONE-4": ["CS NAGAR", "JALGAON", "NAGPUR"],
+  "ZONE-5": ["GUNTUR", "HUBLI", "HYDERABAD", "WARANGAL"]
 };
 const REGION_TERRITORIES = {
-  "BHATINDA":["JALANDHAR","PB-AMRITSAR","PB-BHATINDA","PB-MOGA","PB-Mansa","PB-PATIALA","RJ-HANUMANGARH","RJ-SRIGANGANAGAR"],
-  "HISSAR":["HR-SIRSA"],
-  "AHAMDABAD":["GU-BADOLI","GU-HIMMATNAGAR","GU-VADODARA"],
-  "ALWAR":["RJ-BHARATPUR"],
-  "JAIPUR":["HINDAUN","RJ-Dausa(Seed)","RJ-BHILWARA","RJ-CHITTORGARH","RJ-JAIPUR","RJ-Kota","RJ-SAWAI MADHOPUR"],
-  "UP-AGRA":["UP-BAREILLY","UP-KANPUR","UP-MUZAFFARNAGAR"],
-  "LUCKNOW":["UP-AYODHYA","UP-AZAMGARH","UP-BAHRAICH","UP-GORAKKHPUR","UP-HARDOI","UP-KANNAUJ","UP-PRAYAGRAJ"],
-  "PATNA":["BH-Araria","BH-BETIAH","BH-Khagaria","BH-PATNA","BH-PURNEA","BH-SAHARSA","BH-SAMASTIPUR","RAIGANJ"],
-  "RAIPUR":["BH-DALTANGANJ","BH-RANCHI","CG-AMBIKAPUR","CG-RAMANUJGANJ","MP-REWA"],
-  "CS NAGAR":["MS-AHMADNAGAR","MS-JALNA","MS-MALEGAON","MS-SOLAPUR"],
-  "JALGAON":["MP-GUNA","MP-KHARGAON","MS-Dhule","MS-JALGAON"],
-  "NAGPUR":["MP-CHINDWARA","MS-AKOLA","MS-NAGPUR"],
-  "GUNTUR":["AP-ADONI","AP-ELURU","AP-GUNTUR","AP-KURNOOL"],
-  "HUBLI":["KA-BELLARY","KA-DAVANGERE","KA-HUBLI","KA-MYSORE","KA-RAICHUR","KA-VIJAYAPURA"],
-  "HYDERABAD":["TG-JADCHARLA","TG-KHAMMAM","TG-NAGARKURNOOL","TG-NARAYANKHED","TG-Nalgonda","TG-SADASHIVPET"],
-  "WARANGAL":["TG-ADILABAD","TG-GAJWEL","TG-KARIMNAGAR","TG-NIZAMABAD"]
+  "AHAMDABAD": ["GU-BADOLI", "GU-DEESA", "GU-HIMMATNAGAR", "GU-SURENDRANAGAR", "GU-VADODARA"],
+  "ALWAR": ["HR-HAILEYMANDI", "HR-MAHENDRAGARH", "HR-REWARI", "KOTPUTLI", "RJ-ALWAR", "RJ-BHARATPUR"],
+  "BHATINDA": ["JALANDHAR", "PB-ABOHAR", "PB-AMRITSAR", "PB-BHATINDA", "PB-MOGA", "PB-Mansa", "PB-PATIALA", "RJ-ANUPGARH", "RJ-HANUMANGARH", "RJ-SRIGANGANAGAR"],
+  "CS NAGAR": ["MS-AHMADNAGAR", "MS-BEED", "MS-JALNA", "MS-MALEGAON", "MS-NANDED", "MS-SOLAPUR"],
+  "GUNTUR": ["AP-ADONI", "AP-AGRO LIFE SCIENCE", "AP-COROMANDEL", "AP-GUNTUR", "AP-KURNOOL", "AP-MACHERLA", "AP-VIZIANAGARAM", "AP-ZUARI FARMHUB", "TN-DINDIGUL"],
+  "GWALIOR": ["MP-BHIND", "MP-MORENA", "MP-SABALGARH", "RJ-DHOLPUR"],
+  "HISSAR": ["HR-BHIWANI", "HR-FATEHABAD", "HR-HISSAR", "HR-JIND", "HR-KAITHAL", "HR-KARNAL", "HR-KRUKSHETRA", "HR-ROHTAK", "HR-SIRSA"],
+  "HUBLI": ["KA-BELLARY", "KA-COROMANDEL", "KA-DAVANGERE", "KA-HUBLI", "KA-MYSORE", "KA-RAICHUR", "KA-VIJAYAPURA", "KA-ZUARI FARMHUB"],
+  "HYDERABAD": ["TG-AGRO LIFE SCIENCE", "TG-BHADRACHALAM", "TG-COROMANDEL", "TG-JADCHARLA", "TG-KHAMMAM", "TG-NAGARKURNOOL", "TG-NARAYANKHED", "TG-Nalgonda", "TG-SADASHIVPET", "TG-SHANTHINAGAR", "TG-ZUARI FARMHUB"],
+  "JAIPUR": ["HINDAUN", "RJ - Dausa", "RJ-BHILWARA", "RJ-CHITTORGARH", "RJ-JAIPUR", "RJ-Kota", "RJ-SAWAI MADHOPUR", "RJ-TONK"],
+  "JALGAON": ["MP-BADWANI", "MP-GUNA", "MP-KHARGAON", "MS-Dhule", "MS-JALGAON"],
+  "JODHPUR": ["RJ-BADMER", "RJ-BHEENMAL", "RJ-BIKANER", "RJ-JODHPUR", "RJ-NAGORE", "RJ-SIKAR"],
+  "LUCKNOW": ["UP-AYODHYA", "UP-AZAMGARH", "UP-BAHRAICH", "UP-GORAKKHPUR", "UP-HARDOI", "UP-KANNAUJ", "UP-PRAYAGRAJ"],
+  "NAGPUR": ["MP-CHINDWARA", "MP-SAGAR", "MS-AKOLA", "MS-AMRAVATI", "MS-NAGPUR", "MS-WARDHA", "MS-YAVATMAL"],
+  "PATNA": ["BH-Araria", "BH-BETIAH", "BH-Khagaria", "BH-PATNA", "BH-PURNEA", "BH-SAHARSA", "BH-SAMASTIPUR", "RAIGANJ"],
+  "RAIPUR": ["BH-DALTANGANJ", "BH-RANCHI", "CG-AMBIKAPUR", "CG-KONDAGAON", "CG-RAMANUJGANJ", "MP-REWA"],
+  "RAJKOT": ["GU-AMRELI", "GU-BHAVNAGAR", "GU-JAMNAGAR", "GU-RAJKOT"],
+  "UP-AGRA": ["UP-AGRA", "UP-ALIGARH", "UP-BAREILLY", "UP-ETAH", "UP-KANPUR", "UP-MEERUT", "UP-MUZAFFARNAGAR"],
+  "WARANGAL": ["TG-ADILABAD", "TG-GAJWEL", "TG-KARIMNAGAR", "TG-NIZAMABAD", "TG-WARANGAL"]
 };
 const CRYSTAL_HYBRIDS = {
-  Maize:["CMH 157","CMH 3456","CMH 6453","ICRON 4455","PA 6004","PA 6096","PA 6106","PA 6108","PA 6110","PA 6121","PA 6123","PA 6322","PA 6354","PA 6401","PA 6666","PA 6730","PA 6755","RMH 1818","RMH 1899 S","RMH 666*"],
-  Paddy:["10X Gold","CHR 106","CHR 846","Deepika","Divya","Divyashree","Heera","IRICE 413","IRICE 4655","Narmada","PA 4601","PA 4633","PA 4647","PA 4666 G","PA 4672","Pro Poha"]
+  Maize: ["CMH 157", "CMH 3456", "CMH 6453", "ICRON 4455", "PA 6004", "PA 6096", "PA 6106", "PA 6108", "PA 6110", "PA 6121", "PA 6123", "PA 6322", "PA 6354", "PA 6401", "PA 6666", "PA 6730", "PA 6755", "RMH 1818", "RMH 1899 S", "RMH 666*", "RMH 9999", "RMH 9999 Power"],
+  Paddy: ["10X Gold", "CHR 106", "CHR 846", "Deepika", "Divya", "Divyashree", "Heera", "IRICE 413", "IRICE 4655", "Narmada", "PA 4601", "PA 4633", "PA 4647", "PA 4666 G", "PA 4672", "Pro Poha"],
+  "HY Paddy": ["IRCIE6255", "CHR-846", "PA 4647", "PA 4666 GOLD", "SADGUN", "URVARA", "PA 4601", "PA 4073", "PA 4033"],
+  "Res Paddy": ["IRCIE513", "IRCE512"],
+  Wheat: ["WHEAT 4110"],
+  Cotton: ["SP 7708 BGII", "SENAPATI", "SP 7710 BGII", "SP 904 V1", "SP 7114 BGII", "SP 7706 BGII", "SP 7270 BGII", "SP 7278 BGII"],
+  Sorghum: [],
+  "Pearl Millet": ["PA 9999 Power", "MILLET 9001", "MILLET 9190", "PA 9001 PROMAX"],
+  Mustard: ["MUSTARD 5232", "MUSTARD 5235", "MUSTARD BASANT", "MUSTARD SUNHARI"],
+  Fodder: ["CFSH-128", "CFSH-300", "SX 21", "SX-17", "ULTRA FEED", "GRAINSRGM", "CJ-2428", "MLSH - 296 GOLD", "MLSH-151", "MLSH-2428", "MLSH-296", "PA 8340", "PRADHAN"],
+  Basmati: ["PB 1692", "PB 1718", "PS 1853"]
 };
 const COMP_HYBRIDS = {
-  Maize:["DKC 9133","DKC 9178","DKC 9208","ADV 741","ADV 751","ADV 768","CP 333","CP 555","CP 509","AVATAR","Bioseed 9546","666 Star"],
-  Paddy:["Arize 6444","Arize 6444 Gold","27P31","27P37","Ankur 6077","Arize 5333","GX202","Gajab","Champion","Chamak","Dhadak Gold","Dhananjay Gold"]
+  Maize: ["DKC 9133", "DKC 9178", "DKC 9208", "ADV 741", "ADV 751", "ADV 768", "CP 333", "CP 555", "CP 509", "AVATAR", "Bioseed 9546", "666 Star", "DKC 9125", "DDC 9126", "DKC 9217", "DKC 9141", "DKC 7074", "DKC 9257", "DKC 9248", "DKC 9246", "DKC 9124", "DKC 9108", "P 3355", "P 3526", "P 3532", "P 1899", "P 1891", "P1890", "P 3302", "S 6802", "HYTECH 5106", "ADV 751 ELITE"],
+  Paddy: ["Arize 6444", "Arize 6444 Gold", "27P31", "27P37", "Ankur 6077", "Arize 5333", "GX202", "Gajab", "Champion", "Chamak", "Dhadak Gold", "Dhananjay Gold"],
+  "HY Paddy": ["Arize 4666 GOLD", "KAVERI 468", "PAN 2423", "BIO GAJRAJ", "27P37", "ADVANTA 837", "SAVA 7301", "SAVA 7501"],
+  "Res Paddy": [],
+  Wheat: ["SHRIRAM 303", "SHRIRAM 111"],
+  Cotton: ["RCH 659", "RASI SWIFT", "US 7067", "SUPERCOT", "AJEET 155", "KABADDI", "AADHYA", "REVANTH", "NAVNEET", "CHANDRA GOLD", "RANDHEER", "ATM", "NAWAB", "JAYBHERI", "DHANDEV+", "DIGGAZ", "RCH 773", "RCH 846", "PRATAP", "KCH 307"],
+  Sorghum: [],
+  "Pearl Millet": ["86M94", "86M95", "NATH SUPER 27", "US 7773", "HYTECH 4252", "86M98", "86M100"],
+  Mustard: ["45S46", "45S47", "45S42", "SHRIRAM 1666"],
+  Fodder: ["DAIRY DELIGHT", "MEGA SWEET", "SIRA 400", "KENT"],
+  Basmati: []
 };
 
 let allRows = [];
@@ -487,7 +538,8 @@ let activeSeasonFilter = "ALL";
 let dashUnlocked = false;
 let myDataLoaded = false;
 let currentEditRowId = null;
-let chartCropInst, chartZoneInst, chartSeasonalInst, chartHybridCompInst;
+let chartCropInst, chartZoneInst, chartAnalysisInst, chartHybridCompInst;
+let analysisMode = 'SoilType';
 
 /* ====== UPPERCASE ENFORCEMENT (CSS + JS double layer) ====== */
 // CSS handles display, JS ensures actual value stored is also uppercase
@@ -533,11 +585,24 @@ function populateHybridDropdowns(crop) {
   const c1 = document.getElementById("f_comphybrid1");
   const c2 = document.getElementById("f_comphybrid2");
   hSel.innerHTML = '<option value="">Select Hybrid</option>' + (CRYSTAL_HYBRIDS[crop]||[]).map(h=>`<option>${h}</option>`).join("") + '<option value="__OTHER__">Other (type manually)</option>';
-  c1.innerHTML = '<option value="">Select or choose Other</option>' + (COMP_HYBRIDS[crop]||[]).map(h=>`<option>${h}</option>`).join("") + '<option value="__OTHER__">Other (type manually)</option>';
+  c1.innerHTML = '<option value="">Select or choose Other</option>' + (COMP_HYBRIDS[crop]||[]).map(h=>`<option>${h}</option>`).join("") + '<option value="__OTHER__">Other (type manually)</option>' + '<option value="__NONE__">No Competition</option>';
   c2.innerHTML = '<option value="">None / Not applicable</option>' + (COMP_HYBRIDS[crop]||[]).map(h=>`<option>${h}</option>`).join("") + '<option value="__OTHER__">Other (type manually)</option>';
 }
 document.getElementById("f_hybrid").addEventListener("change", e => { document.getElementById("f_hybrid_other").style.display = e.target.value === "__OTHER__" ? "block" : "none"; });
-document.getElementById("f_comphybrid1").addEventListener("change", e => { document.getElementById("f_comphybrid1_other").style.display = e.target.value === "__OTHER__" ? "block" : "none"; });
+document.getElementById("f_comphybrid1").addEventListener("change", e => {
+  const v = e.target.value;
+  document.getElementById("f_comphybrid1_other").style.display = v === "__OTHER__" ? "block" : "none";
+  const noComp = v === "__NONE__";
+  document.getElementById("compExtraFields").style.display = noComp ? "none" : "block";
+  document.getElementById("yieldSectionTitle").style.display = noComp ? "none" : "block";
+  document.getElementById("yieldDataSection").style.display = noComp ? "none" : "block";
+  if (noComp) {
+    ["f_compdos1","f_comphybrid2","f_compdos2","f_crystalyield","f_compyield1","f_compyield2"].forEach(id=>{
+      const el = document.getElementById(id);
+      if (el) { el.value=""; el.classList.remove("field-error"); }
+    });
+  }
+});
 document.getElementById("f_comphybrid2").addEventListener("change", e => { document.getElementById("f_comphybrid2_other").style.display = e.target.value === "__OTHER__" ? "block" : "none"; });
 
 document.querySelectorAll("#tab-entry input,#tab-entry select,#tab-entry textarea").forEach(el => {
@@ -587,8 +652,11 @@ document.getElementById("submitBtn").addEventListener("click", async () => {
   const block=document.getElementById("f_block").value;
   const district=document.getElementById("f_district").value;
   const numDemo=document.getElementById("f_numdemo").value;
-  const demoQty=document.getElementById("f_demoqty").value;
-  const plotType=document.getElementById("f_plottype").value;
+  const numRows=document.getElementById("f_numrows").value;
+  const rowSpacing=document.getElementById("f_rowspacing").value;
+  const plantSpacing=document.getElementById("f_plantspacing").value;
+  const soilType=document.getElementById("f_soiltype").value;
+  const irrigation=document.getElementById("f_irrigation").value;
   let comp1=document.getElementById("f_comphybrid1").value;
   const comp1Other=document.getElementById("f_comphybrid1_other").value;
   let comp2=document.getElementById("f_comphybrid2").value;
@@ -597,8 +665,14 @@ document.getElementById("submitBtn").addEventListener("click", async () => {
   const crystalYield=document.getElementById("f_crystalyield").value;
   const compYield1=document.getElementById("f_compyield1").value;
   const observations=document.getElementById("f_observations").value;
+  const noComp = comp1==="__NONE__";
 
-  const required = {"f_crop":crop,"f_name":name,"f_tmmobile":tmMobile,"f_hq":hq,"f_zone":zone,"f_region":region,"f_territory":territory,"f_season":season,"f_hybrid":hybrid,"f_dos":dos,"f_farmername":farmerName,"f_farmermobile":farmerMobile,"f_farmercat":farmerCat,"f_village":village,"f_block":block,"f_district":district,"f_numdemo":numDemo,"f_demoqty":demoQty,"f_plottype":plotType,"f_comphybrid1":comp1,"f_compdos1":compDos1,"f_crystalyield":crystalYield,"f_compyield1":compYield1,"f_observations":observations};
+  const required = {"f_crop":crop,"f_name":name,"f_tmmobile":tmMobile,"f_hq":hq,"f_zone":zone,"f_region":region,"f_territory":territory,"f_season":season,"f_hybrid":hybrid,"f_dos":dos,"f_farmername":farmerName,"f_farmermobile":farmerMobile,"f_farmercat":farmerCat,"f_village":village,"f_block":block,"f_district":district,"f_numdemo":numDemo,"f_numrows":numRows,"f_soiltype":soilType,"f_irrigation":irrigation,"f_comphybrid1":comp1,"f_observations":observations};
+  if (!noComp) {
+    required["f_compdos1"]=compDos1;
+    required["f_crystalyield"]=crystalYield;
+    required["f_compyield1"]=compYield1;
+  }
 
   document.querySelectorAll(".field-error").forEach(el=>el.classList.remove("field-error"));
   const missing = Object.entries(required).filter(([k,v])=>!v).map(([k])=>k);
@@ -618,10 +692,11 @@ document.getElementById("submitBtn").addEventListener("click", async () => {
   if (hybrid==="__OTHER__") hybrid=hybridOther;
   if (comp1==="__OTHER__") comp1=comp1Other;
   if (comp2==="__OTHER__") comp2=comp2Other;
+  if (noComp) comp1="No Competition";
 
   const btn=document.getElementById("submitBtn");
   btn.innerHTML='<span class="spinner"></span>Submitting...'; btn.disabled=true;
-  const params=new URLSearchParams({action:"submit",crop,tmName:name,tmMobile,hq,zone,region,territory,season,demoHybrid:hybrid,dos,farmerName,farmerMobile,farmerCategory:farmerCat,village,block,district,numDemo,demoQty,plotType,compHybrid1:comp1,compDos1,compHybrid2:comp2,compDos2:document.getElementById("f_compdos2").value,crystalYield,compYield1,compYield2:document.getElementById("f_compyield2").value,observations,remarks:document.getElementById("f_remarks").value});
+  const params=new URLSearchParams({action:"submit",crop,tmName:name,tmMobile,hq,zone,region,territory,season,demoHybrid:hybrid,dos,farmerName,farmerMobile,farmerCategory:farmerCat,village,block,district,numDemo,soilType,irrigation,numRows,rowSpacing,plantSpacing,compHybrid1:comp1,compDos1:noComp?"":compDos1,compHybrid2:noComp?"":comp2,compDos2:noComp?"":document.getElementById("f_compdos2").value,crystalYield:noComp?"0":crystalYield,compYield1:noComp?"0":compYield1,compYield2:noComp?"0":document.getElementById("f_compyield2").value,observations,remarks:document.getElementById("f_remarks").value});
   try {
     const res=await fetch(API_URL,{method:"POST",body:params});
     const data=await res.json();
@@ -630,6 +705,9 @@ document.getElementById("submitBtn").addEventListener("click", async () => {
       document.querySelectorAll("#tab-entry input,#tab-entry textarea").forEach(i=>i.value="");
       document.querySelectorAll("#tab-entry select").forEach(s=>s.selectedIndex=0);
       ["f_hybrid_other","f_comphybrid1_other","f_comphybrid2_other"].forEach(id=>document.getElementById(id).style.display="none");
+      document.getElementById("compExtraFields").style.display="block";
+      document.getElementById("yieldSectionTitle").style.display="block";
+      document.getElementById("yieldDataSection").style.display="block";
     } else { showToast("Error: "+data.error,true); }
   } catch(err) { showToast("Network error — check connection",true); }
   btn.innerHTML="Submit Entry"; btn.disabled=false;
@@ -687,6 +765,7 @@ function openUpdateYield(idx) {
   document.getElementById("u_compyield1").value=r.CompYield1||"";
   document.getElementById("u_compyield2").value=r.CompYield2||"";
   document.getElementById("u_observations").value=r.Observations||"";
+  document.getElementById("u_remarks").value=r.Remarks||"";
   document.querySelectorAll("main section").forEach(s=>s.style.display="none");
   document.getElementById("tab-updateyield").style.display="block";
 }
@@ -699,7 +778,7 @@ document.getElementById("cancelUpdateBtn").addEventListener("click",()=>{
 document.getElementById("updateYieldBtn").addEventListener("click", async () => {
   const btn=document.getElementById("updateYieldBtn");
   btn.innerHTML='<span class="spinner"></span>Saving...'; btn.disabled=true;
-  const params=new URLSearchParams({action:"update",timestamp:currentEditRowId,crystalYield:document.getElementById("u_crystalyield").value,compYield1:document.getElementById("u_compyield1").value,compYield2:document.getElementById("u_compyield2").value,observations:document.getElementById("u_observations").value});
+  const params=new URLSearchParams({action:"update",timestamp:currentEditRowId,crystalYield:document.getElementById("u_crystalyield").value,compYield1:document.getElementById("u_compyield1").value,compYield2:document.getElementById("u_compyield2").value,observations:document.getElementById("u_observations").value,remarks:document.getElementById("u_remarks").value});
   try {
     const res=await fetch(API_URL,{method:"POST",body:params});
     const data=await res.json();
@@ -741,7 +820,7 @@ async function loadDashboard() {
   renderSeasonFilterBar(); renderCropFilterBar();
   const rows=getFilteredRows();
   renderStats(rows); renderDataQuality(rows); renderPendingYield(rows);
-  renderCropChart(rows); renderZoneChart(rows); renderSeasonalChart(rows);
+  renderCropChart(rows); renderZoneChart(rows); renderAnalysisModeBar(); renderAnalysisChart(rows);
   renderFOScorecard(rows); renderCompHeatmap(rows);
   populateHybridSelect(rows); renderHybridCompAnalysis(rows);
   renderTerritoryTable(rows); renderDashTable(rows);
@@ -762,7 +841,7 @@ function getFilteredRows(){
 
 function renderSeasonFilterBar(){
   const bar=document.getElementById("seasonFilterBar");
-  bar.innerHTML=["ALL","Kharif 25-26","Rabi 25-26","Spring 25-26","Kharif 26-27","Rabi 26-27","Spring 26-27"].map(s=>`<div class="chip ${s===activeSeasonFilter?'active':''}" data-season="${s}">${s==="ALL"?"All Seasons":s}</div>`).join("");
+  bar.innerHTML=["ALL","Rabi 25-26","Kharif 26-27","Rabi 26-27"].map(s=>`<div class="chip ${s===activeSeasonFilter?'active':''}" data-season="${s}">${s==="ALL"?"All Seasons":s}</div>`).join("");
   bar.querySelectorAll(".chip").forEach(c=>c.addEventListener("click",()=>{activeSeasonFilter=c.dataset.season;loadDashboard();}));
 }
 function renderCropFilterBar(){
@@ -827,21 +906,29 @@ function renderZoneChart(rows){
   chartZoneInst=mkChart("chartZone","bar",labels,[{label:"Entries",data:labels.map(l=>counts[l]),backgroundColor:"#2E8B57",borderRadius:6}],{scales:{y:{beginAtZero:true}}});
 }
 
-function renderSeasonalChart(rows){
+function renderAnalysisModeBar(){
+  const bar=document.getElementById("analysisModeBar");
+  const modes=[{k:"SoilType",l:"By Soil Type"},{k:"IrrigationType",l:"By Irrigation Type"}];
+  bar.innerHTML=modes.map(m=>`<div class="chip ${m.k===analysisMode?'active':''}" data-mode="${m.k}">${m.l}</div>`).join("");
+  bar.querySelectorAll(".chip").forEach(c=>c.addEventListener("click",()=>{analysisMode=c.dataset.mode;renderAnalysisChart(getFilteredRows());}));
+}
+
+function renderAnalysisChart(rows){
+  const field = analysisMode; // "SoilType" or "IrrigationType"
   const withYield=rows.filter(r=>r.CrystalYield&&r.CrystalYield!=="0");
   const hybrids=[...new Set(withYield.map(r=>r.DemoHybrid).filter(Boolean))].sort().slice(0,8);
-  const seasons=[...new Set(withYield.map(r=>r.Season).filter(Boolean))].sort();
+  const groups=[...new Set(withYield.map(r=>r[field]).filter(Boolean))].sort();
   const avg=(arr)=>arr.length?arr.reduce((s,v)=>s+v,0)/arr.length:0;
-  const seasonColors=["#2E8B57","#D9A441","#7A5230","#3E7C9E","#C0392B","#8E6C8A"];
-  const datasets=seasons.map((s,i)=>({
-    label:s,
-    data:hybrids.map(h=>avg(withYield.filter(r=>r.DemoHybrid===h&&r.Season===s).map(r=>parseFloat(r.CrystalYield)||0))),
-    backgroundColor:seasonColors[i%seasonColors.length],
+  const groupColors=["#2E8B57","#D9A441","#7A5230","#3E7C9E","#C0392B","#8E6C8A"];
+  const datasets=groups.map((g,i)=>({
+    label:g,
+    data:hybrids.map(h=>avg(withYield.filter(r=>r.DemoHybrid===h&&r[field]===g).map(r=>parseFloat(r.CrystalYield)||0))),
+    backgroundColor:groupColors[i%groupColors.length],
     borderRadius:4
   }));
-  if(chartSeasonalInst) chartSeasonalInst.destroy();
-  if(!hybrids.length||!seasons.length){chartSeasonalInst=null;return;}
-  chartSeasonalInst=mkChart("chartSeasonal","bar",hybrids,datasets,{legend:true,scales:{y:{beginAtZero:true}}});
+  if(chartAnalysisInst) chartAnalysisInst.destroy();
+  if(!hybrids.length||!groups.length){chartAnalysisInst=null;return;}
+  chartAnalysisInst=mkChart("chartAnalysis","bar",hybrids,datasets,{legend:true,scales:{y:{beginAtZero:true}}});
 }
 
 function renderFOScorecard(rows){
@@ -887,8 +974,10 @@ function renderCompHeatmap(rows){
 function populateHybridSelect(rows){
   const sel=document.getElementById("hybrid_select");
   const prev=sel.value;
-  const hybrids=[...new Set(rows.map(r=>r.DemoHybrid).filter(Boolean))].sort();
-  sel.innerHTML='<option value="">Select a hybrid to analyze</option>'+hybrids.map(h=>`<option>${h}</option>`).join("");
+  const counts={};
+  rows.forEach(r=>{ if(r.DemoHybrid) counts[r.DemoHybrid]=(counts[r.DemoHybrid]||0)+1; });
+  const hybrids=Object.keys(counts).sort((a,b)=>counts[b]-counts[a]);
+  sel.innerHTML='<option value="">Select a hybrid to analyze</option>'+hybrids.map(h=>`<option value="${h}">${h} (${counts[h]} entries)</option>`).join("");
   if(hybrids.includes(prev)) sel.value=prev;
 }
 
@@ -976,8 +1065,8 @@ function renderDashTable(rows){
 document.getElementById("exportBtn").addEventListener("click",()=>{
   const rows=getFilteredRows();
   if(!rows.length){showToast("No data to export",true);return;}
-  const headers=["Date","FO Name","Mobile","HQ","Zone","Region","Territory","Season","Crop","Demo Hybrid","DOS","Farmer Name","Farmer Mobile","Farmer Category","Village","Block","District","Num Demo","Demo Qty","Plot Type","Comp Hybrid 1","Comp DOS 1","Comp Hybrid 2","Comp DOS 2","Crystal Yield","Comp Yield 1","Comp Yield 2","Observations","Remarks"];
-  const keys=["Timestamp","TMName","TMMobile","HQ","Zone","Region","Territory","Season","Crop","DemoHybrid","DOS","FarmerName","FarmerMobile","FarmerCategory","Village","Block","District","NumDemo","DemoQty","PlotType","CompHybrid1","CompDOS1","CompHybrid2","CompDOS2","CrystalYield","CompYield1","CompYield2","Observations","Remarks"];
+  const headers=["Date","FO Name","Mobile","HQ","Zone","Region","Territory","Season","Crop","Demo Hybrid","DOS","Farmer Name","Farmer Mobile","Farmer Category","Village","Block","District","No of Demo Packets","Soil Type","Irrigation Type","No of Rows","Row Spacing (cm)","Plant Spacing (cm)","Comp Hybrid 1","Comp DOS 1","Comp Hybrid 2","Comp DOS 2","Crystal Yield","Comp Yield 1","Comp Yield 2","Observations","Remarks"];
+  const keys=["Timestamp","TMName","TMMobile","HQ","Zone","Region","Territory","Season","Crop","DemoHybrid","DOS","FarmerName","FarmerMobile","FarmerCategory","Village","Block","District","NumDemo","SoilType","IrrigationType","NumRows","RowSpacing","PlantSpacing","CompHybrid1","CompDOS1","CompHybrid2","CompDOS2","CrystalYield","CompYield1","CompYield2","Observations","Remarks"];
   const csvRows=[headers.join(","),...rows.map(r=>keys.map(k=>{const v=(r[k]||"").toString().replace(/"/g,'""');return`"${v}"`;}).join(","))];
   const blob=new Blob([csvRows.join("\n")],{type:"text/csv"});
   const a=document.createElement("a");
