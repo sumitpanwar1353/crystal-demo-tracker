@@ -247,18 +247,13 @@ td{padding:10px 8px;border-bottom:1px solid var(--line);white-space:nowrap;}
       <input id="f_compdos2" type="date">
     </div>
 
-    <div class="section-title" id="yieldSectionTitle">Yield Data</div>
+    <div class="section-title">Yield Data</div>
+    <label>Crystal Yield/Acre <span class="req-star">*</span></label>
+    <input id="f_crystalyield" type="number" placeholder="0 if unknown">
+
     <div id="yieldDataSection">
-      <div class="row2">
-        <div>
-          <label>Crystal Yield/Acre <span class="req-star">*</span></label>
-          <input id="f_crystalyield" type="number" placeholder="0 if unknown">
-        </div>
-        <div>
-          <label>Comp 1 Yield/Acre <span class="req-star">*</span></label>
-          <input id="f_compyield1" type="number" placeholder="0 if unknown">
-        </div>
-      </div>
+      <label>Comp 1 Yield/Acre <span class="req-star">*</span></label>
+      <input id="f_compyield1" type="number" placeholder="0 if unknown">
       <label>Comp 2 Yield/Acre</label>
       <input id="f_compyield2" type="number" placeholder="e.g. 22">
     </div>
@@ -287,15 +282,17 @@ td{padding:10px 8px;border-bottom:1px solid var(--line);white-space:nowrap;}
   <div class="card">
     <div class="section-title" style="margin-top:0;">Update Yield & Observation</div>
     <div id="updateYieldInfo" style="background:var(--green-light);padding:10px 12px;border-radius:8px;font-size:12.5px;margin-bottom:14px;"></div>
-    <label>Crystal Yield/Acre</label>
+    <label>Crystal Yield/Acre <span class="req-star">*</span></label>
     <input id="u_crystalyield" type="number" placeholder="e.g. 28">
-    <label>Competition 1 Yield/Acre</label>
-    <input id="u_compyield1" type="number" placeholder="e.g. 24">
-    <label>Competition 2 Yield/Acre</label>
-    <input id="u_compyield2" type="number" placeholder="e.g. 22">
-    <label>Top 2 Key Observations</label>
+    <div id="updateYieldFields">
+      <label>Competition 1 Yield/Acre <span class="req-star">*</span></label>
+      <input id="u_compyield1" type="number" placeholder="e.g. 24">
+      <label>Competition 2 Yield/Acre <span class="req-star">*</span></label>
+      <input id="u_compyield2" type="number" placeholder="e.g. 22">
+    </div>
+    <label>Top 2 Key Observations <span class="req-star">*</span></label>
     <textarea id="u_observations" rows="3" placeholder="e.g. Better cob filling, drought tolerance"></textarea>
-    <label>Remarks</label>
+    <label>Remarks <span class="req-star">*</span></label>
     <textarea id="u_remarks" rows="2" placeholder="Any notes..."></textarea>
     <button class="btn" id="updateYieldBtn">Save Update</button>
     <button class="btn btn-outline" id="cancelUpdateBtn" style="margin-top:10px;">Cancel</button>
@@ -594,10 +591,9 @@ document.getElementById("f_comphybrid1").addEventListener("change", e => {
   document.getElementById("f_comphybrid1_other").style.display = v === "__OTHER__" ? "block" : "none";
   const noComp = v === "__NONE__";
   document.getElementById("compExtraFields").style.display = noComp ? "none" : "block";
-  document.getElementById("yieldSectionTitle").style.display = noComp ? "none" : "block";
   document.getElementById("yieldDataSection").style.display = noComp ? "none" : "block";
   if (noComp) {
-    ["f_compdos1","f_comphybrid2","f_compdos2","f_crystalyield","f_compyield1","f_compyield2"].forEach(id=>{
+    ["f_compdos1","f_comphybrid2","f_compdos2","f_compyield1","f_compyield2"].forEach(id=>{
       const el = document.getElementById(id);
       if (el) { el.value=""; el.classList.remove("field-error"); }
     });
@@ -667,10 +663,9 @@ document.getElementById("submitBtn").addEventListener("click", async () => {
   const observations=document.getElementById("f_observations").value;
   const noComp = comp1==="__NONE__";
 
-  const required = {"f_crop":crop,"f_name":name,"f_tmmobile":tmMobile,"f_hq":hq,"f_zone":zone,"f_region":region,"f_territory":territory,"f_season":season,"f_hybrid":hybrid,"f_dos":dos,"f_farmername":farmerName,"f_farmermobile":farmerMobile,"f_farmercat":farmerCat,"f_village":village,"f_block":block,"f_district":district,"f_numdemo":numDemo,"f_numrows":numRows,"f_soiltype":soilType,"f_irrigation":irrigation,"f_comphybrid1":comp1,"f_observations":observations};
+  const required = {"f_crop":crop,"f_name":name,"f_tmmobile":tmMobile,"f_hq":hq,"f_zone":zone,"f_region":region,"f_territory":territory,"f_season":season,"f_hybrid":hybrid,"f_dos":dos,"f_farmername":farmerName,"f_farmermobile":farmerMobile,"f_farmercat":farmerCat,"f_village":village,"f_block":block,"f_district":district,"f_numdemo":numDemo,"f_numrows":numRows,"f_soiltype":soilType,"f_irrigation":irrigation,"f_comphybrid1":comp1,"f_crystalyield":crystalYield,"f_observations":observations};
   if (!noComp) {
     required["f_compdos1"]=compDos1;
-    required["f_crystalyield"]=crystalYield;
     required["f_compyield1"]=compYield1;
   }
 
@@ -696,7 +691,7 @@ document.getElementById("submitBtn").addEventListener("click", async () => {
 
   const btn=document.getElementById("submitBtn");
   btn.innerHTML='<span class="spinner"></span>Submitting...'; btn.disabled=true;
-  const params=new URLSearchParams({action:"submit",crop,tmName:name,tmMobile,hq,zone,region,territory,season,demoHybrid:hybrid,dos,farmerName,farmerMobile,farmerCategory:farmerCat,village,block,district,numDemo,soilType,irrigation,numRows,rowSpacing,plantSpacing,compHybrid1:comp1,compDos1:noComp?"":compDos1,compHybrid2:noComp?"":comp2,compDos2:noComp?"":document.getElementById("f_compdos2").value,crystalYield:noComp?"0":crystalYield,compYield1:noComp?"0":compYield1,compYield2:noComp?"0":document.getElementById("f_compyield2").value,observations,remarks:document.getElementById("f_remarks").value});
+  const params=new URLSearchParams({action:"submit",crop,tmName:name,tmMobile,hq,zone,region,territory,season,demoHybrid:hybrid,dos,farmerName,farmerMobile,farmerCategory:farmerCat,village,block,district,numDemo,soilType,irrigation,numRows,rowSpacing,plantSpacing,compHybrid1:comp1,compDos1:noComp?"":compDos1,compHybrid2:noComp?"":comp2,compDos2:noComp?"":document.getElementById("f_compdos2").value,crystalYield,compYield1:noComp?"0":compYield1,compYield2:noComp?"0":document.getElementById("f_compyield2").value,observations,remarks:document.getElementById("f_remarks").value});
   try {
     const res=await fetch(API_URL,{method:"POST",body:params});
     const data=await res.json();
@@ -706,7 +701,6 @@ document.getElementById("submitBtn").addEventListener("click", async () => {
       document.querySelectorAll("#tab-entry select").forEach(s=>s.selectedIndex=0);
       ["f_hybrid_other","f_comphybrid1_other","f_comphybrid2_other"].forEach(id=>document.getElementById(id).style.display="none");
       document.getElementById("compExtraFields").style.display="block";
-      document.getElementById("yieldSectionTitle").style.display="block";
       document.getElementById("yieldDataSection").style.display="block";
     } else { showToast("Error: "+data.error,true); }
   } catch(err) { showToast("Network error — check connection",true); }
@@ -766,6 +760,9 @@ function openUpdateYield(idx) {
   document.getElementById("u_compyield2").value=r.CompYield2||"";
   document.getElementById("u_observations").value=r.Observations||"";
   document.getElementById("u_remarks").value=r.Remarks||"";
+  document.querySelectorAll("#tab-updateyield .field-error").forEach(el=>el.classList.remove("field-error"));
+  const noComp = r.CompHybrid1==="No Competition";
+  document.getElementById("updateYieldFields").style.display = noComp ? "none" : "block";
   document.querySelectorAll("main section").forEach(s=>s.style.display="none");
   document.getElementById("tab-updateyield").style.display="block";
 }
@@ -777,8 +774,28 @@ document.getElementById("cancelUpdateBtn").addEventListener("click",()=>{
 
 document.getElementById("updateYieldBtn").addEventListener("click", async () => {
   const btn=document.getElementById("updateYieldBtn");
+  const noComp = document.getElementById("updateYieldFields").style.display==="none";
+  const crystalYield=document.getElementById("u_crystalyield").value;
+  const compYield1=document.getElementById("u_compyield1").value;
+  const compYield2=document.getElementById("u_compyield2").value;
+  const observations=document.getElementById("u_observations").value.trim();
+  const remarks=document.getElementById("u_remarks").value.trim();
+
+  const required = noComp
+    ? {"u_crystalyield":crystalYield,"u_observations":observations,"u_remarks":remarks}
+    : {"u_crystalyield":crystalYield,"u_compyield1":compYield1,"u_compyield2":compYield2,"u_observations":observations,"u_remarks":remarks};
+
+  document.querySelectorAll("#tab-updateyield .field-error").forEach(el=>el.classList.remove("field-error"));
+  const missing = Object.entries(required).filter(([k,v])=>!v).map(([k])=>k);
+  if (missing.length) {
+    missing.forEach(id=>{ const el=document.getElementById(id); if(el) el.classList.add("field-error"); });
+    document.getElementById(missing[0]).scrollIntoView({behavior:"smooth",block:"center"});
+    showToast(`${missing.length} required field(s) missing — highlighted in red`, true);
+    return;
+  }
+
   btn.innerHTML='<span class="spinner"></span>Saving...'; btn.disabled=true;
-  const params=new URLSearchParams({action:"update",timestamp:currentEditRowId,crystalYield:document.getElementById("u_crystalyield").value,compYield1:document.getElementById("u_compyield1").value,compYield2:document.getElementById("u_compyield2").value,observations:document.getElementById("u_observations").value,remarks:document.getElementById("u_remarks").value});
+  const params=new URLSearchParams({action:"update",timestamp:currentEditRowId,crystalYield,compYield1:noComp?"0":compYield1,compYield2:noComp?"0":compYield2,observations,remarks});
   try {
     const res=await fetch(API_URL,{method:"POST",body:params});
     const data=await res.json();
@@ -958,8 +975,8 @@ function renderCompHeatmap(rows){
   const container=document.getElementById("compHeatmap");
   const counts={};
   rows.forEach(r=>{
-    if(r.CompHybrid1) counts[r.CompHybrid1]=(counts[r.CompHybrid1]||0)+1;
-    if(r.CompHybrid2) counts[r.CompHybrid2]=(counts[r.CompHybrid2]||0)+1;
+    if(r.CompHybrid1 && r.CompHybrid1!=="No Competition") counts[r.CompHybrid1]=(counts[r.CompHybrid1]||0)+1;
+    if(r.CompHybrid2 && r.CompHybrid2!=="No Competition") counts[r.CompHybrid2]=(counts[r.CompHybrid2]||0)+1;
   });
   const sorted=Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,10);
   if(!sorted.length){container.innerHTML='<div class="empty"><div class="icon">🔥</div>No competition data yet</div>';return;}
