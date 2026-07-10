@@ -287,12 +287,12 @@ td{padding:10px 8px;border-bottom:1px solid var(--line);white-space:nowrap;}
     <div id="updateYieldFields">
       <label>Competition 1 Yield/Acre <span class="req-star">*</span></label>
       <input id="u_compyield1" type="number" placeholder="e.g. 24">
-      <label>Competition 2 Yield/Acre <span class="req-star">*</span></label>
+      <label>Competition 2 Yield/Acre (optional)</label>
       <input id="u_compyield2" type="number" placeholder="e.g. 22">
     </div>
     <label>Top 2 Key Observations <span class="req-star">*</span></label>
     <textarea id="u_observations" rows="3" placeholder="e.g. Better cob filling, drought tolerance"></textarea>
-    <label>Remarks <span class="req-star">*</span></label>
+    <label>Remarks (optional)</label>
     <textarea id="u_remarks" rows="2" placeholder="Any notes..."></textarea>
     <button class="btn" id="updateYieldBtn">Save Update</button>
     <button class="btn btn-outline" id="cancelUpdateBtn" style="margin-top:10px;">Cancel</button>
@@ -782,8 +782,8 @@ document.getElementById("updateYieldBtn").addEventListener("click", async () => 
   const remarks=document.getElementById("u_remarks").value.trim();
 
   const required = noComp
-    ? {"u_crystalyield":crystalYield,"u_observations":observations,"u_remarks":remarks}
-    : {"u_crystalyield":crystalYield,"u_compyield1":compYield1,"u_compyield2":compYield2,"u_observations":observations,"u_remarks":remarks};
+    ? {"u_crystalyield":crystalYield,"u_observations":observations}
+    : {"u_crystalyield":crystalYield,"u_compyield1":compYield1,"u_observations":observations};
 
   document.querySelectorAll("#tab-updateyield .field-error").forEach(el=>el.classList.remove("field-error"));
   const missing = Object.entries(required).filter(([k,v])=>!v).map(([k])=>k);
