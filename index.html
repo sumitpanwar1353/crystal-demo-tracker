@@ -128,7 +128,7 @@ td{padding:10px 8px;border-bottom:1px solid var(--line);white-space:nowrap;}
   <div class="card">
     <label>Crop <span class="req-star">*</span></label>
     <select id="f_crop"><option value="">Select Crop</option>
-      <option>Maize</option><option>Paddy</option><option>HY Paddy</option><option>Res Paddy</option>
+      <option>Maize</option><option>HY Paddy</option><option>Res Paddy</option>
       <option>Wheat</option><option>Cotton</option><option>Sorghum</option>
       <option>Pearl Millet</option><option>Mustard</option><option>Fodder</option><option>Basmati</option>
     </select>
@@ -274,6 +274,7 @@ td{padding:10px 8px;border-bottom:1px solid var(--line);white-space:nowrap;}
     <label>Type your name or mobile number</label>
     <input id="my_name" placeholder="Search by name or mobile number">
   </div>
+  <div id="myStatsSummary"></div>
   <div id="myDataResults"></div>
 </section>
 
@@ -533,7 +534,8 @@ let allRows = [];
 let activeCropFilter = "ALL";
 let activeSeasonFilter = "ALL";
 let dashUnlocked = false;
-let myDataLoaded = false;
+let cacheTs = 0;
+const CACHE_TTL = 60000; // 60 seconds — filter clicks reuse cached data, no refetch
 let currentEditRowId = null;
 let chartCropInst, chartZoneInst, chartAnalysisInst, chartHybridCompInst;
 let analysisMode = 'SoilType';
@@ -584,6 +586,10 @@ function populateHybridDropdowns(crop) {
   hSel.innerHTML = '<option value="">Select Hybrid</option>' + (CRYSTAL_HYBRIDS[crop]||[]).map(h=>`<option>${h}</option>`).join("") + '<option value="__OTHER__">Other (type manually)</option>';
   c1.innerHTML = '<option value="">Select or choose Other</option>' + (COMP_HYBRIDS[crop]||[]).map(h=>`<option>${h}</option>`).join("") + '<option value="__OTHER__">Other (type manually)</option>' + '<option value="__NONE__">No Competition</option>';
   c2.innerHTML = '<option value="">None / Not applicable</option>' + (COMP_HYBRIDS[crop]||[]).map(h=>`<option>${h}</option>`).join("") + '<option value="__OTHER__">Other (type manually)</option>';
+  // Reset "No Competition" hidden state — new crop means fresh selection
+  document.getElementById("f_comphybrid1_other").style.display = "none";
+  document.getElementById("compExtraFields").style.display = "block";
+  document.getElementById("yieldDataSection").style.display = "block";
 }
 document.getElementById("f_hybrid").addEventListener("change", e => { document.getElementById("f_hybrid_other").style.display = e.target.value === "__OTHER__" ? "block" : "none"; });
 document.getElementById("f_comphybrid1").addEventListener("change", e => {
@@ -697,8 +703,15 @@ document.getElementById("submitBtn").addEventListener("click", async () => {
     const data=await res.json();
     if(data.ok){
       showToast("✅ Entry submitted successfully");
+      cacheTs=0; // invalidate cache so new entry shows up immediately in My Data / Dashboard
       document.querySelectorAll("#tab-entry input,#tab-entry textarea").forEach(i=>i.value="");
       document.querySelectorAll("#tab-entry select").forEach(s=>s.selectedIndex=0);
+      // Clear dependent dropdowns (they don't auto-reset since selectedIndex=0 doesn't fire change events)
+      document.getElementById("f_region").innerHTML = '<option value="">Select Region</option>';
+      document.getElementById("f_territory").innerHTML = '<option value="">Select Territory</option>';
+      document.getElementById("f_hybrid").innerHTML = '<option value="">Select Hybrid</option>';
+      document.getElementById("f_comphybrid1").innerHTML = '<option value="">Select or choose Other</option>';
+      document.getElementById("f_comphybrid2").innerHTML = '<option value="">None / Not applicable</option>';
       ["f_hybrid_other","f_comphybrid1_other","f_comphybrid2_other"].forEach(id=>document.getElementById(id).style.display="none");
       document.getElementById("compExtraFields").style.display="block";
       document.getElementById("yieldDataSection").style.display="block";
@@ -708,12 +721,15 @@ document.getElementById("submitBtn").addEventListener("click", async () => {
 });
 
 /* ====== FETCH ====== */
-async function fetchAllData() {
+async function fetchAllData(force=false) {
+  const now = Date.now();
+  if (!force && allRows.length && (now-cacheTs) < CACHE_TTL) return allRows; // cache hit — instant, no network call
   try {
     const res=await fetch(API_URL+"?action=list");
     const data=await res.json();
-    return data.ok ? data.rows : [];
-  } catch(e) { return []; }
+    if (data.ok) { allRows=data.rows; cacheTs=now; }
+    return allRows;
+  } catch(e) { return allRows; } // on network error, keep showing last known data
 }
 
 /* ====== MY DATA ====== */
@@ -723,21 +739,44 @@ function debounce(fn,delay){ let t; return(...args)=>{clearTimeout(t);t=setTimeo
 
 async function renderMyData() {
   const container=document.getElementById("myDataResults");
-  if (!myDataLoaded) {
-    container.innerHTML='<div class="empty">Loading your data…</div>';
-    allRows=await fetchAllData(); myDataLoaded=true;
-  }
+  if (!allRows.length) container.innerHTML='<div class="empty">Loading your data…</div>';
+  allRows=await fetchAllData();
   filterMyData();
 }
 
 function filterMyData() {
+  const summaryEl=document.getElementById("myStatsSummary");
   const container=document.getElementById("myDataResults");
   const query=document.getElementById("my_name").value.trim().toUpperCase();
   if (!query) {
+    summaryEl.innerHTML="";
     container.innerHTML='<div class="card empty"><div class="icon">🔍</div>Type your name or mobile number<div class="sub">Your submissions will appear here</div></div>'; return;
   }
   const mine=allRows.map((r,idx)=>({...r,_rowIndex:idx})).filter(r=>(r.TMName||"").toUpperCase().includes(query)||(r.TMMobile||"").toString().includes(query));
-  if (!mine.length) { container.innerHTML='<div class="card empty"><div class="icon">📭</div>No matching entries<div class="sub">Try your mobile number</div></div>'; return; }
+  if (!mine.length) { summaryEl.innerHTML=""; container.innerHTML='<div class="card empty"><div class="icon">📭</div>No matching entries<div class="sub">Try your mobile number</div></div>'; return; }
+
+  // ===== Personal dashboard summary =====
+  const totalEntries=mine.length;
+  const totalDemos=mine.reduce((s,r)=>s+(parseFloat(r.NumDemo)||0),0);
+  const yieldFilled=mine.filter(r=>r.CrystalYield&&r.CrystalYield!=="0").length;
+  const yieldPct=totalEntries?Math.round(yieldFilled/totalEntries*100):0;
+  const yieldVals=mine.filter(r=>r.CrystalYield&&r.CrystalYield!=="0").map(r=>parseFloat(r.CrystalYield));
+  const avgYield=yieldVals.length?(yieldVals.reduce((s,v)=>s+v,0)/yieldVals.length).toFixed(1):"—";
+  // Win rate vs competition (only entries with a real comp yield)
+  const withComp=mine.filter(r=>r.CompYield1&&r.CompYield1!=="0"&&r.CrystalYield&&r.CrystalYield!=="0");
+  const wins=withComp.filter(r=>parseFloat(r.CrystalYield)>parseFloat(r.CompYield1)).length;
+  const winRate=withComp.length?Math.round(wins/withComp.length*100):null;
+
+  summaryEl.innerHTML=`
+    <div class="section-title" style="margin-top:0;">📊 Your Summary</div>
+    <div class="stat-grid">
+      <div class="stat"><div class="num">${totalEntries}</div><div class="lbl">Your Entries</div></div>
+      <div class="stat sky"><div class="num">${totalDemos}</div><div class="lbl">Demo Packets Given</div></div>
+      <div class="stat ${yieldPct===100?'':'warn'}"><div class="num">${yieldPct}%</div><div class="lbl">Yield Filled (${yieldFilled}/${totalEntries})</div></div>
+      <div class="stat"><div class="num">${avgYield}</div><div class="lbl">Avg Crystal Yield</div></div>
+    </div>
+    ${winRate!==null?`<div class="quality-row" style="margin-bottom:10px;"><span class="quality-label">Win Rate vs Competition (${withComp.length} matched)</span><span class="badge ${winRate>=50?'done':'danger'}">${winRate}%</span></div>`:``}
+  `;
   container.innerHTML=mine.sort((a,b)=>new Date(b.Timestamp)-new Date(a.Timestamp)).map(r=>`
     <div class="card" style="padding:14px;">
       <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:8px;">
@@ -799,7 +838,7 @@ document.getElementById("updateYieldBtn").addEventListener("click", async () => 
   try {
     const res=await fetch(API_URL,{method:"POST",body:params});
     const data=await res.json();
-    if(data.ok){showToast("✅ Yield updated successfully");document.getElementById("tab-updateyield").style.display="none";document.getElementById("tab-mydata").style.display="block";allRows=await fetchAllData();filterMyData();}
+    if(data.ok){showToast("✅ Yield updated successfully");document.getElementById("tab-updateyield").style.display="none";document.getElementById("tab-mydata").style.display="block";allRows=await fetchAllData(true);filterMyData();}
     else{showToast("Error: "+data.error,true);}
   } catch(e){showToast("Network error",true);}
   btn.innerHTML="Save Update"; btn.disabled=false;
@@ -833,7 +872,7 @@ document.getElementById("hybrid_select").addEventListener("change", ()=>renderHy
 
 async function loadDashboard() {
   if (!dashUnlocked) return;
-  allRows=await fetchAllData(); myDataLoaded=true;
+  allRows=await fetchAllData();
   renderSeasonFilterBar(); renderCropFilterBar();
   const rows=getFilteredRows();
   renderStats(rows); renderDataQuality(rows); renderPendingYield(rows);
