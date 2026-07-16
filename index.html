@@ -1062,7 +1062,7 @@ function renderDataQuality(rows){
   // that's the field TM actually fills in to explain what happened.
   const junkWords=new Set(["0","na","n/a","-","ok","okay","good","fine","test","xx","nil","none","yes","no","done","thik hai","sahi","achha"]);
   const isJunkObs=(o)=>{
-    const t=(o||"").trim().toLowerCase();
+    const t=(o||"").toString().trim().toLowerCase();
     if(t.length<=5) return true;
     if(junkWords.has(t)) return true;
     return false;
