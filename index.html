@@ -565,6 +565,7 @@ let allRows = [];
 let activeCropFilter = "ALL";
 let activeSeasonFilter = "ALL";
 let dashUnlocked = false;
+let dashLoadToken = 0; // prevents stale (slower) filter requests from overwriting newer ones
 let cacheTs = 0;
 const CACHE_TTL = 60000; // 60 seconds — filter clicks reuse cached data, no refetch
 let currentEditRowId = null;
@@ -965,9 +966,13 @@ document.getElementById("hybrid_select").addEventListener("change", ()=>renderHy
 
 async function loadDashboard() {
   if (!dashUnlocked) return;
-  allRows=await fetchAllData();
+  const myToken = ++dashLoadToken; // mark this call as the latest
+  const freshRows = await fetchAllData();
+  if (myToken !== dashLoadToken) return; // a newer filter change happened while we were fetching — abort, don't overwrite
+  allRows = freshRows;
   renderSeasonFilterBar(); renderCropFilterBar();
   const rows=getFilteredRows();
+  if (myToken !== dashLoadToken) return; // double-check right before rendering too
   renderStats(rows); renderDataQuality(rows); renderPendingYield(rows); renderCropIssues(rows);
   renderCropChart(rows); renderZoneChart(rows); renderAnalysisModeBar(); renderAnalysisChart(rows);
   renderFOScorecard(rows); renderCompHeatmap(rows);
