@@ -973,11 +973,24 @@ async function loadDashboard() {
   renderSeasonFilterBar(); renderCropFilterBar();
   const rows=getFilteredRows();
   if (myToken !== dashLoadToken) return; // double-check right before rendering too
-  renderStats(rows); renderDataQuality(rows); renderPendingYield(rows); renderCropIssues(rows);
-  renderCropChart(rows); renderZoneChart(rows); renderAnalysisModeBar(); renderAnalysisChart(rows);
-  renderFOScorecard(rows); renderCompHeatmap(rows);
-  populateHybridSelect(rows); renderHybridCompAnalysis(rows);
-  renderTerritoryTable(rows); renderDashTable(rows);
+
+  // Each render call is isolated — if one has a bug, the rest of the dashboard still renders
+  // instead of the whole screen going blank (matches earlier real-world failure mode).
+  const safe = (name, fn) => { try { fn(); } catch(err) { console.error("Dashboard render failed: "+name, err); } };
+  safe("renderStats", () => renderStats(rows));
+  safe("renderDataQuality", () => renderDataQuality(rows));
+  safe("renderPendingYield", () => renderPendingYield(rows));
+  safe("renderCropIssues", () => renderCropIssues(rows));
+  safe("renderCropChart", () => renderCropChart(rows));
+  safe("renderZoneChart", () => renderZoneChart(rows));
+  safe("renderAnalysisModeBar", () => renderAnalysisModeBar());
+  safe("renderAnalysisChart", () => renderAnalysisChart(rows));
+  safe("renderFOScorecard", () => renderFOScorecard(rows));
+  safe("renderCompHeatmap", () => renderCompHeatmap(rows));
+  safe("populateHybridSelect", () => populateHybridSelect(rows));
+  safe("renderHybridCompAnalysis", () => renderHybridCompAnalysis(rows));
+  safe("renderTerritoryTable", () => renderTerritoryTable(rows));
+  safe("renderDashTable", () => renderDashTable(rows));
 }
 
 function getFilteredRows(){
@@ -1023,11 +1036,11 @@ function renderDataQuality(rows){
   // 1. Unique entries — flag duplicate Farmer Mobile + Crop + Hybrid combos
   const seen={};
   rows.forEach(r=>{
-    const key=`${(r.FarmerMobile||"").replace(/\D/g,"")}|${r.Crop||""}|${r.DemoHybrid||""}`;
+    const key=`${(r.FarmerMobile||"").toString().replace(/\D/g,"")}|${r.Crop||""}|${r.DemoHybrid||""}`;
     seen[key]=(seen[key]||0)+1;
   });
   const uniqueCount=rows.filter(r=>{
-    const key=`${(r.FarmerMobile||"").replace(/\D/g,"")}|${r.Crop||""}|${r.DemoHybrid||""}`;
+    const key=`${(r.FarmerMobile||"").toString().replace(/\D/g,"")}|${r.Crop||""}|${r.DemoHybrid||""}`;
     return seen[key]===1;
   }).length;
 
