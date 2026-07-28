@@ -279,6 +279,7 @@ td{padding:10px 8px;border-bottom:1px solid var(--line);white-space:nowrap;}
   </div>
   <div id="myStatsSummary"></div>
   <div id="myDataResults"></div>
+  <div id="topFOLeaderboard" style="margin-top:16px;"></div>
 </section>
 
 <!-- UPDATE YIELD SECTION -->
@@ -539,8 +540,8 @@ const REGION_TERRITORIES = {
 const CRYSTAL_HYBRIDS = {
   Maize: ["CMH 157", "CMH 3456", "CMH 6453", "ICRON 4455", "PA 6004", "PA 6096", "PA 6106", "PA 6108", "PA 6110", "PA 6121", "PA 6123", "PA 6322", "PA 6354", "PA 6401", "PA 6666", "PA 6730", "PA 6755", "RMH 1818", "RMH 1899 S", "RMH 666*", "RMH 9999", "RMH 9999 Power"],
   Paddy: ["10X Gold", "CHR 106", "CHR 846", "Deepika", "Divya", "Divyashree", "Heera", "IRICE 413", "IRICE 4655", "Narmada", "PA 4601", "PA 4633", "PA 4647", "PA 4666 G", "PA 4672", "Pro Poha"],
-  "HY Paddy": ["IRCIE6255", "CHR-846", "PA 4647", "PA 4666 GOLD", "SADGUN", "URVARA", "PA 4601", "PA 4073", "PA 4033"],
-  "Res Paddy": ["IRCIE513", "IRCE512"],
+  "HY Paddy": ["IRICE 6255", "IRICE 6669", "CHR-846", "PA 4647", "PA 4666 GOLD", "SADGUN", "URVARA", "HP 4601", "PA 4633", "PA 4672", "PA 4673", "PA 4033"],
+  "Res Paddy": ["IRICE 513", "IRICE 522"],
   Wheat: ["WHEAT 4110"],
   Cotton: ["SP 7708 BGII", "SENAPATI", "SP 7710 BGII", "SP 904 V1", "SP 7114 BGII", "SP 7706 BGII", "SP 7270 BGII", "SP 7278 BGII"],
   Sorghum: [],
@@ -552,7 +553,7 @@ const CRYSTAL_HYBRIDS = {
 const COMP_HYBRIDS = {
   Maize: ["DKC 9133", "DKC 9178", "DKC 9208", "ADV 741", "ADV 751", "ADV 768", "CP 333", "CP 555", "CP 509", "AVATAR", "Bioseed 9546", "666 Star", "DKC 9125", "DDC 9126", "DKC 9217", "DKC 9141", "DKC 7074", "DKC 9257", "DKC 9248", "DKC 9246", "DKC 9124", "DKC 9108", "P 3355", "P 3526", "P 3532", "P 1899", "P 1891", "P1890", "P 3302", "S 6802", "HYTECH 5106", "ADV 751 ELITE"],
   Paddy: ["Arize 6444", "Arize 6444 Gold", "27P31", "27P37", "Ankur 6077", "Arize 5333", "GX202", "Gajab", "Champion", "Chamak", "Dhadak Gold", "Dhananjay Gold"],
-  "HY Paddy": ["Arize 4666 GOLD", "KAVERI 468", "PAN 2423", "BIO GAJRAJ", "27P37", "ADVANTA 837", "SAVA 7301", "SAVA 7501"],
+  "HY Paddy": ["Arize 6444 Gold", "KPH 468", "PAN 2423", "BIO GAJRAJ", "27P37", "ADV 837", "SAVA 7301", "SAVA 7501", "S 4003", "M 3030", "US 312", "VNR2355"],
   "Res Paddy": [],
   Wheat: ["SHRIRAM 303", "SHRIRAM 111"],
   Cotton: ["RCH 659", "RASI SWIFT", "US 7067", "SUPERCOT", "AJEET 155", "KABADDI", "AADHYA", "REVANTH", "NAVNEET", "CHANDRA GOLD", "RANDHEER", "ATM", "NAWAB", "JAYBHERI", "DHANDEV+", "DIGGAZ", "RCH 773", "RCH 846", "PRATAP", "KCH 307"],
@@ -787,12 +788,65 @@ async function renderMyData() {
   if (!allRows.length) container.innerHTML='<div class="empty">Loading your data…</div>';
   allRows=await fetchAllData();
   filterMyData();
+  try { renderTopFOLeaderboard(); } catch(err) { console.error("Leaderboard render failed", err); }
+}
+
+function renderTopFOLeaderboard(){
+  const container=document.getElementById("topFOLeaderboard");
+  // Scope: current FY only — Kharif 26-27 + Rabi 26-27 (Rabi 25-26 excluded, yield not final for it in this context)
+  const scoped=allRows.filter(r=>r.Season==="Kharif 26-27"||r.Season==="Rabi 26-27");
+
+  // Duplicate check within this scope (same Farmer+Crop+Hybrid appearing more than once = not trustworthy)
+  const dupKeyCounts={};
+  scoped.forEach(r=>{
+    const k=`${(r.FarmerMobile||"").toString().replace(/\D/g,"")}|${r.Crop||""}|${r.DemoHybrid||""}`;
+    dupKeyCounts[k]=(dupKeyCounts[k]||0)+1;
+  });
+
+  const foMap={};
+  scoped.forEach(r=>{
+    const mob=(r.TMMobile||"").toString().replace(/\D/g,"");
+    if(!mob) return;
+    if(!foMap[mob]) foMap[mob]={name:r.TMName||"Unknown",zone:r.Zone||"",territory:r.Territory||"",qualityCount:0,totalCount:0};
+    foMap[mob].totalCount++;
+    const dupKey=`${(r.FarmerMobile||"").toString().replace(/\D/g,"")}|${r.Crop||""}|${r.DemoHybrid||""}`;
+    const isDup=dupKeyCounts[dupKey]>1;
+    const isFake=isFakeMobile(r.FarmerMobile);
+    const isNoComp=r.CompHybrid1==="No Competition";
+    const hasRealYields=r.CrystalYield&&r.CrystalYield!=="0"&&r.CompYield1&&r.CompYield1!=="0";
+    if(!isDup && !isFake && !isNoComp && hasRealYields) foMap[mob].qualityCount++;
+  });
+
+  const ranked=Object.values(foMap)
+    .filter(d=>d.qualityCount>0)
+    .sort((a,b)=>b.qualityCount-a.qualityCount || b.totalCount-a.totalCount)
+    .slice(0,10);
+
+  if(!ranked.length){
+    container.innerHTML=`<div class="card"><div class="section-title" style="margin-top:0;">🏆 Top 10 Field Officers — Kharif &amp; Rabi 26-27</div><div class="empty"><div class="icon">🏆</div>No quality Crystal vs Competition entries yet this season</div></div>`;
+    return;
+  }
+
+  container.innerHTML=`
+    <div class="card">
+      <div class="section-title" style="margin-top:0;">🏆 Top 10 Field Officers — Kharif &amp; Rabi 26-27</div>
+      <div style="font-size:11.5px;color:var(--gray);margin-bottom:10px;">Ranked by genuine Crystal vs Competition entries (duplicates, fake numbers, and no-competition entries not counted)</div>
+      ${ranked.map((d,i)=>`
+        <div class="quality-row">
+          <span class="quality-label"><b>#${i+1}</b> &nbsp; ${d.name}<br><span style="font-size:11px;color:var(--gray);">${d.zone} · ${d.territory}</span></span>
+          <span class="badge done">${d.qualityCount}</span>
+        </div>
+      `).join("")}
+    </div>
+  `;
 }
 
 function filterMyData() {
   const summaryEl=document.getElementById("myStatsSummary");
   const container=document.getElementById("myDataResults");
   const query=document.getElementById("my_name").value.trim().toUpperCase();
+  const leaderboardEl=document.getElementById("topFOLeaderboard");
+  leaderboardEl.style.display = query ? "none" : "block"; // hide leaderboard while someone is viewing their own data
   if (!query) {
     summaryEl.innerHTML="";
     container.innerHTML='<div class="card empty"><div class="icon">🔍</div>Type your name or mobile number<div class="sub">Your submissions will appear here</div></div>'; return;
@@ -934,7 +988,7 @@ document.getElementById("updateYieldBtn").addEventListener("click", async () => 
   try {
     const res=await fetch(API_URL,{method:"POST",body:params});
     const data=await res.json();
-    if(data.ok){showToast("✅ Yield updated successfully");document.getElementById("tab-updateyield").style.display="none";document.getElementById("tab-mydata").style.display="block";allRows=await fetchAllData(true);filterMyData();}
+    if(data.ok){showToast("✅ Yield updated successfully");document.getElementById("tab-updateyield").style.display="none";document.getElementById("tab-mydata").style.display="block";allRows=await fetchAllData(true);filterMyData();try{renderTopFOLeaderboard();}catch(err){console.error("Leaderboard render failed",err);}}
     else{showToast("Error: "+data.error,true);}
   } catch(e){showToast("Network error",true);}
   btn.innerHTML="Save Update"; btn.disabled=false;
@@ -1023,11 +1077,20 @@ function renderCropFilterBar(){
 function renderStats(rows){
   const demos=rows.reduce((s,r)=>s+(parseFloat(r.NumDemo)||0),0);
   const pending=rows.filter(r=>!isYieldRecorded(r)).length;
-  const fos=new Set(rows.map(r=>r.TMName)).size;
+  const fos=new Set(rows.map(r=>(r.TMMobile||"").toString().replace(/\D/g,""))).size;
   document.getElementById("stat_total").textContent=rows.length;
   document.getElementById("stat_demos").textContent=demos.toLocaleString("en-IN");
   document.getElementById("stat_pending").textContent=pending;
   document.getElementById("stat_fos").textContent=fos;
+}
+
+// Shared helper: detect fake/placeholder mobile numbers (all-same-digit, simple sequential)
+function isFakeMobile(m) {
+  const d=(m||"").toString().replace(/\D/g,"");
+  if(d.length!==10) return true;
+  if(/^(\d)\1{9}$/.test(d)) return true; // all same digit
+  if(/^0123456789$|^1234567890$|^9876543210$/.test(d)) return true; // sequential
+  return false;
 }
 
 function renderDataQuality(rows){
@@ -1046,14 +1109,7 @@ function renderDataQuality(rows){
     return seen[key]===1;
   }).length;
 
-  // 2. Genuine mobile numbers — reject all-same-digit or simple sequential patterns
-  const isFakeMobile=(m)=>{
-    const d=(m||"").toString().replace(/\D/g,"");
-    if(d.length!==10) return true;
-    if(/^(\d)\1{9}$/.test(d)) return true; // all same digit
-    if(/^0123456789$|^1234567890$|^9876543210$/.test(d)) return true; // sequential
-    return false;
-  };
+  // 2. Genuine mobile numbers
   const genuineMobile=rows.filter(r=>!isFakeMobile(r.FarmerMobile)).length;
 
   // 3. Non-zero yield — excludes entries with a valid Crop Status reason (genuine failure explained)
@@ -1157,17 +1213,17 @@ function renderFOScorecard(rows){
   const container=document.getElementById("foScorecard");
   const foMap={};
   rows.forEach(r=>{
-    const fo=r.TMName||"Unknown";
-    if(!foMap[fo]) foMap[fo]={total:0,yieldDone:0};
-    foMap[fo].total++;
-    if(isYieldRecorded(r)) foMap[fo].yieldDone++;
+    const mob=(r.TMMobile||"").toString().replace(/\D/g,"")||"UNKNOWN";
+    if(!foMap[mob]) foMap[mob]={name:r.TMName||"Unknown",total:0,yieldDone:0};
+    foMap[mob].total++;
+    if(isYieldRecorded(r)) foMap[mob].yieldDone++;
   });
   if(!Object.keys(foMap).length){container.innerHTML='<div class="empty"><div class="icon">👤</div>No data yet</div>';return;}
-  container.innerHTML=Object.entries(foMap).sort((a,b)=>b[1].total-a[1].total).map(([fo,d])=>{
+  container.innerHTML=Object.values(foMap).sort((a,b)=>b.total-a.total).map(d=>{
     const yieldPct=Math.round(d.yieldDone/d.total*100);
     return`<div class="fo-card">
       <div style="flex:1;">
-        <div class="fo-name">${fo}</div>
+        <div class="fo-name">${d.name}</div>
         <div class="fo-stats">${d.total} entries · ${d.yieldDone} yield filled (${yieldPct}%)</div>
         <div class="fo-progress"><div class="fo-progress-fill" style="width:${yieldPct}%"></div></div>
       </div>
@@ -1254,7 +1310,7 @@ function renderTerritoryTable(rows){
     terrMap[t].demos+=(parseFloat(r.NumDemo)||0);
     if(isYieldRecorded(r)) terrMap[t].yieldDone++;
     if(r.DemoHybrid) terrMap[t].hybrids.add(r.DemoHybrid);
-    if(r.TMName) terrMap[t].fos.add(r.TMName);
+    if(r.TMMobile) terrMap[t].fos.add((r.TMMobile||"").toString().replace(/\D/g,""));
   });
   if(!Object.keys(terrMap).length){container.innerHTML='<div class="empty"><div class="icon">📍</div>No data yet</div>';return;}
   container.innerHTML=`<div class="table-wrap"><table>
