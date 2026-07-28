@@ -791,20 +791,38 @@ async function renderMyData() {
   try { renderTopFOLeaderboard(); } catch(err) { console.error("Leaderboard render failed", err); }
 }
 
+let topFOCropFilter=null; // tracks selected crop for the Top 10 leaderboard
+
+function cropBucket(crop){
+  // HY Paddy and Res Paddy are shown combined as "Paddy" in this leaderboard
+  if(crop==="HY Paddy"||crop==="Res Paddy") return "Paddy";
+  return crop;
+}
+
 function renderTopFOLeaderboard(){
   const container=document.getElementById("topFOLeaderboard");
-  // Scope: current FY only — Kharif 26-27 + Rabi 26-27 (Rabi 25-26 excluded, yield not final for it in this context)
+  // Scope: current FY only — Kharif 26-27 + Rabi 26-27 (Rabi 25-26 excluded)
   const scoped=allRows.filter(r=>r.Season==="Kharif 26-27"||r.Season==="Rabi 26-27");
 
-  // Duplicate check within this scope (same Farmer+Crop+Hybrid appearing more than once = not trustworthy)
+  // Build available crop buckets from actual data (Maize, Paddy [HY+Res combined], Cotton, etc.)
+  const buckets=[...new Set(scoped.map(r=>cropBucket(r.Crop)).filter(Boolean))].sort();
+  if(!buckets.length){
+    container.innerHTML=`<div class="card"><div class="section-title" style="margin-top:0;">🏆 Top 10 Field Officers</div><div class="empty"><div class="icon">🏆</div>No entries yet this season</div></div>`;
+    return;
+  }
+  if(!topFOCropFilter||!buckets.includes(topFOCropFilter)) topFOCropFilter=buckets[0];
+
+  const cropScoped=scoped.filter(r=>cropBucket(r.Crop)===topFOCropFilter);
+
+  // Duplicate check within this crop+season scope
   const dupKeyCounts={};
-  scoped.forEach(r=>{
+  cropScoped.forEach(r=>{
     const k=`${(r.FarmerMobile||"").toString().replace(/\D/g,"")}|${r.Crop||""}|${r.DemoHybrid||""}`;
     dupKeyCounts[k]=(dupKeyCounts[k]||0)+1;
   });
 
   const foMap={};
-  scoped.forEach(r=>{
+  cropScoped.forEach(r=>{
     const mob=(r.TMMobile||"").toString().replace(/\D/g,"");
     if(!mob) return;
     if(!foMap[mob]) foMap[mob]={name:r.TMName||"Unknown",zone:r.Zone||"",territory:r.Territory||"",qualityCount:0,totalCount:0};
@@ -813,8 +831,7 @@ function renderTopFOLeaderboard(){
     const isDup=dupKeyCounts[dupKey]>1;
     const isFake=isFakeMobile(r.FarmerMobile);
     const isNoComp=r.CompHybrid1==="No Competition";
-    const hasRealYields=r.CrystalYield&&r.CrystalYield!=="0"&&r.CompYield1&&r.CompYield1!=="0";
-    if(!isDup && !isFake && !isNoComp && hasRealYields) foMap[mob].qualityCount++;
+    if(!isDup && !isFake && !isNoComp) foMap[mob].qualityCount++;
   });
 
   const ranked=Object.values(foMap)
@@ -822,23 +839,29 @@ function renderTopFOLeaderboard(){
     .sort((a,b)=>b.qualityCount-a.qualityCount || b.totalCount-a.totalCount)
     .slice(0,10);
 
-  if(!ranked.length){
-    container.innerHTML=`<div class="card"><div class="section-title" style="margin-top:0;">🏆 Top 10 Field Officers — Kharif &amp; Rabi 26-27</div><div class="empty"><div class="icon">🏆</div>No quality Crystal vs Competition entries yet this season</div></div>`;
-    return;
-  }
+  const chipBar=`<div class="filter-bar" style="margin-bottom:10px;">${buckets.map(b=>`<div class="chip ${b===topFOCropFilter?'active':''}" data-cropbucket="${b}">${b}</div>`).join("")}</div>`;
 
   container.innerHTML=`
     <div class="card">
-      <div class="section-title" style="margin-top:0;">🏆 Top 10 Field Officers — Kharif &amp; Rabi 26-27</div>
-      <div style="font-size:11.5px;color:var(--gray);margin-bottom:10px;">Ranked by genuine Crystal vs Competition entries (duplicates, fake numbers, and no-competition entries not counted)</div>
-      ${ranked.map((d,i)=>`
+      <div class="section-title" style="margin-top:0;font-size:15px;">🏆 Top 10 FO — India</div>
+      <div style="font-size:11.5px;color:var(--gray);margin-bottom:8px;">Select your crop</div>
+      ${chipBar}
+      <div style="font-size:12.5px;font-weight:700;color:var(--green-dark);margin:10px 0 8px;">— ${topFOCropFilter} Top 10 (Kharif &amp; Rabi 26-27) —</div>
+      ${ranked.length?ranked.map((d,i)=>`
         <div class="quality-row">
           <span class="quality-label"><b>#${i+1}</b> &nbsp; ${d.name}<br><span style="font-size:11px;color:var(--gray);">${d.zone} · ${d.territory}</span></span>
           <span class="badge done">${d.qualityCount}</span>
         </div>
-      `).join("")}
+      `).join(""):`<div class="empty"><div class="icon">🏆</div>No quality entries yet for ${topFOCropFilter}</div>`}
     </div>
   `;
+
+  container.querySelectorAll("[data-cropbucket]").forEach(chip=>{
+    chip.addEventListener("click",()=>{
+      topFOCropFilter=chip.dataset.cropbucket;
+      renderTopFOLeaderboard();
+    });
+  });
 }
 
 function filterMyData() {
