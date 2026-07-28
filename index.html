@@ -817,7 +817,7 @@ function renderTopFOLeaderboard(){
   // Duplicate check within this crop+season scope
   const dupKeyCounts={};
   cropScoped.forEach(r=>{
-    const k=`${(r.FarmerMobile||"").toString().replace(/\D/g,"")}|${r.Crop||""}|${r.DemoHybrid||""}`;
+    const k=`${(r.FarmerMobile||"").toString().replace(/\D/g,"")}|${r.Crop||""}|${normHybrid(r.DemoHybrid)}`;
     dupKeyCounts[k]=(dupKeyCounts[k]||0)+1;
   });
 
@@ -827,16 +827,18 @@ function renderTopFOLeaderboard(){
     if(!mob) return;
     if(!foMap[mob]) foMap[mob]={name:r.TMName||"Unknown",zone:r.Zone||"",territory:r.Territory||"",qualityCount:0,totalCount:0};
     foMap[mob].totalCount++;
-    const dupKey=`${(r.FarmerMobile||"").toString().replace(/\D/g,"")}|${r.Crop||""}|${r.DemoHybrid||""}`;
+    const dupKey=`${(r.FarmerMobile||"").toString().replace(/\D/g,"")}|${r.Crop||""}|${normHybrid(r.DemoHybrid)}`;
     const isDup=dupKeyCounts[dupKey]>1;
     const isFake=isFakeMobile(r.FarmerMobile);
     const isNoComp=r.CompHybrid1==="No Competition";
     if(!isDup && !isFake && !isNoComp) foMap[mob].qualityCount++;
   });
 
+  const MIN_DEMOS=6; // FOs with fewer than this many total demos aren't ranked (avoids small-sample distortion)
   const ranked=Object.values(foMap)
-    .filter(d=>d.qualityCount>0)
-    .sort((a,b)=>b.qualityCount-a.qualityCount || b.totalCount-a.totalCount)
+    .filter(d=>d.totalCount>=MIN_DEMOS && d.qualityCount>0)
+    .map(d=>({...d,pct:Math.round(d.qualityCount/d.totalCount*100)}))
+    .sort((a,b)=>b.pct-a.pct || b.totalCount-a.totalCount)
     .slice(0,10);
 
   const chipBar=`<div class="filter-bar" style="margin-bottom:10px;">${buckets.map(b=>`<div class="chip ${b===topFOCropFilter?'active':''}" data-cropbucket="${b}">${b}</div>`).join("")}</div>`;
@@ -849,10 +851,10 @@ function renderTopFOLeaderboard(){
       <div style="font-size:12.5px;font-weight:700;color:var(--green-dark);margin:10px 0 8px;">— ${topFOCropFilter} Top 10 (Kharif &amp; Rabi 26-27) —</div>
       ${ranked.length?ranked.map((d,i)=>`
         <div class="quality-row">
-          <span class="quality-label"><b>#${i+1}</b> &nbsp; ${d.name}<br><span style="font-size:11px;color:var(--gray);">${d.zone} · ${d.territory}</span></span>
-          <span class="badge done">${d.qualityCount}</span>
+          <span class="quality-label"><b>#${i+1}</b> &nbsp; ${d.name}<br><span style="font-size:11px;color:var(--gray);">${d.zone} · ${d.territory} · ${d.qualityCount}/${d.totalCount} demos</span></span>
+          <span class="badge done">${d.pct}%</span>
         </div>
-      `).join(""):`<div class="empty"><div class="icon">🏆</div>No quality entries yet for ${topFOCropFilter}</div>`}
+      `).join(""):`<div class="empty"><div class="icon">🏆</div>No FO has ${MIN_DEMOS}+ qualifying demos yet for ${topFOCropFilter}</div>`}
     </div>
   `;
 
@@ -1108,6 +1110,12 @@ function renderStats(rows){
 }
 
 // Shared helper: detect fake/placeholder mobile numbers (all-same-digit, simple sequential)
+// Shared helper: normalize hybrid names for grouping/counting — prevents "PA 6108" vs "pa 6108"
+// vs "PA  6108" (extra space) from being counted as different hybrids when manually typed via "Other"
+function normHybrid(h) {
+  return (h||"").toString().trim().toUpperCase().replace(/\s+/g," ");
+}
+
 function isFakeMobile(m) {
   const d=(m||"").toString().replace(/\D/g,"");
   if(d.length!==10) return true;
@@ -1124,11 +1132,11 @@ function renderDataQuality(rows){
   // 1. Unique entries — flag duplicate Farmer Mobile + Crop + Hybrid combos
   const seen={};
   rows.forEach(r=>{
-    const key=`${(r.FarmerMobile||"").toString().replace(/\D/g,"")}|${r.Crop||""}|${r.DemoHybrid||""}`;
+    const key=`${(r.FarmerMobile||"").toString().replace(/\D/g,"")}|${r.Crop||""}|${normHybrid(r.DemoHybrid)}`;
     seen[key]=(seen[key]||0)+1;
   });
   const uniqueCount=rows.filter(r=>{
-    const key=`${(r.FarmerMobile||"").toString().replace(/\D/g,"")}|${r.Crop||""}|${r.DemoHybrid||""}`;
+    const key=`${(r.FarmerMobile||"").toString().replace(/\D/g,"")}|${r.Crop||""}|${normHybrid(r.DemoHybrid)}`;
     return seen[key]===1;
   }).length;
 
@@ -1166,7 +1174,7 @@ function renderCropIssues(rows){
   const byType={};
   issues.forEach(r=>{const reason=r.DamageReason||"Unspecified";byType[reason]=(byType[reason]||0)+1;});
   const byHybrid={};
-  issues.forEach(r=>{const h=r.DemoHybrid||"Unknown";byHybrid[h]=(byHybrid[h]||0)+1;});
+  issues.forEach(r=>{const h=normHybrid(r.DemoHybrid)||"UNKNOWN";byHybrid[h]=(byHybrid[h]||0)+1;});
   let html='<div style="font-size:11.5px;color:var(--gray);font-weight:700;margin-bottom:6px;text-transform:uppercase;">By Damage Reason</div>';
   html+=Object.entries(byType).sort((a,b)=>b[1]-a[1]).map(([type,n])=>`
     <div class="quality-row"><span class="quality-label">${type}</span><span class="badge danger">${n} cases</span></div>`).join("");
@@ -1217,13 +1225,13 @@ function renderAnalysisModeBar(){
 function renderAnalysisChart(rows){
   const field = analysisMode; // "SoilType" or "IrrigationType"
   const withYield=rows.filter(r=>r.CrystalYield&&r.CrystalYield!=="0"&&r.CropStatus!=="Damage");
-  const hybrids=[...new Set(withYield.map(r=>r.DemoHybrid).filter(Boolean))].sort().slice(0,8);
+  const hybrids=[...new Set(withYield.map(r=>normHybrid(r.DemoHybrid)).filter(Boolean))].sort().slice(0,8);
   const groups=[...new Set(withYield.map(r=>r[field]).filter(Boolean))].sort();
   const avg=(arr)=>arr.length?arr.reduce((s,v)=>s+v,0)/arr.length:0;
   const groupColors=["#2E8B57","#D9A441","#7A5230","#3E7C9E","#C0392B","#8E6C8A"];
   const datasets=groups.map((g,i)=>({
     label:g,
-    data:hybrids.map(h=>avg(withYield.filter(r=>r.DemoHybrid===h&&r[field]===g).map(r=>parseFloat(r.CrystalYield)||0))),
+    data:hybrids.map(h=>avg(withYield.filter(r=>normHybrid(r.DemoHybrid)===h&&r[field]===g).map(r=>parseFloat(r.CrystalYield)||0))),
     backgroundColor:groupColors[i%groupColors.length],
     borderRadius:4
   }));
@@ -1259,8 +1267,8 @@ function renderCompHeatmap(rows){
   const container=document.getElementById("compHeatmap");
   const counts={};
   rows.forEach(r=>{
-    if(r.CompHybrid1 && r.CompHybrid1!=="No Competition") counts[r.CompHybrid1]=(counts[r.CompHybrid1]||0)+1;
-    if(r.CompHybrid2 && r.CompHybrid2!=="No Competition") counts[r.CompHybrid2]=(counts[r.CompHybrid2]||0)+1;
+    if(r.CompHybrid1 && r.CompHybrid1!=="No Competition") { const h=normHybrid(r.CompHybrid1); counts[h]=(counts[h]||0)+1; }
+    if(r.CompHybrid2 && r.CompHybrid2!=="No Competition") { const h=normHybrid(r.CompHybrid2); counts[h]=(counts[h]||0)+1; }
   });
   const sorted=Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,10);
   if(!sorted.length){container.innerHTML='<div class="empty"><div class="icon">🔥</div>No competition data yet</div>';return;}
@@ -1276,7 +1284,7 @@ function populateHybridSelect(rows){
   const sel=document.getElementById("hybrid_select");
   const prev=sel.value;
   const counts={};
-  rows.forEach(r=>{ if(r.DemoHybrid) counts[r.DemoHybrid]=(counts[r.DemoHybrid]||0)+1; });
+  rows.forEach(r=>{ if(r.DemoHybrid) { const h=normHybrid(r.DemoHybrid); counts[h]=(counts[h]||0)+1; } });
   const hybrids=Object.keys(counts).sort((a,b)=>counts[b]-counts[a]);
   sel.innerHTML='<option value="">Select a hybrid to analyze</option>'+hybrids.map(h=>`<option value="${h}">${h} (${counts[h]} entries)</option>`).join("");
   if(hybrids.includes(prev)) sel.value=prev;
@@ -1291,10 +1299,10 @@ function renderHybridCompAnalysis(rows){
     tableDiv.innerHTML='<div class="empty"><div class="icon">👆</div>Select a Crystal hybrid above</div>'; return;
   }
   const matchups={};
-  rows.filter(r=>r.DemoHybrid===sel&&r.CropStatus!=="Damage").forEach(r=>{
+  rows.filter(r=>normHybrid(r.DemoHybrid)===sel&&r.CropStatus!=="Damage").forEach(r=>{
     const cy=parseFloat(r.CrystalYield)||0;
     if(!r.CrystalYield||r.CrystalYield==="0") return;
-    [[r.CompHybrid1,r.CompYield1],[r.CompHybrid2,r.CompYield2]].forEach(([comp,cy2])=>{
+    [[normHybrid(r.CompHybrid1),r.CompYield1],[normHybrid(r.CompHybrid2),r.CompYield2]].forEach(([comp,cy2])=>{
       if(!comp||!cy2||cy2==="0") return;
       const k=comp; const cpy=parseFloat(cy2)||0;
       if(!matchups[k]) matchups[k]={crystalY:[],compY:[],wins:0,total:0};
@@ -1332,7 +1340,7 @@ function renderTerritoryTable(rows){
     terrMap[t].entries++;
     terrMap[t].demos+=(parseFloat(r.NumDemo)||0);
     if(isYieldRecorded(r)) terrMap[t].yieldDone++;
-    if(r.DemoHybrid) terrMap[t].hybrids.add(r.DemoHybrid);
+    if(r.DemoHybrid) terrMap[t].hybrids.add(normHybrid(r.DemoHybrid));
     if(r.TMMobile) terrMap[t].fos.add((r.TMMobile||"").toString().replace(/\D/g,""));
   });
   if(!Object.keys(terrMap).length){container.innerHTML='<div class="empty"><div class="icon">📍</div>No data yet</div>';return;}
