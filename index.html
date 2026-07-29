@@ -204,7 +204,7 @@ td{padding:10px 8px;border-bottom:1px solid var(--line);white-space:nowrap;}
         <input id="f_numdemo" type="number" placeholder="e.g. 1">
       </div>
       <div>
-        <label>No. of Rows/Lines <span class="req-star">*</span></label>
+        <label>No. of Sowing Line/Acre <span class="req-star">*</span></label>
         <input id="f_numrows" type="number" placeholder="e.g. 8">
       </div>
     </div>
@@ -250,13 +250,13 @@ td{padding:10px 8px;border-bottom:1px solid var(--line);white-space:nowrap;}
     </div>
 
     <div class="section-title">Yield Data</div>
-    <label>Crystal Yield/Acre <span class="req-star">*</span></label>
+    <label>Crystal Yield Q/Acre <span class="req-star">*</span></label>
     <input id="f_crystalyield" type="number" placeholder="0 if unknown">
 
     <div id="yieldDataSection">
-      <label>Comp 1 Yield/Acre <span class="req-star">*</span></label>
+      <label>Comp 1 Yield Q/Acre <span class="req-star">*</span></label>
       <input id="f_compyield1" type="number" placeholder="0 if unknown">
-      <label>Comp 2 Yield/Acre</label>
+      <label>Comp 2 Yield Q/Acre</label>
       <input id="f_compyield2" type="number" placeholder="e.g. 22">
     </div>
 
@@ -305,12 +305,12 @@ td{padding:10px 8px;border-bottom:1px solid var(--line);white-space:nowrap;}
       <div class="ibox" style="margin-top:8px;font-size:12px;">Please describe what happened in the Remarks box below — this is especially important if you selected "Other".</div>
     </div>
     <div id="u_allYieldFields">
-      <label>Crystal Yield/Acre <span class="req-star">*</span></label>
+      <label>Crystal Yield Q/Acre <span class="req-star">*</span></label>
       <input id="u_crystalyield" type="number" placeholder="e.g. 28">
       <div id="updateYieldFields">
-        <label>Competition 1 Yield/Acre <span class="req-star">*</span></label>
+        <label>Competition 1 Yield Q/Acre <span class="req-star">*</span></label>
         <input id="u_compyield1" type="number" placeholder="e.g. 24">
-        <label>Competition 2 Yield/Acre (optional)</label>
+        <label>Competition 2 Yield Q/Acre (optional)</label>
         <input id="u_compyield2" type="number" placeholder="e.g. 22">
       </div>
       <label>Top 2 Key Observations <span class="req-star">*</span></label>
@@ -1199,7 +1199,7 @@ function renderPendingYield(rows){
 
 const COLORS=["#2E8B57","#D9A441","#7A5230","#1B5E3A","#C0392B","#6B7570","#3E7C9E","#8E6C8A"];
 function mkChart(id,type,labels,datasets,opts={}){
-  const inst=new Chart(document.getElementById(id),{type,data:{labels,datasets},options:{maintainAspectRatio:false,resizeDelay:200,plugins:{legend:{display:opts.legend!==undefined?opts.legend:false}},...(opts.scales?{scales:opts.scales}:{})}});
+  const inst=new Chart(document.getElementById(id),{type,data:{labels,datasets},options:{maintainAspectRatio:false,resizeDelay:200,animation:{duration:150},plugins:{legend:{display:opts.legend!==undefined?opts.legend:false}},...(opts.scales?{scales:opts.scales}:{})}});
   return inst;
 }
 
@@ -1318,7 +1318,7 @@ function renderHybridCompAnalysis(rows){
   const data=[avgCrystal,...comps.map(c=>avg(matchups[c].compY))];
   const bgColors=["#2E8B57",...comps.map((_,i)=>COLORS[(i+2)%COLORS.length])];
   if(chartHybridCompInst) chartHybridCompInst.destroy();
-  chartHybridCompInst=new Chart(canvas,{type:"bar",data:{labels,datasets:[{label:"Avg Yield/Acre",data:data.map(v=>+v.toFixed(1)),backgroundColor:bgColors,borderRadius:6}]},options:{maintainAspectRatio:false,resizeDelay:200,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true}}}});
+  chartHybridCompInst=new Chart(canvas,{type:"bar",data:{labels,datasets:[{label:"Avg Yield Q/Acre",data:data.map(v=>+v.toFixed(1)),backgroundColor:bgColors,borderRadius:6}]},options:{maintainAspectRatio:false,resizeDelay:200,animation:{duration:150},plugins:{legend:{display:false}},scales:{y:{beginAtZero:true}}}});
   tableDiv.innerHTML=`<div class="table-wrap"><table>
     <tr><th>Vs Competition</th><th>${sel} Avg</th><th>Comp Avg</th><th>Diff</th><th>Win Rate</th></tr>
     ${comps.map(c=>{
@@ -1359,7 +1359,7 @@ function renderDashTable(rows){
   const container=document.getElementById("dashTable");
   if(!rows.length){container.innerHTML='<div class="card empty"><div class="icon">📭</div>No submissions yet</div>';return;}
   container.innerHTML=`<div class="table-wrap"><table>
-    <tr><th>Date</th><th>FO Name</th><th>Season</th><th>Zone</th><th>Region</th><th>Territory</th><th>Crop</th><th>Hybrid</th><th>Comp 1</th><th>Village</th><th>District</th><th>Crystal Yield</th></tr>
+    <tr><th>Date</th><th>FO Name</th><th>Season</th><th>Zone</th><th>Region</th><th>Territory</th><th>Crop</th><th>Hybrid</th><th>Comp 1</th><th>Village</th><th>District</th><th>Crystal Yield Q/Acre</th></tr>
     ${[...rows].sort((a,b)=>new Date(b.Timestamp)-new Date(a.Timestamp)).map(r=>`<tr>
       <td>${new Date(r.Timestamp).toLocaleDateString('en-IN')}</td>
       <td>${r.TMName||""}</td><td>${r.Season||""}</td><td>${r.Zone||""}</td><td>${r.Region||""}</td><td>${r.Territory||""}</td>
@@ -1374,7 +1374,7 @@ function renderDashTable(rows){
 document.getElementById("exportBtn").addEventListener("click",()=>{
   const rows=getFilteredRows();
   if(!rows.length){showToast("No data to export",true);return;}
-  const headers=["Date","FO Name","Mobile","HQ","Zone","Region","Territory","Season","Crop","Demo Hybrid","DOS","Farmer Name","Farmer Mobile","Farmer Category","Village","Block","District","No of Demo Packets","Soil Type","Irrigation Type","No of Rows","Row Spacing (cm)","Plant Spacing (cm)","Comp Hybrid 1","Comp DOS 1","Comp Hybrid 2","Comp DOS 2","Crystal Yield","Comp Yield 1","Comp Yield 2","Observations","Remarks","Crop Status","Damage Reason"];
+  const headers=["Date","FO Name","Mobile","HQ","Zone","Region","Territory","Season","Crop","Demo Hybrid","DOS","Farmer Name","Farmer Mobile","Farmer Category","Village","Block","District","No of Demo Packets","Soil Type","Irrigation Type","No of Sowing Line/Acre","Row Spacing (cm)","Plant Spacing (cm)","Comp Hybrid 1","Comp DOS 1","Comp Hybrid 2","Comp DOS 2","Crystal Yield Q/Acre","Comp Yield 1 Q/Acre","Comp Yield 2 Q/Acre","Observations","Remarks","Crop Status","Damage Reason"];
   const keys=["Timestamp","TMName","TMMobile","HQ","Zone","Region","Territory","Season","Crop","DemoHybrid","DOS","FarmerName","FarmerMobile","FarmerCategory","Village","Block","District","NumDemo","SoilType","IrrigationType","NumRows","RowSpacing","PlantSpacing","CompHybrid1","CompDOS1","CompHybrid2","CompDOS2","CrystalYield","CompYield1","CompYield2","Observations","Remarks","CropStatus","DamageReason"];
   const csvRows=[headers.join(","),...rows.map(r=>keys.map(k=>{const v=(r[k]||"").toString().replace(/"/g,'""');return`"${v}"`;}).join(","))];
   const blob=new Blob([csvRows.join("\n")],{type:"text/csv"});
