@@ -1001,7 +1001,11 @@ function filterMyData() {
       <div class="quality-row"><span class="quality-label">${crop}</span><span style="font-size:12.5px;color:var(--ink);">${d.entries} entries · ${d.demos} demos · ${d.yieldFilled} yield filled</span></div>
     `).join("")}` : ``}
   `;
-  container.innerHTML=mine.sort((a,b)=>new Date(b.Timestamp)-new Date(a.Timestamp)).map(r=>`
+  const MY_DISPLAY_LIMIT=50;
+  const mineSorted=mine.sort((a,b)=>new Date(b.Timestamp)-new Date(a.Timestamp));
+  const myNote = mineSorted.length>MY_DISPLAY_LIMIT
+    ? `<div style="font-size:11.5px;color:var(--gray);margin:8px 0;">Showing latest ${MY_DISPLAY_LIMIT} of ${mineSorted.length} entries</div>` : "";
+  container.innerHTML=myNote+mineSorted.slice(0,MY_DISPLAY_LIMIT).map(r=>`
     <div class="card" style="padding:14px;">
       <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:8px;">
         <div>
@@ -1484,9 +1488,15 @@ function renderTerritoryTable(rows){
 function renderDashTable(rows){
   const container=document.getElementById("dashTable");
   if(!rows.length){container.innerHTML='<div class="card empty"><div class="icon">📭</div>No submissions yet</div>';return;}
-  container.innerHTML=`<div class="table-wrap"><table>
+  const DISPLAY_LIMIT=100;
+  const sorted=[...rows].sort((a,b)=>new Date(b.Timestamp)-new Date(a.Timestamp));
+  const shown=sorted.slice(0,DISPLAY_LIMIT);
+  const noteHtml = sorted.length>DISPLAY_LIMIT
+    ? `<div style="font-size:11.5px;color:var(--gray);margin-bottom:8px;">Showing latest ${DISPLAY_LIMIT} of ${sorted.length} entries — use "Export to Excel" above for the complete list</div>`
+    : "";
+  container.innerHTML=`${noteHtml}<div class="table-wrap"><table>
     <tr><th>Date</th><th>FO Name</th><th>Season</th><th>Zone</th><th>Region</th><th>Territory</th><th>Crop</th><th>Hybrid</th><th>Comp 1</th><th>Village</th><th>District</th><th>Crystal Yield Q/Acre</th><th>Comp 1 Yield Q/Acre</th></tr>
-    ${[...rows].sort((a,b)=>new Date(b.Timestamp)-new Date(a.Timestamp)).map(r=>`<tr>
+    ${shown.map(r=>`<tr>
       <td>${new Date(r.Timestamp).toLocaleDateString('en-IN')}</td>
       <td>${r.TMName||""}</td><td>${r.Season||""}</td><td>${r.Zone||""}</td><td>${r.Region||""}</td><td>${r.Territory||""}</td>
       <td>${r.Crop||""}</td><td>${r.DemoHybrid||""}</td><td>${r.CompHybrid1||"—"}</td>
