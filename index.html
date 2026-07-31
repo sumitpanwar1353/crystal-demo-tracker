@@ -625,6 +625,43 @@ document.getElementById("f_region").addEventListener("change", () => {
 });
 document.getElementById("f_crop").addEventListener("change", (e) => populateHybridDropdowns(e.target.value));
 
+// ====== FO PROFILE AUTOFILL — Name/Mobile/HQ/Zone/Region/Territory remembered after first entry ======
+const FO_PROFILE_KEY = "crystalDemoFOProfile";
+
+function saveFOProfile(){
+  try {
+    const profile = {
+      name: document.getElementById("f_name").value,
+      mobile: document.getElementById("f_tmmobile").value,
+      hq: document.getElementById("f_hq").value,
+      zone: document.getElementById("f_zone").value,
+      region: document.getElementById("f_region").value,
+      territory: document.getElementById("f_territory").value,
+    };
+    if(profile.name || profile.mobile) localStorage.setItem(FO_PROFILE_KEY, JSON.stringify(profile));
+  } catch(e){ console.error("Failed to save FO profile", e); }
+}
+
+function loadSavedFOProfile(){
+  try {
+    const saved = JSON.parse(localStorage.getItem(FO_PROFILE_KEY) || "null");
+    if(!saved) return;
+    if(saved.name) document.getElementById("f_name").value = saved.name;
+    if(saved.mobile) document.getElementById("f_tmmobile").value = saved.mobile;
+    if(saved.hq) document.getElementById("f_hq").value = saved.hq;
+    if(saved.zone){
+      document.getElementById("f_zone").value = saved.zone;
+      document.getElementById("f_zone").dispatchEvent(new Event("change"));
+      if(saved.region){
+        document.getElementById("f_region").value = saved.region;
+        document.getElementById("f_region").dispatchEvent(new Event("change"));
+        if(saved.territory) document.getElementById("f_territory").value = saved.territory;
+      }
+    }
+  } catch(e){ console.error("Failed to load FO profile", e); }
+}
+loadSavedFOProfile();
+
 function populateHybridDropdowns(crop) {
   const hSel = document.getElementById("f_hybrid");
   const c1 = document.getElementById("f_comphybrid1");
@@ -750,11 +787,12 @@ document.getElementById("submitBtn").addEventListener("click", async () => {
     if(data.ok){
       showToast("✅ Entry submitted successfully");
       cacheTs=0; // invalidate cache so new entry shows up immediately in My Data / Dashboard
-      document.querySelectorAll("#tab-entry input,#tab-entry textarea").forEach(i=>i.value="");
-      document.querySelectorAll("#tab-entry select").forEach(s=>s.selectedIndex=0);
+      saveFOProfile(); // remember Name/Mobile/HQ/Zone/Region/Territory for next entry
+      const keepFields=["f_name","f_tmmobile","f_hq","f_zone","f_region","f_territory"];
+      document.querySelectorAll("#tab-entry input,#tab-entry textarea").forEach(i=>{ if(!keepFields.includes(i.id)) i.value=""; });
+      document.querySelectorAll("#tab-entry select").forEach(s=>{ if(!keepFields.includes(s.id)) s.selectedIndex=0; });
       // Clear dependent dropdowns (they don't auto-reset since selectedIndex=0 doesn't fire change events)
-      document.getElementById("f_region").innerHTML = '<option value="">Select Region</option>';
-      document.getElementById("f_territory").innerHTML = '<option value="">Select Territory</option>';
+      // Region/Territory are intentionally NOT cleared here — same FO, same posting, reused for next entry
       document.getElementById("f_hybrid").innerHTML = '<option value="">Select Hybrid</option>';
       document.getElementById("f_comphybrid1").innerHTML = '<option value="">Select or choose Other</option>';
       document.getElementById("f_comphybrid2").innerHTML = '<option value="">None / Not applicable</option>';
