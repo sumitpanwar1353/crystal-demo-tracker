@@ -586,6 +586,7 @@ let dashLoadToken = 0; // prevents stale (slower) filter requests from overwriti
 let cacheTs = 0;
 const CACHE_TTL = 60000; // 60 seconds — filter clicks reuse cached data, no refetch
 let currentEditRowId = null;
+let currentEditCrop = null; // tracks crop of the row being edited in Update Yield — needed for Fodder yield-limit exemption
 let chartCropInst, chartZoneInst, chartAnalysisInst, chartHybridCompInst;
 let analysisMode = 'SoilType';
 
@@ -815,11 +816,22 @@ document.getElementById("submitBtn").addEventListener("click", async () => {
   // Observation quality check (only when observations is being collected this season)
   if (showYieldObs && observations && !isValidObservation(observations)) { missing.push("f_observations"); }
 
+  // Yield sanity check — 3-digit yields are almost always typos (except Fodder, measured in bulk green weight)
+  let yieldTooHigh = false;
+  if (showYieldObs) {
+    if (isYieldTooHigh(crystalYield, crop)) { missing.push("f_crystalyield"); yieldTooHigh = true; }
+    if (isYieldTooHigh(compYield1, crop)) { missing.push("f_compyield1"); yieldTooHigh = true; }
+    if (isYieldTooHigh(document.getElementById("f_compyield2").value, crop)) { missing.push("f_compyield2"); yieldTooHigh = true; }
+  }
+
   if (missing.length) {
     missing.forEach(id=>{ const el=document.getElementById(id); if(el) el.classList.add("field-error"); });
     document.getElementById(missing[0]).scrollIntoView({behavior:"smooth",block:"center"});
-    const obsIssue = missing.includes("f_observations") && observations;
-    showToast(obsIssue ? "Observation needs at least 5 words, no plain numbers or dates" : `${missing.length} required field(s) missing — highlighted in red`, true);
+    const obsIssue = missing.includes("f_observations") && observations && !yieldTooHigh;
+    let msg = `${missing.length} required field(s) missing — highlighted in red`;
+    if (yieldTooHigh) msg = "Yield looks too high (100+) — please check, only Fodder can be 3-digit";
+    else if (obsIssue) msg = "Observation needs at least 5 words, no plain numbers or dates";
+    showToast(msg, true);
     return;
   }
   if (hybrid==="__OTHER__") hybrid=hybridOther;
@@ -1041,6 +1053,7 @@ document.getElementById("u_cropstatus").addEventListener("change", ()=>{
 function openUpdateYield(idx) {
   const r=allRows[idx];
   currentEditRowId=r.Timestamp;
+  currentEditCrop=r.Crop;
   document.getElementById("updateYieldInfo").innerHTML=`<b>${r.Crop} — ${r.DemoHybrid}</b><br>Farmer: ${r.FarmerName} · Village: ${r.Village}<br>Comp 1: ${r.CompHybrid1||"—"}`;
   document.getElementById("u_crystalyield").value=r.CrystalYield||"";
   document.getElementById("u_compyield1").value=r.CompYield1||"";
@@ -1087,11 +1100,23 @@ document.getElementById("updateYieldBtn").addEventListener("click", async () => 
   document.querySelectorAll("#tab-updateyield .field-error").forEach(el=>el.classList.remove("field-error"));
   const missing = Object.entries(required).filter(([k,v])=>!v).map(([k])=>k);
   if (!isDamage && observations && !isValidObservation(observations)) missing.push("u_observations");
+
+  // Yield sanity check — 3-digit yields are almost always typos (except Fodder)
+  let yieldTooHigh = false;
+  if (!isDamage) {
+    if (isYieldTooHigh(crystalYield, currentEditCrop)) { missing.push("u_crystalyield"); yieldTooHigh = true; }
+    if (isYieldTooHigh(compYield1, currentEditCrop)) { missing.push("u_compyield1"); yieldTooHigh = true; }
+    if (isYieldTooHigh(compYield2, currentEditCrop)) { missing.push("u_compyield2"); yieldTooHigh = true; }
+  }
+
   if (missing.length) {
     missing.forEach(id=>{ const el=document.getElementById(id); if(el) el.classList.add("field-error"); });
     document.getElementById(missing[0]).scrollIntoView({behavior:"smooth",block:"center"});
-    const obsIssue = missing.includes("u_observations") && observations;
-    showToast(obsIssue ? "Observation needs at least 5 words, no plain numbers or dates" : `${missing.length} required field(s) missing — highlighted in red`, true);
+    const obsIssue = missing.includes("u_observations") && observations && !yieldTooHigh;
+    let msg = `${missing.length} required field(s) missing — highlighted in red`;
+    if (yieldTooHigh) msg = "Yield looks too high (100+) — please check, only Fodder can be 3-digit";
+    else if (obsIssue) msg = "Observation needs at least 5 words, no plain numbers or dates";
+    showToast(msg, true);
     return;
   }
 
@@ -1208,6 +1233,15 @@ function renderStats(rows){
 // Shared helper: normalize hybrid names for grouping/counting — prevents "PA 6108" vs "pa 6108"
 // vs "PA  6108" (extra space) from being counted as different hybrids when manually typed via "Other"
 // Shared helper: validate a genuine observation — at least 5 words, no word purely numeric or date-like
+// Shared helper: flag unrealistic 3-digit yield entries (typos like 120, 130 instead of 40, 40.5).
+// Fodder is exempt — its yield is bulk green biomass and genuinely runs 150-300+ Q/Acre.
+function isYieldTooHigh(value, crop){
+  if(crop==="Fodder") return false;
+  const v=parseFloat(value);
+  if(isNaN(v)) return false;
+  return v>=100;
+}
+
 function isValidObservation(text){
   const words=(text||"").trim().split(/\s+/).filter(Boolean);
   if(words.length<5) return false;
