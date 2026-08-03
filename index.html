@@ -634,6 +634,19 @@ function isYieldRecorded(r) {
     el.value = el.value.replace(/[^\d]/g,"");
   });
 });
+// Yield fields — digits and ONE decimal point only. Blocks "+"/"-" and any other stray characters
+// (e.g. someone typing "+40" or "-40" by mistake, which would otherwise submit as a valid number).
+function sanitizeDecimalInput(el){
+  let v = el.value.replace(/[^\d.]/g,"");
+  const parts = v.split(".");
+  if (parts.length > 2) v = parts[0] + "." + parts.slice(1).join("");
+  el.value = v;
+}
+["f_crystalyield","f_compyield1","f_compyield2","u_crystalyield","u_compyield1","u_compyield2"].forEach(id => {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.addEventListener("input", () => sanitizeDecimalInput(el));
+});
 document.getElementById("f_zone").addEventListener("change", () => {
   const zone = document.getElementById("f_zone").value;
   const regions = ZONE_REGIONS[zone] || [];
@@ -841,7 +854,7 @@ document.getElementById("submitBtn").addEventListener("click", async () => {
 
   const btn=document.getElementById("submitBtn");
   btn.innerHTML='<span class="spinner"></span>Submitting...'; btn.disabled=true;
-  const params=new URLSearchParams({action:"submit",crop,tmName:name,tmMobile,hq,zone,region,territory,season,demoHybrid:hybrid,dos,farmerName,farmerMobile,farmerCategory:farmerCat,village,block,district,numDemo,soilType,irrigation,numRows,rowSpacing,plantSpacing,compHybrid1:comp1,compDos1:noComp?"":compDos1,compHybrid2:noComp?"":comp2,compDos2:noComp?"":document.getElementById("f_compdos2").value,crystalYield:showYieldObs?crystalYield:"",compYield1:(noComp||!showYieldObs)?"0":compYield1,compYield2:(noComp||!showYieldObs)?"0":document.getElementById("f_compyield2").value,observations:showYieldObs?observations:"",remarks:document.getElementById("f_remarks").value});
+  const params=new URLSearchParams({action:"submit",crop,tmName:neutralizeFormula(name),tmMobile,hq:neutralizeFormula(hq),zone,region,territory,season,demoHybrid:neutralizeFormula(hybrid),dos,farmerName:neutralizeFormula(farmerName),farmerMobile,farmerCategory:farmerCat,village:neutralizeFormula(village),block:neutralizeFormula(block),district:neutralizeFormula(district),numDemo,soilType,irrigation,numRows,rowSpacing,plantSpacing,compHybrid1:neutralizeFormula(comp1),compDos1:noComp?"":compDos1,compHybrid2:noComp?"":neutralizeFormula(comp2),compDos2:noComp?"":document.getElementById("f_compdos2").value,crystalYield:showYieldObs?crystalYield:"",compYield1:(noComp||!showYieldObs)?"0":compYield1,compYield2:(noComp||!showYieldObs)?"0":document.getElementById("f_compyield2").value,observations:showYieldObs?neutralizeFormula(observations):"",remarks:neutralizeFormula(document.getElementById("f_remarks").value)});
   try {
     const res=await fetch(API_URL,{method:"POST",body:params});
     const data=await res.json();
@@ -1126,7 +1139,7 @@ document.getElementById("updateYieldBtn").addEventListener("click", async () => 
     crystalYield:isDamage?"0":crystalYield,
     compYield1:(isDamage||noComp)?"0":compYield1,
     compYield2:isDamage?"0":compYield2,
-    observations,remarks,cropStatus,
+    observations:neutralizeFormula(observations),remarks:neutralizeFormula(remarks),cropStatus,
     damageReason:isDamage?damageReason:""
   });
   try {
@@ -1250,6 +1263,13 @@ function isValidObservation(text){
     if(/^\d{1,4}[\/\-.]\d{1,2}[\/\-.]\d{1,4}$/.test(w)) return false; // date-like pattern
   }
   return true;
+}
+
+// Shared helper: neutralize values that could be misread as a formula when opened in Excel/Sheets
+// (a cell starting with =, +, -, or @ can get evaluated instead of shown as plain text).
+function neutralizeFormula(text) {
+  const t = (text||"").toString();
+  return /^[=+\-@]/.test(t) ? ("'" + t) : t;
 }
 
 function normHybrid(h) {
@@ -1573,7 +1593,15 @@ function toggleSection(id){
 let deferredPrompt;
 window.addEventListener("beforeinstallprompt",(e)=>{e.preventDefault();deferredPrompt=e;document.getElementById("installBanner").classList.add("show");});
 document.getElementById("installBtn").addEventListener("click",async()=>{if(deferredPrompt){deferredPrompt.prompt();await deferredPrompt.userChoice;document.getElementById("installBanner").classList.remove("show");}});
-if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
+// Actively remove any previously-registered service worker + its cached files.
+// This ensures every future update loads fresh from GitHub automatically —
+// no FO will ever need to reinstall/redownload the app again after this one update.
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.getRegistrations().then(regs => regs.forEach(reg => reg.unregister()));
+}
+if ('caches' in window) {
+  caches.keys().then(names => names.forEach(name => caches.delete(name)));
+}
 </script>
 </body>
 </html>
