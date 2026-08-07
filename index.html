@@ -674,6 +674,7 @@ function saveFOProfile(){
       zone: document.getElementById("f_zone").value,
       region: document.getElementById("f_region").value,
       territory: document.getElementById("f_territory").value,
+      district: document.getElementById("f_district").value,
     };
     if(profile.name || profile.mobile) localStorage.setItem(FO_PROFILE_KEY, JSON.stringify(profile));
   } catch(e){ console.error("Failed to save FO profile", e); }
@@ -686,6 +687,7 @@ function loadSavedFOProfile(){
     if(saved.name) document.getElementById("f_name").value = saved.name;
     if(saved.mobile) document.getElementById("f_tmmobile").value = saved.mobile;
     if(saved.hq) document.getElementById("f_hq").value = saved.hq;
+    if(saved.district) document.getElementById("f_district").value = saved.district;
     if(saved.zone){
       document.getElementById("f_zone").value = saved.zone;
       document.getElementById("f_zone").dispatchEvent(new Event("change"));
@@ -856,6 +858,10 @@ document.getElementById("submitBtn").addEventListener("click", async () => {
     if (isYieldTooHigh(document.getElementById("f_compyield2").value, crop)) { missing.push("f_compyield2"); yieldTooHigh = true; }
   }
 
+  // Demo packet quantity sanity check — no farmer genuinely gets 10 or more demo packets
+  let demoQtyTooHigh = false;
+  if (isDemoQtyTooHigh(numDemo)) { missing.push("f_numdemo"); demoQtyTooHigh = true; }
+
   if (missing.length) {
     missing.forEach(id=>{ const el=document.getElementById(id); if(el) el.classList.add("field-error"); });
     document.getElementById(missing[0]).scrollIntoView({behavior:"smooth",block:"center"});
@@ -863,6 +869,7 @@ document.getElementById("submitBtn").addEventListener("click", async () => {
     let msg = `${missing.length} required field(s) missing — highlighted in red`;
     if (langIssue) msg = "Invalid selection detected — please reselect the highlighted field(s) again";
     else if (nonEnglish) msg = "Please type Observations/Remarks in English only";
+    else if (demoQtyTooHigh) msg = "No. of Demo Packets must be less than 10 — please check";
     else if (yieldTooHigh) msg = "Yield looks too high (100+) — please check, only Fodder can be 3-digit";
     else if (obsIssue) msg = "Observation needs at least 5 words, no plain numbers or dates";
     showToast(msg, true);
@@ -883,7 +890,7 @@ document.getElementById("submitBtn").addEventListener("click", async () => {
       showToast("✅ Entry submitted successfully");
       cacheTs=0; // invalidate cache so new entry shows up immediately in My Data / Dashboard
       saveFOProfile(); // remember Name/Mobile/HQ/Zone/Region/Territory for next entry
-      const keepFields=["f_name","f_tmmobile","f_hq","f_zone","f_region","f_territory"];
+      const keepFields=["f_name","f_tmmobile","f_hq","f_zone","f_region","f_territory","f_district"];
       document.querySelectorAll("#tab-entry input,#tab-entry textarea").forEach(i=>{ if(!keepFields.includes(i.id)) i.value=""; });
       document.querySelectorAll("#tab-entry select").forEach(s=>{ if(!keepFields.includes(s.id)) s.selectedIndex=0; });
       // Clear dependent dropdowns (they don't auto-reset since selectedIndex=0 doesn't fire change events)
@@ -1287,6 +1294,13 @@ const VALID_SOILTYPES = new Set(["Light Soil","Medium Soil","Heavy Soil"]);
 const VALID_IRRIGATION = new Set(["Irrigated","Rainfed"]);
 const VALID_REGIONS = new Set(Object.values(ZONE_REGIONS).flat());
 const VALID_TERRITORIES = new Set(Object.values(REGION_TERRITORIES).flat());
+
+// Demo packets given to one farmer should realistically be 1-5 — 10+ is always a typo (e.g. "6000")
+function isDemoQtyTooHigh(value){
+  const v=parseFloat(value);
+  if(isNaN(v)) return false;
+  return v>=10;
+}
 
 function isYieldTooHigh(value, crop){
   if(crop==="Fodder") return false;
