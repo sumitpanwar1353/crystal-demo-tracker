@@ -1063,7 +1063,7 @@ function filterMyData() {
       <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:8px;">
         <div>
           <div style="font-weight:700;font-size:14px;">${r.Crop||""} — ${r.DemoHybrid||""}</div>
-          <div style="font-size:12px;color:var(--gray);margin-top:2px;">${r.FarmerName||""} · ${r.Village||""} · ${new Date(r.Timestamp).toLocaleDateString('en-IN')}</div>
+          <div style="font-size:12px;color:var(--gray);margin-top:2px;">${r.FarmerName||""} · ${r.Village||""} · DOS: ${r.DOS?new Date(r.DOS).toLocaleDateString('en-IN'):"—"}</div>
         </div>
         <span class="badge ${isYieldRecorded(r)?'done':'pending'}">${isYieldRecorded(r)?'Resolved':'Yield Pending'}</span>
       </div>
@@ -1612,9 +1612,10 @@ function renderDashTable(rows){
     ? `<div style="font-size:11.5px;color:var(--gray);margin-bottom:8px;">Showing latest ${DISPLAY_LIMIT} of ${sorted.length} entries — use "Export to Excel" above for the complete list</div>`
     : "";
   container.innerHTML=`${noteHtml}<div class="table-wrap"><table>
-    <tr><th>Date</th><th>FO Name</th><th>Season</th><th>Zone</th><th>Region</th><th>Territory</th><th>Crop</th><th>Hybrid</th><th>Comp 1</th><th>Village</th><th>District</th><th>Crystal Yield Q/Acre</th><th>Comp 1 Yield Q/Acre</th></tr>
+    <tr><th>Date</th><th>DOS</th><th>FO Name</th><th>Season</th><th>Zone</th><th>Region</th><th>Territory</th><th>Crop</th><th>Hybrid</th><th>Comp 1</th><th>Village</th><th>District</th><th>Crystal Yield Q/Acre</th><th>Comp 1 Yield Q/Acre</th></tr>
     ${shown.map(r=>`<tr>
       <td>${new Date(r.Timestamp).toLocaleDateString('en-IN')}</td>
+      <td>${r.DOS?new Date(r.DOS).toLocaleDateString('en-IN'):"—"}</td>
       <td>${r.TMName||""}</td><td>${r.Season||""}</td><td>${r.Zone||""}</td><td>${r.Region||""}</td><td>${r.Territory||""}</td>
       <td>${r.Crop||""}</td><td>${r.DemoHybrid||""}</td><td>${r.CompHybrid1||"—"}</td>
       <td>${r.Village||"—"}</td><td>${r.District||"—"}</td>
