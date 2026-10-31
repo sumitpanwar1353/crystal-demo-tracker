@@ -160,7 +160,7 @@ td{padding:10px 8px;border-bottom:1px solid var(--line);white-space:nowrap;}
     <select id="f_territory"><option value="">Select Territory</option></select>
 
     <label>Season <span class="req-star">*</span></label>
-    <select id="f_season"><option value="">Select</option><option value="Rabi 25-26">Rabi 25-26</option><option value="Kharif 26-27">Kharif 26-27</option><option value="Rabi 26-27">Rabi 26-27</option></select>
+    <select id="f_season"><option value="">Select</option><option value="Kharif 26-27">Kharif 26-27</option><option value="Rabi 26-27">Rabi 26-27</option></select>
 
     <div class="section-title">Crystal Demo Details</div>
 
@@ -558,13 +558,13 @@ const CRYSTAL_HYBRIDS = {
   Maize: ["CMH 157", "CMH 3456", "CMH 6453", "ICRON 4455", "PA 6004", "PA 6096", "PA 6106", "PA 6108", "PA 6110", "PA 6121", "PA 6123", "PA 6322", "PA 6354", "PA 6401", "PA 6666", "PA 6730", "PA 6755", "RMH 1818", "RMH 1899 S", "RMH 666*", "RMH 9999", "RMH 9999 Power"],
   Paddy: ["10X Gold", "CHR 106", "CHR 846", "Deepika", "Divya", "Divyashree", "Heera", "IRICE 413", "IRICE 4655", "Narmada", "PA 4601", "PA 4633", "PA 4647", "PA 4666 G", "PA 4672", "Pro Poha"],
   "HY Paddy": ["IRICE 6255", "IRICE 6669", "CHR-846", "PA 4647", "PA 4666 GOLD", "SADGUN", "URVARA", "HP 4601", "PA 4633", "PA 4672"],
-  "Res Paddy": ["IRICE 513", "IRICE 522", "Heera", "Divya", "Divyashree"],
-  Wheat: ["WHEAT 4110"],
+  "Res Paddy": ["IRICE 513", "IRICE 522", "Heera", "Divya", "Divyashree", "10X Gold", "Deepika", "Pro Poha"],
+  Wheat: ["WHEAT 4110", "PA 4140"],
   Cotton: ["SP 7708 BGII", "SENAPATI", "SP 7710 BGII", "SP 904 V1", "SP 7114 BGII", "SP 7706 BGII", "SP 7270 BGII", "SP 7278 BGII", "CCH 666", "KING 2025"],
   Sorghum: ["MLSH 2452"],
-  "Pearl Millet": ["PA 9999 Power", "MILLET 9001", "MILLET 9190", "PA 9001 PROMAX"],
-  Mustard: ["MUSTARD 5232", "MUSTARD 5235", "MUSTARD BASANT", "MUSTARD SUNHARI"],
-  Fodder: ["CFSH-128", "CFSH-300", "SX 21", "SX-17", "ULTRA FEED", "GRAINSRGM", "CJ-2428", "MLSH - 296 GOLD", "MLSH-151", "MLSH-2428", "MLSH-296", "PA 8340", "PRADHAN"],
+  "Pearl Millet": ["PA 9999 Power", "MILLET 9001", "MILLET 9190", "PA 9001 PROMAX", "PA 9070", "PA 9010", "PB 2712", "PB 1899"],
+  Mustard: ["MUSTARD 5232", "MUSTARD 5235", "MUSTARD BASANT", "MUSTARD SUNHARI", "PA 5225"],
+  Fodder: ["CFSH-128", "CFSH-300", "SX 21", "SX-17", "ULTRA FEED", "GRAINSRGM", "CJ-2428", "MLSH - 296 GOLD", "MLSH-151", "MLSH-2428", "MLSH-296", "PA 8340", "PRADHAN", "DAIRY GREEN"],
   Basmati: ["PB 1692", "PB 1718", "PS 1853"]
 };
 const COMP_HYBRIDS = {
@@ -717,7 +717,7 @@ function populateHybridDropdowns(crop) {
   const hSel = document.getElementById("f_hybrid");
   const c1 = document.getElementById("f_comphybrid1");
   const c2 = document.getElementById("f_comphybrid2");
-  hSel.innerHTML = '<option value="">Select Hybrid</option>' + (CRYSTAL_HYBRIDS[crop]||[]).map(h=>`<option value="${h}">${h}</option>`).join("") + '<option value="__OTHER__">Other (type manually)</option>';
+  hSel.innerHTML = '<option value="">Select Hybrid</option>' + (CRYSTAL_HYBRIDS[crop]||[]).map(h=>`<option value="${h}">${h}</option>`).join("");
   c1.innerHTML = '<option value="">Select or choose Other</option>' + (COMP_HYBRIDS[crop]||[]).map(h=>`<option value="${h}">${h}</option>`).join("") + '<option value="__OTHER__">Other (type manually)</option>' + '<option value="__NONE__">No Competition</option>';
   c2.innerHTML = '<option value="">None / Not applicable</option>' + (COMP_HYBRIDS[crop]||[]).map(h=>`<option value="${h}">${h}</option>`).join("") + '<option value="__OTHER__">Other (type manually)</option>';
   // Reset "No Competition" hidden state — new crop means fresh selection
@@ -848,10 +848,15 @@ document.getElementById("submitBtn").addEventListener("click", async () => {
   const langChecks = [
     [crop, VALID_CROPS, "f_crop"], [season, VALID_SEASONS, "f_season"], [zone, VALID_ZONES, "f_zone"],
     [farmerCat, VALID_FARMERCATS, "f_farmercat"], [soilType, VALID_SOILTYPES, "f_soiltype"], [irrigation, VALID_IRRIGATION, "f_irrigation"],
-    [region, VALID_REGIONS, "f_region"], [territory, VALID_TERRITORIES, "f_territory"]
+    [region, VALID_REGIONS, "f_region"], [territory, VALID_TERRITORIES, "f_territory"],
+    [hybrid, new Set(CRYSTAL_HYBRIDS[crop]||[]), "f_hybrid"]
   ];
+  let hybridListIssue = false;
   langChecks.forEach(([val, validSet, id]) => {
-    if (val && !validSet.has(val)) { missing.push(id); langIssue = true; }
+    if (val && !validSet.has(val)) {
+      missing.push(id);
+      if (id === "f_hybrid") hybridListIssue = true; else langIssue = true;
+    }
   });
 
   // Observation quality check (only when observations is being collected this season)
@@ -887,6 +892,7 @@ document.getElementById("submitBtn").addEventListener("click", async () => {
     const obsIssue = missing.includes("f_observations") && observations && !yieldTooHigh;
     let msg = `${missing.length} required field(s) missing — highlighted in red`;
     if (langIssue) msg = "Invalid selection detected — please reselect the highlighted field(s) again";
+    else if (hybridListIssue) msg = "Please choose the Crystal hybrid from the dropdown list (typing a new name is not allowed)";
     else if (nonEnglish) msg = "Please type Observations/Remarks in English only";
     else if (dateBad) msg = "Date looks wrong — please check the year (must be 2025 to a month from today)";
     else if (demoQtyTooHigh) msg = "No. of Demo Packets must be less than 10 — please check";
@@ -1307,7 +1313,7 @@ function renderStats(rows){
 // (translation, browser extension, or anything else), the submit is blocked, not silently
 // "fixed", so the FO knows to reselect properly.
 const VALID_CROPS = new Set(["Maize","HY Paddy","Res Paddy","Wheat","Cotton","Sorghum","Pearl Millet","Mustard","Fodder","Basmati"]);
-const VALID_SEASONS = new Set(["Rabi 25-26","Kharif 26-27","Rabi 26-27"]);
+const VALID_SEASONS = new Set(["Kharif 26-27","Rabi 26-27"]); // Rabi 25-26 closed for new entries (old rows still show in Dashboard/My Data)
 const VALID_ZONES = new Set(["ZONE-1","ZONE-2","ZONE-3","ZONE-4","ZONE-5"]);
 const VALID_FARMERCATS = new Set(["Progressive","Pradhan","Common"]);
 const VALID_SOILTYPES = new Set(["Light Soil","Medium Soil","Heavy Soil"]);
@@ -1377,8 +1383,42 @@ function neutralizeFormula(text) {
   return /^[=+\-@]/.test(t) ? ("'" + t) : t;
 }
 
+// Hybrid-name grouping. Spacing/hyphen variants ("PA-9070", "PA9070", "PA 9070") and known typos
+// ("PRPPOHA", "PREPOHA" -> PRO POHA, "IRCIE 513" -> IRICE 513) are merged into ONE hybrid, so the
+// dashboard never shows the same hybrid twice. Master-list names (Crystal + Competition) are the
+// reference spelling; HYBRID_ALIASES covers typos / numbers-only that the lists cannot catch by spacing alone.
+const HYBRID_ALIASES = {
+  "PRPPOHA":"PRO POHA","PREPOHA":"PRO POHA","PROPOHA":"PRO POHA",
+  "IRCIE6255":"IRICE 6255","IRCIE513":"IRICE 513","IRCIE522":"IRICE 522",
+  "DIVYASHRRI":"DIVYASHREE",
+  "9070":"PA 9070","9010":"PA 9010",
+  "5225":"PA 5225","MUSTARD5225":"PA 5225"
+};
+let _hybridCanon = null;
+const _hybridMemo = new Map();
+function _hybridSquash(x){ return x.replace(/[\s\-_.]/g,""); }
+function _buildHybridCanon(){
+  _hybridCanon = new Map();
+  [CRYSTAL_HYBRIDS, COMP_HYBRIDS].forEach(group=>{
+    Object.keys(group).forEach(crop=>{
+      if(crop==="Paddy") return; // legacy combined list — the live dropdowns are "HY Paddy" / "Res Paddy"
+      (group[crop]||[]).forEach(name=>{
+        const canon = name.toString().trim().toUpperCase().replace(/\s+/g," ");
+        const key = _hybridSquash(canon);
+        if(!_hybridCanon.has(key)) _hybridCanon.set(key, canon);
+      });
+    });
+  });
+  Object.keys(HYBRID_ALIASES).forEach(k=>_hybridCanon.set(k, HYBRID_ALIASES[k]));
+}
 function normHybrid(h) {
-  return (h||"").toString().trim().toUpperCase().replace(/\s+/g," ");
+  const raw = (h||"").toString();
+  if(_hybridMemo.has(raw)) return _hybridMemo.get(raw);
+  const base = raw.trim().toUpperCase().replace(/\s+/g," ");
+  if(!_hybridCanon) _buildHybridCanon();
+  const out = _hybridCanon.get(_hybridSquash(base)) || base;
+  _hybridMemo.set(raw, out);
+  return out;
 }
 
 function isFakeMobile(m) {
