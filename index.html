@@ -253,13 +253,13 @@ td{padding:10px 8px;border-bottom:1px solid var(--line);white-space:nowrap;}
     <div id="seasonYieldObsSection">
       <div class="section-title">Yield Data</div>
       <label>Crystal Yield Q/Acre <span class="req-star">*</span></label>
-      <input id="f_crystalyield" type="number" placeholder="0 if unknown">
+      <input id="f_crystalyield" type="text" inputmode="decimal" autocomplete="off" placeholder="0 if unknown">
 
       <div id="yieldDataSection">
         <label>Comp 1 Yield Q/Acre <span class="req-star">*</span></label>
-        <input id="f_compyield1" type="number" placeholder="0 if unknown">
+        <input id="f_compyield1" type="text" inputmode="decimal" autocomplete="off" placeholder="0 if unknown">
         <label>Comp 2 Yield Q/Acre</label>
-        <input id="f_compyield2" type="number" placeholder="e.g. 22">
+        <input id="f_compyield2" type="text" inputmode="decimal" autocomplete="off" placeholder="e.g. 22">
       </div>
 
       <label>Top 2 Key Observations <span class="req-star">*</span></label>
@@ -309,12 +309,12 @@ td{padding:10px 8px;border-bottom:1px solid var(--line);white-space:nowrap;}
     </div>
     <div id="u_allYieldFields">
       <label>Crystal Yield Q/Acre <span class="req-star">*</span></label>
-      <input id="u_crystalyield" type="number" placeholder="e.g. 28">
+      <input id="u_crystalyield" type="text" inputmode="decimal" autocomplete="off" placeholder="e.g. 28">
       <div id="updateYieldFields">
         <label>Competition 1 Yield Q/Acre <span class="req-star">*</span></label>
-        <input id="u_compyield1" type="number" placeholder="e.g. 24">
+        <input id="u_compyield1" type="text" inputmode="decimal" autocomplete="off" placeholder="e.g. 24">
         <label>Competition 2 Yield Q/Acre (optional)</label>
-        <input id="u_compyield2" type="number" placeholder="e.g. 22">
+        <input id="u_compyield2" type="text" inputmode="decimal" autocomplete="off" placeholder="e.g. 22">
       </div>
       <label>Top 2 Key Observations <span class="req-star">*</span></label>
       <textarea id="u_observations" rows="3" placeholder="e.g. Better cob filling, drought tolerance"></textarea>
@@ -439,6 +439,7 @@ td{padding:10px 8px;border-bottom:1px solid var(--line);white-space:nowrap;}
       </div>
       <div class="collapsible-body" id="body-analysis">
       <div class="filter-bar" id="analysisModeBar"></div>
+      <div id="fodderNoteAnalysis" style="display:none;font-size:11.5px;color:var(--gray);margin:2px 0 8px;">ℹ️ Fodder is left out of this "All Crops" view (its yield is biomass, not grain). Tap the <b>Fodder</b> crop chip to see it.</div>
       <div class="chart-box"><canvas id="chartAnalysis"></canvas></div>
     </div>
 
@@ -451,6 +452,7 @@ td{padding:10px 8px;border-bottom:1px solid var(--line);white-space:nowrap;}
       </div>
       <div class="collapsible-body" id="body-crystalonly">
       <div style="font-size:11.5px;color:var(--gray);margin-bottom:8px;">Entries where no competitor was set up — Crystal's own average yield by hybrid</div>
+      <div id="fodderNoteCrystalOnly" style="display:none;font-size:11.5px;color:var(--gray);margin-bottom:8px;">ℹ️ Fodder is left out of this "All Crops" view (its yield is biomass, not grain). Tap the <b>Fodder</b> crop chip to see it.</div>
       <div id="crystalOnlyTable"></div>
     </div>
 
@@ -638,10 +640,20 @@ function isYieldRecorded(r) {
 // Yield fields — digits and ONE decimal point only. Blocks "+"/"-" and any other stray characters
 // (e.g. someone typing "+40" or "-40" by mistake, which would otherwise submit as a valid number).
 function sanitizeDecimalInput(el){
-  let v = el.value.replace(/[^\d.]/g,"");
+  // Plain text box (not type="number") so a half-typed "10." keeps its dot while the FO is still typing.
+  // Comma is treated as decimal point (some phone keypads show "," instead of ".").
+  let v = el.value.replace(/,/g,".").replace(/[^\d.]/g,"");
   const parts = v.split(".");
   if (parts.length > 2) v = parts[0] + "." + parts.slice(1).join("");
-  el.value = v;
+  if (v !== el.value) el.value = v;
+}
+// Final clean-up at submit time: ".5" -> "0.5", "12." -> "12", lone "." -> "" (counts as empty / required)
+function cleanYieldValue(v){
+  v = (v||"").toString().replace(/,/g,".").trim();
+  if (v === "" || v === ".") return "";
+  if (v.startsWith(".")) v = "0" + v;
+  if (v.endsWith(".")) v = v.slice(0,-1);
+  return v;
 }
 ["f_crystalyield","f_compyield1","f_compyield2","u_crystalyield","u_compyield1","u_compyield2"].forEach(id => {
   const el = document.getElementById(id);
@@ -804,8 +816,9 @@ document.getElementById("submitBtn").addEventListener("click", async () => {
   let comp2=document.getElementById("f_comphybrid2").value;
   const comp2Other=document.getElementById("f_comphybrid2_other").value;
   const compDos1=document.getElementById("f_compdos1").value;
-  const crystalYield=document.getElementById("f_crystalyield").value;
-  const compYield1=document.getElementById("f_compyield1").value;
+  const crystalYield=cleanYieldValue(document.getElementById("f_crystalyield").value);
+  const compYield1=cleanYieldValue(document.getElementById("f_compyield1").value);
+  const compYield2=cleanYieldValue(document.getElementById("f_compyield2").value);
   const observations=document.getElementById("f_observations").value;
   const noComp = comp1==="__NONE__";
   const showYieldObs = season==="Rabi 25-26"; // yield/observations only collected at sowing time for this legacy season
@@ -855,8 +868,14 @@ document.getElementById("submitBtn").addEventListener("click", async () => {
   if (showYieldObs) {
     if (isYieldTooHigh(crystalYield, crop)) { missing.push("f_crystalyield"); yieldTooHigh = true; }
     if (isYieldTooHigh(compYield1, crop)) { missing.push("f_compyield1"); yieldTooHigh = true; }
-    if (isYieldTooHigh(document.getElementById("f_compyield2").value, crop)) { missing.push("f_compyield2"); yieldTooHigh = true; }
+    if (isYieldTooHigh(compYield2, crop)) { missing.push("f_compyield2"); yieldTooHigh = true; }
   }
+
+  // Date sanity check — wrong year typed (e.g. 2029 / 1930) would corrupt season & timeline analysis
+  let dateBad = false;
+  if (!isDateSane(dos)) { missing.push("f_dos"); dateBad = true; }
+  if (!noComp && !isDateSane(compDos1)) { missing.push("f_compdos1"); dateBad = true; }
+  if (!noComp && !isDateSane(document.getElementById("f_compdos2").value)) { missing.push("f_compdos2"); dateBad = true; }
 
   // Demo packet quantity sanity check — no farmer genuinely gets 10 or more demo packets
   let demoQtyTooHigh = false;
@@ -869,6 +888,7 @@ document.getElementById("submitBtn").addEventListener("click", async () => {
     let msg = `${missing.length} required field(s) missing — highlighted in red`;
     if (langIssue) msg = "Invalid selection detected — please reselect the highlighted field(s) again";
     else if (nonEnglish) msg = "Please type Observations/Remarks in English only";
+    else if (dateBad) msg = "Date looks wrong — please check the year (must be 2025 to a month from today)";
     else if (demoQtyTooHigh) msg = "No. of Demo Packets must be less than 10 — please check";
     else if (yieldTooHigh) msg = "Yield looks too high (100+) — please check, only Fodder can be 3-digit";
     else if (obsIssue) msg = "Observation needs at least 5 words, no plain numbers or dates";
@@ -882,7 +902,7 @@ document.getElementById("submitBtn").addEventListener("click", async () => {
 
   const btn=document.getElementById("submitBtn");
   btn.innerHTML='<span class="spinner"></span>Submitting...'; btn.disabled=true;
-  const params=new URLSearchParams({action:"submit",crop,tmName:neutralizeFormula(name),tmMobile,hq:neutralizeFormula(hq),zone,region,territory,season,demoHybrid:neutralizeFormula(hybrid),dos,farmerName:neutralizeFormula(farmerName),farmerMobile,farmerCategory:farmerCat,village:neutralizeFormula(village),block:neutralizeFormula(block),district:neutralizeFormula(district),numDemo,soilType,irrigation,numRows,rowSpacing,plantSpacing,compHybrid1:neutralizeFormula(comp1),compDos1:noComp?"":compDos1,compHybrid2:noComp?"":neutralizeFormula(comp2),compDos2:noComp?"":document.getElementById("f_compdos2").value,crystalYield:showYieldObs?crystalYield:"",compYield1:(noComp||!showYieldObs)?"0":compYield1,compYield2:(noComp||!showYieldObs)?"0":document.getElementById("f_compyield2").value,observations:showYieldObs?neutralizeFormula(observations):"",remarks:neutralizeFormula(document.getElementById("f_remarks").value)});
+  const params=new URLSearchParams({action:"submit",crop,tmName:neutralizeFormula(name),tmMobile,hq:neutralizeFormula(hq),zone,region,territory,season,demoHybrid:neutralizeFormula(hybrid),dos,farmerName:neutralizeFormula(farmerName),farmerMobile,farmerCategory:farmerCat,village:neutralizeFormula(village),block:neutralizeFormula(block),district:neutralizeFormula(district),numDemo,soilType,irrigation,numRows,rowSpacing,plantSpacing,compHybrid1:neutralizeFormula(comp1),compDos1:noComp?"":compDos1,compHybrid2:noComp?"":neutralizeFormula(comp2),compDos2:noComp?"":document.getElementById("f_compdos2").value,crystalYield:showYieldObs?crystalYield:"",compYield1:(noComp||!showYieldObs)?"0":compYield1,compYield2:(noComp||!showYieldObs)?"0":compYield2,observations:showYieldObs?neutralizeFormula(observations):"",remarks:neutralizeFormula(document.getElementById("f_remarks").value)});
   try {
     const res=await fetch(API_URL,{method:"POST",body:params});
     const data=await res.json();
@@ -1121,9 +1141,9 @@ document.getElementById("updateYieldBtn").addEventListener("click", async () => 
   const cropStatus=document.getElementById("u_cropstatus").value;
   const isDamage=cropStatus==="Damage";
   const noComp = document.getElementById("updateYieldFields").style.display==="none";
-  const crystalYield=document.getElementById("u_crystalyield").value;
-  const compYield1=document.getElementById("u_compyield1").value;
-  const compYield2=document.getElementById("u_compyield2").value;
+  const crystalYield=cleanYieldValue(document.getElementById("u_crystalyield").value);
+  const compYield1=cleanYieldValue(document.getElementById("u_compyield1").value);
+  const compYield2=cleanYieldValue(document.getElementById("u_compyield2").value);
   const observations=document.getElementById("u_observations").value.trim();
   const remarks=document.getElementById("u_remarks").value.trim();
   const damageReason=document.getElementById("u_damagereason").value;
@@ -1302,6 +1322,28 @@ function isDemoQtyTooHigh(value){
   return v>=10;
 }
 
+// Date sanity — blocks year typos (1930, 2029, 2620 ...). Sowing dates must fall between 1 Jan 2025
+// and 30 days from today (a planned sowing a few days ahead is still fine).
+function dateLimits(){
+  const d=new Date(); d.setDate(d.getDate()+30);
+  const pad=n=>String(n).padStart(2,"0");
+  return {min:"2025-01-01", max:`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`};
+}
+function isDateSane(v){
+  if(!v) return true; // empty is handled by the required-field check
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(v)) return false;
+  const lim=dateLimits();
+  return v>=lim.min && v<=lim.max;
+}
+function applyDateLimits(){
+  const lim=dateLimits();
+  ["f_dos","f_compdos1","f_compdos2"].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el){ el.min=lim.min; el.max=lim.max; }
+  });
+}
+applyDateLimits();
+
 function isYieldTooHigh(value, crop){
   if(crop==="Fodder") return false;
   const v=parseFloat(value);
@@ -1440,7 +1482,8 @@ function renderZoneChart(rows){
 
 function renderCrystalOnlyPerformance(rows){
   const container=document.getElementById("crystalOnlyTable");
-  const noCompRows=rows.filter(r=>r.CompHybrid1==="No Competition"&&r.CrystalYield&&r.CrystalYield!=="0"&&r.CropStatus!=="Damage");
+  setFodderNote("fodderNoteCrystalOnly", rows);
+  const noCompRows=yieldScopeRows(rows).filter(r=>r.CompHybrid1==="No Competition"&&r.CrystalYield&&r.CrystalYield!=="0"&&r.CropStatus!=="Damage");
   if(!noCompRows.length){container.innerHTML='<div class="empty"><div class="icon">🌾</div>No Crystal-only entries with yield yet</div>';return;}
   const byHybrid={};
   noCompRows.forEach(r=>{
@@ -1463,10 +1506,24 @@ function renderAnalysisModeBar(){
   bar.querySelectorAll(".chip").forEach(c=>c.addEventListener("click",()=>{analysisMode=c.dataset.mode;renderAnalysisChart(getFilteredRows());}));
 }
 
+// Fodder yield is bulk green biomass (100-800 Q/Acre) — it cannot share an axis/average with grain crops
+// (10-50 Q/Acre). In the "All Crops" view it is left out of yield averages; pick the Fodder chip to see it.
+function yieldScopeRows(rows){
+  return activeCropFilter==="ALL" ? rows.filter(r=>r.Crop!=="Fodder") : rows;
+}
+function setFodderNote(id, rows){
+  const el=document.getElementById(id); if(!el) return;
+  const has=activeCropFilter==="ALL" && rows.some(r=>r.Crop==="Fodder");
+  el.style.display=has?"block":"none";
+}
 function renderAnalysisChart(rows){
   const field = analysisMode; // "SoilType" or "IrrigationType"
-  const withYield=rows.filter(r=>r.CrystalYield&&r.CrystalYield!=="0"&&r.CropStatus!=="Damage");
-  const hybrids=[...new Set(withYield.map(r=>normHybrid(r.DemoHybrid)).filter(Boolean))].sort().slice(0,8);
+  setFodderNote("fodderNoteAnalysis", rows);
+  const withYield=yieldScopeRows(rows).filter(r=>r.CrystalYield&&r.CrystalYield!=="0"&&r.CropStatus!=="Damage");
+  // Top 8 hybrids by number of yield entries (most-demoed first), not alphabetical
+  const hybCount={};
+  withYield.forEach(r=>{const h=normHybrid(r.DemoHybrid); if(h) hybCount[h]=(hybCount[h]||0)+1;});
+  const hybrids=Object.keys(hybCount).sort((x,y)=>hybCount[y]-hybCount[x]||x.localeCompare(y)).slice(0,8);
   const groups=[...new Set(withYield.map(r=>r[field]).filter(Boolean))].sort();
   const avg=(arr)=>arr.length?arr.reduce((s,v)=>s+v,0)/arr.length:0;
   const groupColors=["#2E8B57","#D9A441","#7A5230","#3E7C9E","#C0392B","#8E6C8A"];
