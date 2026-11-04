@@ -281,6 +281,9 @@ td{padding:10px 8px;border-bottom:1px solid var(--line);white-space:nowrap;}
     <div style="font-size:11px;color:var(--gray);margin-top:4px;">Mobile number works best — starts showing after 5 digits. Full name also works but must match exactly.</div>
   </div>
   <div id="myStatsSummary"></div>
+  <div id="myFarmerFilterWrap" style="display:none;margin:0 0 10px;">
+    <input id="my_farmer_search" placeholder="Search a farmer by name / village / mobile (optional)" autocomplete="off">
+  </div>
   <div id="myDataResults"></div>
   <div id="topFOLeaderboard" style="margin-top:16px;"></div>
 </section>
@@ -946,7 +949,11 @@ async function fetchAllData(force=false) {
 }
 
 /* ====== MY DATA ====== */
-document.getElementById("my_name").addEventListener("input", debounce(()=>filterMyData(),250));
+document.getElementById("my_name").addEventListener("input", debounce(()=>{ myShowCount=MY_PAGE_SIZE; filterMyData(); },250));
+document.getElementById("my_farmer_search").addEventListener("input", debounce(()=>{
+  myFarmerQuery=document.getElementById("my_farmer_search").value.trim().toUpperCase().replace(/\s+/g," ");
+  myShowCount=MY_PAGE_SIZE; filterMyData();
+},250));
 
 function debounce(fn,delay){ let t; return(...args)=>{clearTimeout(t);t=setTimeout(()=>fn(...args),delay);}; }
 
@@ -1033,8 +1040,13 @@ function renderTopFOLeaderboard(){
   });
 }
 
+// My Data list state: FOs can have 100s of customers, so the list is filtered (Pending / Resolved / All)
+// and paged ("Show more") instead of being cut off at a fixed number.
+let myStatusFilter="PENDING", myShowCount=50, myFarmerQuery="";
+const MY_PAGE_SIZE=50;
 function filterMyData() {
   const summaryEl=document.getElementById("myStatsSummary");
+  document.getElementById("myFarmerFilterWrap").style.display="none";
   const container=document.getElementById("myDataResults");
   const query=document.getElementById("my_name").value.trim().toUpperCase();
   const leaderboardEl=document.getElementById("topFOLeaderboard");
@@ -1080,11 +1092,30 @@ function filterMyData() {
       <div class="quality-row"><span class="quality-label">${crop}</span><span style="font-size:12.5px;color:var(--ink);">${d.entries} entries · ${d.demos} demos · ${d.yieldFilled} yield filled</span></div>
     `).join("")}` : ``}
   `;
-  const MY_DISPLAY_LIMIT=50;
-  const mineSorted=mine.sort((a,b)=>new Date(b.Timestamp)-new Date(a.Timestamp));
-  const myNote = mineSorted.length>MY_DISPLAY_LIMIT
-    ? `<div style="font-size:11.5px;color:var(--gray);margin:8px 0;">Showing latest ${MY_DISPLAY_LIMIT} of ${mineSorted.length} entries</div>` : "";
-  container.innerHTML=myNote+mineSorted.slice(0,MY_DISPLAY_LIMIT).map(r=>`
+  document.getElementById("myFarmerFilterWrap").style.display="block";
+  const mineSorted=mine.sort((a,b)=>new Date(b.Timestamp)-new Date(a.Timestamp)); // newest first
+  const pendingList=mineSorted.filter(r=>!isYieldRecorded(r));
+  const resolvedList=mineSorted.filter(r=>isYieldRecorded(r));
+  let list = myStatusFilter==="PENDING" ? pendingList : myStatusFilter==="RESOLVED" ? resolvedList : mineSorted;
+  if (myFarmerQuery) {
+    const fq=myFarmerQuery, fqDigits=fq.replace(/\D/g,"");
+    list=list.filter(r=>
+      (r.FarmerName||"").toString().toUpperCase().includes(fq) ||
+      (r.Village||"").toString().toUpperCase().includes(fq) ||
+      (fqDigits.length>=3 && (r.FarmerMobile||"").toString().replace(/\D/g,"").includes(fqDigits)));
+  }
+  const shown=list.slice(0,myShowCount);
+  const chipDefs=[["PENDING",`Yield Pending (${pendingList.length})`],["RESOLVED",`Resolved (${resolvedList.length})`],["ALL",`All (${mineSorted.length})`]];
+  const chipBar=`<div class="filter-bar" style="margin:4px 0 6px;">${chipDefs.map(([k,l])=>`<div class="chip ${k===myStatusFilter?'active':''}" data-mystatus="${k}">${l}</div>`).join("")}</div>`;
+  const countNote=list.length?`<div style="font-size:11.5px;color:var(--gray);margin:2px 0 8px;">Showing ${shown.length} of ${list.length}${myFarmerQuery?' (matching your search)':''}</div>`:"";
+  const emptyMsg = !list.length
+    ? `<div class="card empty"><div class="icon">${myStatusFilter==="PENDING"&&!myFarmerQuery?"🎉":"📭"}</div>${
+        myFarmerQuery ? "No farmer matches your search" :
+        myStatusFilter==="PENDING" ? "No pending yield — all your entries are resolved" :
+        myStatusFilter==="RESOLVED" ? "No resolved entries yet" : "No entries"}</div>` : "";
+  const moreBtn = list.length>shown.length
+    ? `<button class="btn btn-outline" id="myShowMoreBtn" style="margin:6px 0 12px;">Show ${Math.min(MY_PAGE_SIZE,list.length-shown.length)} more (${list.length-shown.length} left)</button>` : "";
+  container.innerHTML=chipBar+countNote+emptyMsg+shown.map(r=>`
     <div class="card" style="padding:14px;">
       <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:8px;">
         <div>
@@ -1094,7 +1125,12 @@ function filterMyData() {
         <span class="badge ${isYieldRecorded(r)?'done':'pending'}">${isYieldRecorded(r)?'Resolved':'Yield Pending'}</span>
       </div>
       <button class="btn btn-outline" style="margin-top:8px;padding:10px;" onclick="openUpdateYield(${r._rowIndex})">Update Yield / Observation</button>
-    </div>`).join("");
+    </div>`).join("")+moreBtn;
+  container.querySelectorAll("[data-mystatus]").forEach(chip=>chip.addEventListener("click",()=>{
+    myStatusFilter=chip.dataset.mystatus; myShowCount=MY_PAGE_SIZE; filterMyData();
+  }));
+  const moreEl=document.getElementById("myShowMoreBtn");
+  if(moreEl) moreEl.addEventListener("click",()=>{ myShowCount+=MY_PAGE_SIZE; filterMyData(); });
 }
 
 function applyDamageVisibility(){
